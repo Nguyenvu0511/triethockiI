@@ -1,0 +1,3502 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giết Học</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 0 20px 50px rgba(31, 38, 135, 0.08);
+        }
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            z-index: -1;
+            animation: float 10s infinite ease-in-out;
+        }
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(20px, -20px); }
+        }
+    </style>
+</head>
+<body class="min-h-screen relative flex flex-col items-center pb-40 overflow-x-hidden text-gray-800 bg-[#f8fafc] selection:bg-pink-300 selection:text-white">
+
+    <!-- DYNAMIC BACKGROUND -->
+    <div class="fixed inset-0 z-0 overflow-hidden pointer-events-none">
+        <div class="absolute inset-0 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50"></div>
+        <div class="orb w-[500px] h-[500px] bg-purple-300/30 top-[-10%] left-[-10%] animate-pulse"></div>
+        <div class="orb w-[600px] h-[600px] bg-sky-300/30 bottom-[-10%] right-[-10%]" style="animation-duration: 12s"></div>
+        <div class="orb w-[300px] h-[300px] bg-pink-300/20 top-[40%] left-[60%]" style="animation-duration: 8s"></div>
+    </div>
+
+    <!-- HEADER -->
+    <div class="sticky top-4 z-40 w-full max-w-2xl mb-8 px-4 transition-all duration-300">
+        <div class="glass-panel rounded-[2rem] p-3 flex flex-col md:flex-row md:justify-between md:items-center gap-4 relative overflow-hidden ring-1 ring-white/50">
+            <!-- Shine -->
+            <div class="absolute inset-0 bg-gradient-to-br from-white/40 to-transparent pointer-events-none"></div>
+
+            <div class="flex items-center gap-3 pl-2 relative z-10">
+                <div class="p-2.5 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full shadow-md text-white ring-4 ring-white/50">
+                    <i data-lucide="brain" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold text-gray-800 tracking-wide">Giết Học</h1>
+                    <p class="text-[10px] text-indigo-500 font-bold uppercase tracking-wider">Liquid Light OS</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-2 overflow-x-auto pb-1 md:pb-0 relative z-10 no-scrollbar">
+                <input type="file" id="fileInput" class="hidden" accept=".json">
+                
+                <button onclick="document.getElementById('fileInput').click()" class="flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold text-gray-600 shadow-sm transition-all hover:scale-105 active:scale-95 bg-white border border-gray-100 hover:bg-gray-50 hover:text-indigo-600 hover:shadow-md">
+                    <i data-lucide="upload" class="w-3.5 h-3.5"></i>
+                    <span>Nhập</span>
+                </button>
+
+                <button onclick="exportData()" class="flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold text-gray-600 shadow-sm transition-all hover:scale-105 active:scale-95 bg-white border border-gray-100 hover:bg-gray-50 hover:text-blue-600 hover:shadow-md">
+                    <i data-lucide="download" class="w-3.5 h-3.5"></i>
+                    <span>Xuất</span>
+                </button>
+
+                <button onclick="resetApp()" class="flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold text-red-500 shadow-sm transition-all hover:scale-105 active:scale-95 bg-white border border-red-100 hover:bg-red-50 hover:shadow-md">
+                    <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                    <span>Reset</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Stats Pill -->
+        <div class="absolute -bottom-5 left-1/2 transform -translate-x-1/2 z-50">
+             <div class="flex items-center gap-4 bg-white/90 backdrop-blur-md px-6 py-1.5 rounded-full shadow-[0_4px_20px_rgba(0,0,0,0.08)] border border-white text-xs font-bold text-gray-600">
+                <div class="flex items-center gap-1.5">
+                  <span class="text-indigo-500">CARD</span>
+                  <span id="progress-text" class="font-mono text-gray-800">1 / 10</span>
+                </div>
+                <div class="w-px h-3 bg-gray-300"></div>
+                <div class="flex items-center gap-3">
+                  <span class="text-green-600 flex items-center gap-1"><i data-lucide="check-circle" class="w-3.5 h-3.5"></i> <span id="score-correct">0</span></span>
+                  <span class="text-gray-400 flex items-center gap-1"><i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> <span id="score-wrong">0</span></span>
+                </div>
+             </div>
+        </div>
+    </div>
+
+    <!-- MAIN CARD -->
+    <div class="w-full max-w-2xl px-4 relative z-10 mt-6">
+        <div class="glass-card rounded-[2.5rem] overflow-hidden min-h-[500px] flex flex-col transition-all duration-300 relative group ring-1 ring-white/60">
+            
+            <!-- Inner Glow -->
+            <div class="absolute inset-0 shadow-[inset_0_0_60px_rgba(255,255,255,0.5)] pointer-events-none rounded-[2.5rem]"></div>
+
+            <!-- Topic Header -->
+            <div class="bg-gradient-to-r from-white/40 to-transparent px-8 py-5 border-b border-white/50 flex justify-between items-center relative">
+                <span id="card-category" class="text-indigo-600 font-bold text-xs uppercase tracking-[0.2em] flex items-center gap-2 drop-shadow-sm bg-white/50 px-3 py-1 rounded-full border border-white/60">
+                    <i data-lucide="award" class="w-4 h-4"></i>
+                    Thế giới quan
+                </span>
+            </div>
+
+            <!-- Question Section -->
+            <div class="p-8 flex-grow relative">
+                <h2 id="card-question" class="text-xl md:text-2xl font-bold text-slate-800 mb-8 leading-snug drop-shadow-sm">
+                    Câu hỏi đang tải...
+                </h2>
+
+                <div id="options-container" class="space-y-4">
+                    <!-- Options will be injected here -->
+                </div>
+            </div>
+
+            <!-- Explanation Section (Hidden by default) -->
+            <div id="explanation-section" class="hidden bg-white/50 backdrop-blur-xl border-t border-white/60 p-8 animate-in fade-in slide-in-from-bottom-8 duration-500 relative">
+                <div id="result-header" class="mb-6 flex items-center gap-3 font-black text-xl tracking-tight">
+                    <!-- Result text injected here -->
+                </div>
+
+                <div class="space-y-4 text-gray-700 leading-relaxed mb-4">
+                    <div class="bg-white p-5 rounded-2xl border border-green-100 shadow-[0_4px_15px_rgba(74,222,128,0.1)] relative overflow-hidden group hover:shadow-md transition-all">
+                        <div class="absolute top-0 left-0 w-1 h-full bg-green-400"></div>
+                        <p class="font-bold text-green-600 mb-2 uppercase text-[10px] tracking-widest flex items-center gap-2">
+                            <i data-lucide="brain" class="w-3 h-3"></i> Giải thích chi tiết
+                        </p>
+                        <p id="explanation-correct" class="text-base font-normal">...</p>
+                    </div>
+                    <div class="bg-white p-5 rounded-2xl border border-red-100 shadow-[0_4px_15px_rgba(248,113,113,0.1)] relative overflow-hidden group hover:shadow-md transition-all">
+                        <div class="absolute top-0 left-0 w-1 h-full bg-red-400"></div>
+                        <p class="font-bold text-red-600 mb-2 uppercase text-[10px] tracking-widest flex items-center gap-2">
+                            <i data-lucide="x-circle" class="w-3 h-3"></i> Tại sao sai?
+                        </p>
+                        <p id="explanation-incorrect" class="whitespace-pre-line text-sm text-gray-600 font-normal">...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- RATING BAR (Sticky Bottom) -->
+    <div id="rating-bar" class="hidden fixed bottom-6 z-50 w-full px-4 flex justify-center animate-in slide-in-from-bottom-10 fade-in duration-500">
+        <div class="backdrop-blur-xl bg-white/90 border border-white/80 shadow-[0_10px_40px_rgba(0,0,0,0.1)] rounded-[2rem] p-3 flex flex-col gap-3 max-w-md w-full ring-1 ring-black/5">
+            <p class="text-center text-gray-400 text-[10px] font-bold uppercase tracking-[0.3em]">Mức độ ghi nhớ</p>
+            <div class="grid grid-cols-4 gap-3">
+                <button onclick="handleRating('again')" class="group flex flex-col items-center justify-center p-3 rounded-2xl bg-white border border-gray-100 hover:bg-red-50 hover:border-red-200 hover:shadow-md transition-all duration-300">
+                    <i data-lucide="rotate-ccw" class="w-5 h-5 mb-1 text-red-400 group-hover:scale-110 transition-transform"></i>
+                    <span class="font-bold text-xs text-red-600">Quên</span>
+                    <span class="text-[9px] opacity-60 font-mono text-gray-400">&lt;1m</span>
+                </button>
+                <button onclick="handleRating('hard')" class="group flex flex-col items-center justify-center p-3 rounded-2xl bg-white border border-gray-100 hover:bg-orange-50 hover:border-orange-200 hover:shadow-md transition-all duration-300">
+                    <i data-lucide="frown" class="w-5 h-5 mb-1 text-orange-400 group-hover:scale-110 transition-transform"></i>
+                    <span class="font-bold text-xs text-orange-600">Khó</span>
+                    <span class="text-[9px] opacity-60 font-mono text-gray-400">6m</span>
+                </button>
+                <button onclick="handleRating('good')" class="group flex flex-col items-center justify-center p-3 rounded-2xl bg-white border border-gray-100 hover:bg-green-50 hover:border-green-200 hover:shadow-md transition-all duration-300">
+                    <i data-lucide="smile" class="w-5 h-5 mb-1 text-green-500 group-hover:scale-110 transition-transform"></i>
+                    <span class="font-bold text-xs text-green-600">Tốt</span>
+                    <span class="text-[9px] opacity-60 font-mono text-gray-400">10m</span>
+                </button>
+                <button onclick="handleRating('easy')" class="group flex flex-col items-center justify-center p-3 rounded-2xl bg-white border border-gray-100 hover:bg-blue-50 hover:border-blue-200 hover:shadow-md transition-all duration-300">
+                    <i data-lucide="zap" class="w-5 h-5 mb-1 text-blue-500 group-hover:scale-110 transition-transform"></i>
+                    <span class="font-bold text-xs text-blue-600">Dễ</span>
+                    <span class="text-[9px] opacity-60 font-mono text-gray-400">4d</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-8 text-center text-gray-400 text-xs font-medium relative z-10">
+        Design by Atsuki Nguyễn
+    </div>
+
+    <!-- LOGIC SCRIPT -->
+    <script>
+        // Dữ liệu ban đầu
+        const INITIAL_DECK = [
+            {
+      "id": 1,
+      "category": "Nhập môn Triết học",
+      "question": "Thế giới quan là gì?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Là thế giới quan sát được"
+        },
+        {
+          "id": "B",
+          "text": "Là hệ thống quan điểm của con người về thế giới"
+        },
+        {
+          "id": "C",
+          "text": "Là khả năng nhận thức thế giới của con người"
+        },
+        {
+          "id": "D",
+          "text": "Là sự hiểu biết thế giới"
+        }
+      ],
+      "correctId": "B",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án B. Thế giới quan là hệ thống quan điểm chung nhất về thế giới và vị trí của con người trong thế giới đó.",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là B (Là hệ thống quan điểm của con người về thế giới). Thế giới quan là hệ thống quan điểm chung nhất về thế giới và vị trí của con người trong thế giới đó. A sai vì đúng một phần nhưng thiếu ý quan trọng nên chưa phải đáp án chuẩn. C sai vì đúng một phần nhưng thiếu ý quan trọng nên chưa phải đáp án chuẩn. D sai vì đúng một phần nhưng thiếu ý quan trọng nên chưa phải đáp án chuẩn. Gợi ý thêm: Các phương án còn lại không phản ánh đầy đủ định nghĩa triết học về thế giới quan."
+      }
+    },
+    {
+      "id": 2,
+      "category": "Nhập môn Triết học",
+      "question": "Triết học ra đời trong điều kiện nào?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Xã hội phân chia thành giai cấp"
+        },
+        {
+          "id": "B",
+          "text": "Xuất hiện tầng lớp lao động trí óc."
+        },
+        {
+          "id": "C",
+          "text": "Tư duy của con người đạt trình độ tư duy khái quát cao, xã hội phân chia thành giai cấp và xuất hiện tầng lớp lao động trí óc"
+        },
+        {
+          "id": "D",
+          "text": "Xuất hiện giai cấp tư sản"
+        }
+      ],
+      "correctId": "C",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án C. Triết học ra đời cần 2 nguồn gốc: Nguồn gốc nhận thức (tư duy trừu tượng) và Nguồn gốc xã hội (phân công lao động, phân chia giai cấp).",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là C (Tư duy của con người đạt trình độ tư duy khái quát cao, xã hội phân chia thành giai cấp và xuất hiện tầng lớp lao động trí óc). Triết học ra đời cần 2 nguồn gốc: Nguồn gốc nhận thức (tư duy trừu tượng) và Nguồn gốc xã hội (phân công lao động, phân chia giai cấp). A sai vì đúng một phần nhưng thiếu ý quan trọng nên chưa phải đáp án chuẩn. B sai vì đúng một phần nhưng thiếu ý quan trọng nên chưa phải đáp án chuẩn. D sai vì đúng một phần nhưng thiếu ý quan trọng nên chưa phải đáp án chuẩn. Gợi ý thêm: Các phương án A và B chỉ là điều kiện cần nhưng chưa đủ."
+      }
+    },
+    {
+      "id": 3,
+      "category": "Triết học Mác - Lênin",
+      "question": "Các bộ phận lý luận cơ bản cấu thành chủ nghĩa Mác-Lênin:",
+      "options": [
+        {
+          "id": "A",
+          "text": "Triết học, Nghệ thuật, Chính trị"
+        },
+        {
+          "id": "B",
+          "text": "Triết học, Chính trị, Tôn giáo"
+        },
+        {
+          "id": "C",
+          "text": "Triết học Mác-Lênin; Kinh tế chính trị học Mác-Lênin; Chủ nghĩa xã hội khoa học"
+        },
+        {
+          "id": "D",
+          "text": "Cả A và B"
+        }
+      ],
+      "correctId": "C",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án C. Ba bộ phận cấu thành là: Triết học, Kinh tế chính trị và CNXH khoa học.",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là C (Triết học Mác-Lênin; Kinh tế chính trị học Mác-Lênin; Chủ nghĩa xã hội khoa học). Ba bộ phận cấu thành là: Triết học, Kinh tế chính trị và CNXH khoa học. A sai vì đúng một phần nhưng thiếu ý quan trọng nên chưa phải đáp án chuẩn. B sai vì đúng một phần nhưng thiếu ý quan trọng nên chưa phải đáp án chuẩn. D sai vì không phải tổ hợp này; đáp án đúng là C. Gợi ý thêm: Sai về các thành phần cấu tạo."
+      }
+    },
+    {
+      "id": 4,
+      "category": "Triết học Mác - Lênin",
+      "question": "Những cống hiến của Lênin đối với triết học Mác - Ăngghen",
+      "options": [
+        {
+          "id": "A",
+          "text": "Phê phán, khắc phục và chống lại những quan điểm sai lầm xuất hiện trong thời đại đế quốc chủ nghĩa"
+        },
+        {
+          "id": "B",
+          "text": "Hiện thực hóa lý luận chủ nghĩa Mác bằng sự thắng lợi của Cách mạng tháng 10 Nga."
+        },
+        {
+          "id": "C",
+          "text": "Bổ sung và hoàn chỉnh về mặt lý luận và thực tiễn những vấn đề như lý luận về cách mạng vô sản..."
+        },
+        {
+          "id": "D",
+          "text": "Cả A, B, C"
+        }
+      ],
+      "correctId": "D",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án D. Lênin đã bảo vệ và phát triển toàn diện chủ nghĩa Mác trong điều kiện lịch sử mới.",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là D (Cả A, B, C). Lênin đã bảo vệ và phát triển toàn diện chủ nghĩa Mác trong điều kiện lịch sử mới. A sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). B sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). C sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác)."
+      }
+    },
+    {
+      "id": 5,
+      "category": "Chủ nghĩa Duy vật Biện chứng",
+      "question": "Theo Ăngghen, hình thức vận động đặc trưng của con người và xã hội loài người là hình thức?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Vận động cơ giới"
+        },
+        {
+          "id": "B",
+          "text": "Vận động vật lý"
+        },
+        {
+          "id": "C",
+          "text": "Vận động xã hội"
+        },
+        {
+          "id": "D",
+          "text": "Vận động sinh vật"
+        }
+      ],
+      "correctId": "C",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án C. Vận động xã hội là hình thức vận động cao nhất, gắn liền với hoạt động của con người.",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là C (Vận động xã hội). Vận động xã hội là hình thức vận động cao nhất, gắn liền với hoạt động của con người. A sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). B sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). D sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). Gợi ý thêm: Các hình thức vận động khác thấp hơn vận động xã hội."
+      }
+    },
+    {
+      "id": 6,
+      "category": "Chủ nghĩa Duy vật Biện chứng",
+      "question": "Hình thức nào là hình thức vận động đa dạng, phức tạp nhất trong thế giới vật chất?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Vận động xã hội"
+        },
+        {
+          "id": "B",
+          "text": "Các phản ứng hạt nhân."
+        },
+        {
+          "id": "C",
+          "text": "Sự tiến hóa các loài."
+        },
+        {
+          "id": "D",
+          "text": "Cả ba đáp án trên."
+        }
+      ],
+      "correctId": "A",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án A. Vận động xã hội bao hàm các hình thức vận động thấp hơn nên nó phức tạp nhất.",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là A (Vận động xã hội). Vận động xã hội bao hàm các hình thức vận động thấp hơn nên nó phức tạp nhất. B sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). C sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). D sai vì không phải tổ hợp này; đáp án đúng là A."
+      }
+    },
+    {
+      "id": 7,
+      "category": "Nhập môn Triết học",
+      "question": "Hãy sắp xếp theo trình tự xuất hiện từ sớm nhất đến muộn nhất các hình thức thế giới quan sau:",
+      "options": [
+        {
+          "id": "A",
+          "text": "Triết học – Tôn giáo – Thần thoại"
+        },
+        {
+          "id": "B",
+          "text": "Thần thoại – Tôn giáo – Triết học"
+        },
+        {
+          "id": "C",
+          "text": "Thần thoại – Triết học – Tôn giáo"
+        },
+        {
+          "id": "D",
+          "text": "Tôn giáo – Triết học – Thần thoại"
+        }
+      ],
+      "correctId": "B",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án B. Lịch sử phát triển thế giới quan đi từ Thần thoại (nguyên thủy) -> Tôn giáo -> Triết học.",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là B (Thần thoại – Tôn giáo – Triết học). Lịch sử phát triển thế giới quan đi từ Thần thoại (nguyên thủy) -> Tôn giáo -> Triết học. A sai vì đảo lộn trình tự; thứ tự đúng theo đáp án B. C sai vì đảo lộn trình tự; thứ tự đúng theo đáp án B. D sai vì đảo lộn trình tự; thứ tự đúng theo đáp án B. Gợi ý thêm: Sai trình tự lịch sử."
+      }
+    },
+    {
+      "id": 8,
+      "category": "Nhập môn Triết học",
+      "question": "Cơ sở chủ yếu của thế giới quan tôn giáo là gì?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Giáo lý"
+        },
+        {
+          "id": "B",
+          "text": "Lòng tin"
+        },
+        {
+          "id": "C",
+          "text": "Lý trí"
+        },
+        {
+          "id": "D",
+          "text": "Tất cả đáp án trên"
+        }
+      ],
+      "correctId": "B",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án B. Đặc trưng của tôn giáo là niềm tin (hư ảo) vào các lực lượng siêu nhiên.",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là B (Lòng tin). Đặc trưng của tôn giáo là niềm tin (hư ảo) vào các lực lượng siêu nhiên. A sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). C sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). D sai vì không phải tổ hợp này; đáp án đúng là B. Gợi ý thêm: Triết học mới dựa trên lý trí."
+      }
+    },
+    {
+      "id": 9,
+      "category": "Phép biện chứng",
+      "question": "Trong lịch sử triết học, phép biện chứng đã trải qua những hình thức phát triển nào?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Phép biện chứng tự phát, phép biện chứng duy tâm, phép biện chứng duy vật"
+        },
+        {
+          "id": "B",
+          "text": "Phép biện chứng duy tâm, phép biện chứng tự phát"
+        },
+        {
+          "id": "C",
+          "text": "Phép biện chứng tự phát và phép biện chứng tự giác"
+        },
+        {
+          "id": "D",
+          "text": "Cả B và C"
+        }
+      ],
+      "correctId": "A",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án A. Ba hình thức: Cổ đại (tự phát) -> Cổ điển Đức (duy tâm) -> Mác-Lênin (duy vật).",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là A (Phép biện chứng tự phát, phép biện chứng duy tâm, phép biện chứng duy vật). Ba hình thức: Cổ đại (tự phát) -> Cổ điển Đức (duy tâm) -> Mác-Lênin (duy vật). B sai vì đây là lập trường duy tâm, trái với đáp án A. C sai vì đúng một phần nhưng thiếu ý quan trọng nên chưa phải đáp án chuẩn. D sai vì không phải tổ hợp này; đáp án đúng là A. Gợi ý thêm: Thiếu hoặc sai hình thức."
+      }
+    },
+    {
+      "id": 10,
+      "category": "Chủ nghĩa Duy vật Lịch sử",
+      "question": "Chọn đáp án đúng nhất. Chủ nghĩa duy vật lịch sử?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Là sự vận dụng quan điểm của chủ nghĩa duy vật biện chứng vào giải quyết các vấn đề của xã hội, lịch sử loài người"
+        },
+        {
+          "id": "B",
+          "text": "Là những học thuyết nghiên cứu sự hình thành và phát triển của chủ nghĩa duy vật"
+        },
+        {
+          "id": "C",
+          "text": "Là sự vận dụng các quan điểm, phương pháp của khoa học lịch sử vào nghiên cứu các vấn đề triết học"
+        },
+        {
+          "id": "D",
+          "text": "Là sự vận dụng quan điểm của chủ nghĩa duy vật vào nghiên cứu các vấn đề xã hội, lịch sử loài người"
+        }
+      ],
+      "correctId": "A",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án A. CNDV Lịch sử là hệ quả của việc áp dụng CNDV Biện chứng vào nghiên cứu xã hội.",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là A (Là sự vận dụng quan điểm của chủ nghĩa duy vật biện chứng vào giải quyết các vấn đề của xã hội, lịch sử loài người). CNDV Lịch sử là hệ quả của việc áp dụng CNDV Biện chứng vào nghiên cứu xã hội. B sai vì chưa đầy đủ/không chuẩn nhất so với đáp án A. C sai vì chưa đầy đủ/không chuẩn nhất so với đáp án A. D sai vì chưa đầy đủ/không chuẩn nhất so với đáp án A."
+      }
+    },
+    {
+      "id": 11,
+      "category": "Phép biện chứng",
+      "question": "Câu ca dao: “Một cây làm chẳng nên non / Ba cây chụm lại thành hòn núi cao”. Thể hiện nội dung quy luật nào của phép biện chứng duy vật?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Quy luật từ những thay đổi về lượng dẫn đến những thay đổi về chất và ngược lại"
+        },
+        {
+          "id": "B",
+          "text": "Quy luật thống nhất và đấu tranh của các mặt đối lập"
+        },
+        {
+          "id": "C",
+          "text": "Quy luật phủ định của phủ định"
+        },
+        {
+          "id": "D",
+          "text": "Cả B và C"
+        }
+      ],
+      "correctId": "A",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án A. Sự tích lũy về lượng (1 cây -> 3 cây) dẫn đến sự thay đổi về chất (non -> núi cao).",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là A (Quy luật từ những thay đổi về lượng dẫn đến những thay đổi về chất và ngược lại). Sự tích lũy về lượng (1 cây -> 3 cây) dẫn đến sự thay đổi về chất (non -> núi cao). B sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). C sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). D sai vì không phải tổ hợp này; đáp án đúng là A. Gợi ý thêm: Không liên quan đến mâu thuẫn hay phủ định."
+      }
+    },
+    {
+      "id": 12,
+      "category": "Phép biện chứng",
+      "question": "Quan điểm nào đòi hỏi trong nhận thức sự vật, cần phải đặt nó trong một không gian, thời gian, bối cảnh nhất định mà sự vật đó tồn tại?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Quan điểm toàn diện"
+        },
+        {
+          "id": "B",
+          "text": "Quan điểm phát triển"
+        },
+        {
+          "id": "C",
+          "text": "Quan điểm lịch sử- cụ thể"
+        },
+        {
+          "id": "D",
+          "text": "Quan điểm duy vật"
+        }
+      ],
+      "correctId": "C",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án C. Quan điểm lịch sử - cụ thể yêu cầu xem xét sự vật gắn liền với điều kiện hoàn cảnh cụ thể.",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là C (Quan điểm lịch sử- cụ thể). Quan điểm lịch sử - cụ thể yêu cầu xem xét sự vật gắn liền với điều kiện hoàn cảnh cụ thể. A sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). B sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). D sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). Gợi ý thêm: Quan điểm toàn diện nhấn mạnh nhiều mặt, quan điểm phát triển nhấn mạnh xu hướng đi lên."
+      }
+    },
+    {
+      "id": 13,
+      "category": "Phép biện chứng",
+      "question": "“Muốn thực sự hiểu được sự vật cần phải nhìn bao quát và nghiên cứu tất cả các mặt, tất cả các mối liên hệ...” Quan điểm trên thể hiện quan điểm nào?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Quan điểm khách quan"
+        },
+        {
+          "id": "B",
+          "text": "Quan điểm toàn diện"
+        },
+        {
+          "id": "C",
+          "text": "Quan điểm lịch sử - cụ thể"
+        },
+        {
+          "id": "D",
+          "text": "Quan điểm phát triển"
+        }
+      ],
+      "correctId": "B",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án B. Quan điểm toàn diện yêu cầu xem xét tất cả các mặt, các mối liên hệ.",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là B (Quan điểm toàn diện). Quan điểm toàn diện yêu cầu xem xét tất cả các mặt, các mối liên hệ. A sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). C sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). D sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác)."
+      }
+    },
+    {
+      "id": 14,
+      "category": "Phép biện chứng",
+      "question": "Theo quy luật phủ định của phủ định, khuynh hướng của phát triển là:",
+      "options": [
+        {
+          "id": "A",
+          "text": "Đi lên theo hướng từ thấp đến cao, từ chưa hoàn thiện đến hoàn thiện hơn và có tính kế thừa"
+        },
+        {
+          "id": "B",
+          "text": "Phát triển theo hướng từ thấp đến cao... và do tinh thần thế giới quyết định"
+        },
+        {
+          "id": "C",
+          "text": "Vận động đa dạng, có thể thụt lùi so với cái ban đầu"
+        },
+        {
+          "id": "D",
+          "text": "Đứng im, hoặc vận động đa dạng, có thể thụt lùi"
+        }
+      ],
+      "correctId": "A",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án A. Phủ định của phủ định vạch ra khuynh hướng phát triển theo đường xoắn ốc đi lên.",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là A (Đi lên theo hướng từ thấp đến cao, từ chưa hoàn thiện đến hoàn thiện hơn và có tính kế thừa). Phủ định của phủ định vạch ra khuynh hướng phát triển theo đường xoắn ốc đi lên. B sai vì đúng một phần nhưng thiếu ý quan trọng nên chưa phải đáp án chuẩn. C sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). D sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác)."
+      }
+    },
+    {
+      "id": 15,
+      "category": "Lý luận nhận thức",
+      "question": "Các bộ phận cấu thành thực tiễn?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Hoạt động vật chất – cảm tính, mang tính lịch sử – xã hội"
+        },
+        {
+          "id": "B",
+          "text": "Hoạt động sản xuất vật chất, hoạt động chính trị xã hội"
+        },
+        {
+          "id": "C",
+          "text": "Hoạt động sản xuất vật chất, hoạt động chính trị xã hội, hoạt động thực nghiệm khoa học"
+        },
+        {
+          "id": "D",
+          "text": "Hoạt động vật chất và hoạt động tinh thần"
+        }
+      ],
+      "correctId": "C",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án C. Đây là 3 hình thức cơ bản của thực tiễn.",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là C (Hoạt động sản xuất vật chất, hoạt động chính trị xã hội, hoạt động thực nghiệm khoa học). Đây là 3 hình thức cơ bản của thực tiễn. A sai vì đúng một phần nhưng thiếu ý quan trọng nên chưa phải đáp án chuẩn. B sai vì gần đúng nhưng diễn đạt chưa chính xác/không đúng phạm vi câu hỏi. D sai vì đúng một phần nhưng thiếu ý quan trọng nên chưa phải đáp án chuẩn. Gợi ý thêm: Thiếu các hình thức khác."
+      }
+    },
+    {
+      "id": 16,
+      "category": "Chủ nghĩa Duy vật Lịch sử",
+      "question": "Theo quan điểm duy vật lịch sử, để giải thích đúng đắn các hiện tượng xã hội, cần xuất phát từ:",
+      "options": [
+        {
+          "id": "A",
+          "text": "Nền sản xuất vật chất của xã hội"
+        },
+        {
+          "id": "B",
+          "text": "Quan điểm chính trị của giai cấp nắm quyền lực nhà nước"
+        },
+        {
+          "id": "C",
+          "text": "Truyền thống văn hóa của xã hội"
+        },
+        {
+          "id": "D",
+          "text": "Ý chí của mọi thành viên trong cộng đồng xã hội"
+        }
+      ],
+      "correctId": "A",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án A. Sản xuất vật chất là cơ sở của sự tồn tại và phát triển xã hội.",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là A (Nền sản xuất vật chất của xã hội). Sản xuất vật chất là cơ sở của sự tồn tại và phát triển xã hội. B sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). C sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). D sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). Gợi ý thêm: Các yếu tố kia thuộc kiến trúc thượng tầng hoặc ý thức xã hội, bị quy định bởi sản xuất vật chất."
+      }
+    },
+    {
+      "id": 17,
+      "category": "Chủ nghĩa Duy vật Lịch sử",
+      "question": "Khái niệm “phương thức sản xuất” dùng để chỉ:",
+      "options": [
+        {
+          "id": "A",
+          "text": "Cách thức tiến hành và quá trình sản xuất ra của cải vật chất trong một giai đoạn lịch sử nhất định."
+        },
+        {
+          "id": "B",
+          "text": "Quá trình sản xuất ra của cải vật chất trong một giai đoạn lịch sử nhất định."
+        },
+        {
+          "id": "C",
+          "text": "Cơ chế vận hành kinh tế trong các điều kiện cụ thể của xã hội."
+        },
+        {
+          "id": "D",
+          "text": "Quá trình sản xuất ra của cải vật chất với một cơ chế kinh tế nhất định."
+        }
+      ],
+      "correctId": "A",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án A. PTSX là sự thống nhất giữa Lực lượng sản xuất và Quan hệ sản xuất, là cách thức con người làm ra của cải.",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là A (Cách thức tiến hành và quá trình sản xuất ra của cải vật chất trong một giai đoạn lịch sử nhất định.). PTSX là sự thống nhất giữa Lực lượng sản xuất và Quan hệ sản xuất, là cách thức con người làm ra của cải. B sai vì gần đúng nhưng diễn đạt chưa chính xác/không đúng phạm vi câu hỏi. C sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). D sai vì đúng một phần nhưng thiếu ý quan trọng nên chưa phải đáp án chuẩn."
+      }
+    },
+    {
+      "id": 18,
+      "category": "Chủ nghĩa Duy vật Lịch sử",
+      "question": "Trong mối quan hệ giữa tồn tại xã hội và ý thức xã hội thì:",
+      "options": [
+        {
+          "id": "A",
+          "text": "Xét đến cùng, tồn tại xã hội quyết định ý thức xã hội."
+        },
+        {
+          "id": "B",
+          "text": "Xét đến cùng, ý thức xã hội quyết định tồn tại xã hội."
+        },
+        {
+          "id": "C",
+          "text": "Tồn tại trong mối quan hệ phụ thuộc vào nhau, không cái nào quyết định cái nào."
+        },
+        {
+          "id": "D",
+          "text": "Tồn tại song song, không phụ thuộc nhau"
+        }
+      ],
+      "correctId": "A",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án A. Đây là nguyên lý cơ bản của CNDV Lịch sử: Vật chất quyết định ý thức (trong lĩnh vực xã hội).",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là A (Xét đến cùng, tồn tại xã hội quyết định ý thức xã hội.). Đây là nguyên lý cơ bản của CNDV Lịch sử: Vật chất quyết định ý thức (trong lĩnh vực xã hội). B sai vì gần đúng nhưng diễn đạt chưa chính xác/không đúng phạm vi câu hỏi. C sai vì đúng một phần nhưng thiếu ý quan trọng nên chưa phải đáp án chuẩn. D sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). Gợi ý thêm: Các phương án khác là duy tâm hoặc nhị nguyên luận."
+      }
+    },
+    {
+      "id": 19,
+      "category": "Triết học về Con người",
+      "question": "Quan niệm của triết học Mác về con người:",
+      "options": [
+        {
+          "id": "A",
+          "text": "Con người là một thực thể thống nhất giữa mặt sinh học với mặt xã hội"
+        },
+        {
+          "id": "B",
+          "text": "Trong tính hiện thực của nó bản chất con người là sự tổng hòa những quan hệ xã hội"
+        },
+        {
+          "id": "C",
+          "text": "Con người là vừa là chủ thể vừa là sản phẩm của lịch sử"
+        },
+        {
+          "id": "D",
+          "text": "Cả A, B và C"
+        }
+      ],
+      "correctId": "D",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án D. Chủ nghĩa Mác xem xét con người toàn diện trên cả phương diện tự nhiên, xã hội và lịch sử.",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là D (Cả A, B và C). Chủ nghĩa Mác xem xét con người toàn diện trên cả phương diện tự nhiên, xã hội và lịch sử. A sai vì đúng một phần nhưng thiếu ý quan trọng nên chưa phải đáp án chuẩn. B sai vì đúng một phần nhưng thiếu ý quan trọng nên chưa phải đáp án chuẩn. C sai vì đúng một phần nhưng thiếu ý quan trọng nên chưa phải đáp án chuẩn."
+      }
+    },
+    {
+      "id": 20,
+      "category": "Chủ nghĩa Duy vật Lịch sử",
+      "question": "Yếu tố nào được Mác dự báo sẽ trở thành lực lượng sản xuất trực tiếp?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Khoa học"
+        },
+        {
+          "id": "B",
+          "text": "Đối tượng lao động"
+        },
+        {
+          "id": "C",
+          "text": "Công cụ lao động"
+        },
+        {
+          "id": "D",
+          "text": "Nhà xưởng, kho chứa, bến bãi"
+        }
+      ],
+      "correctId": "A",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án A. Trong thời đại ngày nay, khoa học công nghệ đã trở thành lực lượng sản xuất trực tiếp.",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là A (Khoa học). Trong thời đại ngày nay, khoa học công nghệ đã trở thành lực lượng sản xuất trực tiếp. B sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). C sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). D sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác)."
+      }
+    },
+    {
+      "id": 21,
+      "category": "Nhập môn Triết học",
+      "question": "Cấp độ phát triển cao nhất của thế giới quan là:",
+      "options": [
+        {
+          "id": "A",
+          "text": "Thế giới quan Thần thoại"
+        },
+        {
+          "id": "B",
+          "text": "Thế giới quan Tôn giáo"
+        },
+        {
+          "id": "C",
+          "text": "Thế giới quan Duy Vật Biện chứng"
+        },
+        {
+          "id": "D",
+          "text": "Thế giới quan Kinh nghiệm"
+        }
+      ],
+      "correctId": "C",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án C. TGQ Duy vật biện chứng là định cao vì nó dựa trên khoa học và phản ánh đúng đắn thế giới.",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là C (Thế giới quan Duy Vật Biện chứng). TGQ Duy vật biện chứng là định cao vì nó dựa trên khoa học và phản ánh đúng đắn thế giới. A sai vì đúng một phần nhưng thiếu ý quan trọng nên chưa phải đáp án chuẩn. B sai vì đúng một phần nhưng thiếu ý quan trọng nên chưa phải đáp án chuẩn. D sai vì đúng một phần nhưng thiếu ý quan trọng nên chưa phải đáp án chuẩn. Gợi ý thêm: Các hình thức khác mang tính ngây thơ, hư ảo hoặc cảm tính."
+      }
+    },
+    {
+      "id": 22,
+      "category": "Chủ nghĩa Duy vật Biện chứng",
+      "question": "Khái niệm trung tâm mà Lênin sử dụng để định nghĩa về vật chất là khái niệm nào?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Vận động."
+        },
+        {
+          "id": "B",
+          "text": "Thực tại khách quan."
+        },
+        {
+          "id": "C",
+          "text": "Cảm giác"
+        },
+        {
+          "id": "D",
+          "text": "Phản ánh"
+        }
+      ],
+      "correctId": "B",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án B. Vật chất là một phạm trù triết học dùng để chỉ 'thực tại khách quan'.",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là B (Thực tại khách quan.). Vật chất là một phạm trù triết học dùng để chỉ 'thực tại khách quan'. A sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). C sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). D sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác)."
+      }
+    },
+    {
+      "id": 23,
+      "category": "Nhập môn Triết học",
+      "question": "Các hình thức thế giới quan cơ bản là:",
+      "options": [
+        {
+          "id": "A",
+          "text": "Thần thoại, triết học"
+        },
+        {
+          "id": "B",
+          "text": "Thần thoại, tôn giáo"
+        },
+        {
+          "id": "C",
+          "text": "Triết học, tôn giáo"
+        },
+        {
+          "id": "D",
+          "text": "Thần thoại, tôn giáo, triết học"
+        }
+      ],
+      "correctId": "D",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án D. Đây là 3 hình thức cơ bản trong lịch sử nhân loại.",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là D (Thần thoại, tôn giáo, triết học). Đây là 3 hình thức cơ bản trong lịch sử nhân loại. A sai vì đúng một phần nhưng thiếu ý quan trọng nên chưa phải đáp án chuẩn. B sai vì đúng một phần nhưng thiếu ý quan trọng nên chưa phải đáp án chuẩn. C sai vì đúng một phần nhưng thiếu ý quan trọng nên chưa phải đáp án chuẩn. Gợi ý thêm: Thiếu các thành phần."
+      }
+    },
+    {
+      "id": 24,
+      "category": "Lịch sử Triết học",
+      "question": "Khẳng định nào sau đây là đúng về Hêghen:",
+      "options": [
+        {
+          "id": "A",
+          "text": "Phép biện chứng của Hêghen là phép biện chứng duy vật"
+        },
+        {
+          "id": "B",
+          "text": "Phép biện chứng của Hêghen là phép biện chứng tự phát"
+        },
+        {
+          "id": "C",
+          "text": "Phép biện chứng của Hêghen là phép biện chứng duy tâm khách quan"
+        },
+        {
+          "id": "D",
+          "text": "Phép biện chứng của Hêghen là phép biện chứng tiên nghiệm chủ quan"
+        }
+      ],
+      "correctId": "C",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án C. Hêghen là nhà triết học duy tâm khách quan vĩ đại, người xây dựng phép biện chứng nhưng trên lập trường duy tâm.",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là C (Phép biện chứng của Hêghen là phép biện chứng duy tâm khách quan). Hêghen là nhà triết học duy tâm khách quan vĩ đại, người xây dựng phép biện chứng nhưng trên lập trường duy tâm. A sai vì đúng một phần nhưng thiếu ý quan trọng nên chưa phải đáp án chuẩn. B sai vì đúng một phần nhưng thiếu ý quan trọng nên chưa phải đáp án chuẩn. D sai vì đúng một phần nhưng thiếu ý quan trọng nên chưa phải đáp án chuẩn."
+      }
+    },
+    {
+      "id": 25,
+      "category": "Chủ nghĩa Duy vật Lịch sử",
+      "question": "Theo CNDV Lịch sử: Khái niệm “cách mạng xã hội” dùng để chỉ:",
+      "options": [
+        {
+          "id": "A",
+          "text": "Sự tiến bộ, tiến hoá mọi lĩnh vực trong một xã hội nhất định."
+        },
+        {
+          "id": "B",
+          "text": "Sự thay thế chế độ xã hội này bằng một chế độ xã hội khác."
+        },
+        {
+          "id": "C",
+          "text": "Sự thay thế thể chế kinh tế này bằng một thể chế kinh tế khác."
+        },
+        {
+          "id": "D",
+          "text": "Sự thay thế hình thái kinh tế – xã hội này bằng hình thái kinh tế – xã hội khác cao hơn."
+        }
+      ],
+      "correctId": "D",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án D. Cách mạng xã hội là bước chuyển biến chất lượng từ hình thái KT-XH thấp lên cao hơn.",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là D (Sự thay thế hình thái kinh tế – xã hội này bằng hình thái kinh tế – xã hội khác cao hơn.). Cách mạng xã hội là bước chuyển biến chất lượng từ hình thái KT-XH thấp lên cao hơn. A sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). B sai vì đúng một phần nhưng thiếu ý quan trọng nên chưa phải đáp án chuẩn. C sai vì đúng một phần nhưng thiếu ý quan trọng nên chưa phải đáp án chuẩn. Gợi ý thêm: Chưa phản ánh đầy đủ tính chất thay đổi hình thái KT-XH."
+      }
+    },
+    {
+      "id": 26,
+      "category": "Nhập môn Triết học",
+      "question": "Vai trò của Triết học Mác - Lênin là:",
+      "options": [
+        {
+          "id": "A",
+          "text": "Giải thích cấu trúc của thế giới"
+        },
+        {
+          "id": "B",
+          "text": "Xây dựng phương pháp luận cho các khoa học"
+        },
+        {
+          "id": "C",
+          "text": "Thế giới quan, phương pháp luận khoa học và cách mạng cho con người trong nhận thức và thực tiễn"
+        },
+        {
+          "id": "D",
+          "text": "Hướng tới việc cải tạo thế giới"
+        }
+      ],
+      "correctId": "C",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án C. Đây là vai trò kép quan trọng nhất: vừa soi đường (TGQ) vừa chỉ lối (PPL).",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là C (Thế giới quan, phương pháp luận khoa học và cách mạng cho con người trong nhận thức và thực tiễn). Đây là vai trò kép quan trọng nhất: vừa soi đường (TGQ) vừa chỉ lối (PPL). A sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). B sai vì đúng một phần nhưng thiếu ý quan trọng nên chưa phải đáp án chuẩn. D sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác)."
+      }
+    },
+    {
+      "id": 27,
+      "category": "Triết học Mác - Lênin",
+      "question": "Thực chất của cuộc cách mạng trong triết học do C. Mác và Ph. Ăngghen thực hiện là:",
+      "options": [
+        {
+          "id": "A",
+          "text": "Kế thừa có phê phán những giá trị tư tưởng của nhân loại..."
+        },
+        {
+          "id": "B",
+          "text": "Xác định mối quan hệ biện chứng giữa triết học và các ngành khoa học cụ thể"
+        },
+        {
+          "id": "C",
+          "text": "Thống nhất giữa lý luận và thực tiễn; khẳng định tính giai cấp và tính đảng của triết học"
+        },
+        {
+          "id": "D",
+          "text": "Xây dựng triết học trở thành công cụ cải tạo thế giới"
+        }
+      ],
+      "correctId": "C",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án C. Đây là bước ngoặt quan trọng, làm cho triết học trở thành vũ khí tinh thần của giai cấp vô sản.",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là C (Thống nhất giữa lý luận và thực tiễn; khẳng định tính giai cấp và tính đảng của triết học). Đây là bước ngoặt quan trọng, làm cho triết học trở thành vũ khí tinh thần của giai cấp vô sản. A sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). B sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). D sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác)."
+      }
+    },
+    {
+      "id": 28,
+      "category": "Lý luận nhận thức",
+      "question": "Theo quan điểm của triết học Mác, con đường biện chứng của nhận thức chân lý là:",
+      "options": [
+        {
+          "id": "A",
+          "text": "Từ thực tiễn – tư duy lý luận – trực quan sinh động"
+        },
+        {
+          "id": "B",
+          "text": "Từ tư duy lý luận – thực tiễn – trực quan sinh động"
+        },
+        {
+          "id": "C",
+          "text": "Từ trực quan sinh động – tư duy trừu tượng – thực tiễn"
+        },
+        {
+          "id": "D",
+          "text": "Từ trực quan sinh động – thực tiễn – tư duy trừu tượng"
+        }
+      ],
+      "correctId": "C",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án C. Theo Lênin: Từ trực quan sinh động đến tư duy trừu tượng, và từ tư duy trừu tượng đến thực tiễn.",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là C (Từ trực quan sinh động – tư duy trừu tượng – thực tiễn). Theo Lênin: Từ trực quan sinh động đến tư duy trừu tượng, và từ tư duy trừu tượng đến thực tiễn. A sai vì gần đúng nhưng diễn đạt chưa chính xác/không đúng phạm vi câu hỏi. B sai vì gần đúng nhưng diễn đạt chưa chính xác/không đúng phạm vi câu hỏi. D sai vì gần đúng nhưng diễn đạt chưa chính xác/không đúng phạm vi câu hỏi. Gợi ý thêm: Sai trật tự nhận thức."
+      }
+    },
+    {
+      "id": 29,
+      "category": "Lịch sử Triết học",
+      "question": "Đặc điểm chủ yếu của phép biện chứng trong triết học Hy Lạp cổ đại là gì?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Tính chất duy tâm"
+        },
+        {
+          "id": "B",
+          "text": "Tính chất duy vật triệt để"
+        },
+        {
+          "id": "C",
+          "text": "Tính chất tự phát, ngây thơ"
+        },
+        {
+          "id": "D",
+          "text": "Tính chất khoa học"
+        }
+      ],
+      "correctId": "C",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án C. Thời kỳ này nhận thức con người chưa phát triển sâu, chủ yếu dựa trên quan sát trực kiến.",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là C (Tính chất tự phát, ngây thơ). Thời kỳ này nhận thức con người chưa phát triển sâu, chủ yếu dựa trên quan sát trực kiến. A sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). B sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). D sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác)."
+      }
+    },
+    {
+      "id": 30,
+      "category": "Chủ nghĩa Duy vật Biện chứng",
+      "question": "Nguyên tắc phương pháp luận nào được rút ra từ nghiên cứu mối quan hệ biện chứng giữa vật chất và ý thức?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Nguyên tắc toàn diện"
+        },
+        {
+          "id": "B",
+          "text": "Nguyên tắc lịch sử - cụ thể"
+        },
+        {
+          "id": "C",
+          "text": "Nguyên tắc khách quan"
+        },
+        {
+          "id": "D",
+          "text": "Nguyên tắc phát triển"
+        }
+      ],
+      "correctId": "C",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án C. Vì vật chất quyết định ý thức, nên phải tôn trọng khách quan, xuất phát từ thực tế khách quan.",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là C (Nguyên tắc khách quan). Vì vật chất quyết định ý thức, nên phải tôn trọng khách quan, xuất phát từ thực tế khách quan. A sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). B sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). D sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). Gợi ý thêm: Các nguyên tắc khác rút ra từ phép biện chứng (mối liên hệ, phát triển)."
+      }
+    },
+    {
+      "id": 31,
+      "category": "Chủ nghĩa Duy vật Biện chứng",
+      "question": "Tồn tại khách quan được hiểu là gì?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Là sự tồn tại phụ thuộc vào ý thức của con người"
+        },
+        {
+          "id": "B",
+          "text": "Là sự tồn tại do một thế lực siêu nhiên chi phối"
+        },
+        {
+          "id": "C",
+          "text": "Là sự tồn tại không phụ thuộc vào ý thức của con người"
+        },
+        {
+          "id": "D",
+          "text": "Tồn tại không thể nhận thức được"
+        }
+      ],
+      "correctId": "C",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án C. Đặc tính cơ bản của vật chất là tồn tại khách quan, độc lập với ý thức.",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là C (Là sự tồn tại không phụ thuộc vào ý thức của con người). Đặc tính cơ bản của vật chất là tồn tại khách quan, độc lập với ý thức. A sai vì gần đúng nhưng diễn đạt chưa chính xác/không đúng phạm vi câu hỏi. B sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). D sai vì đúng một phần nhưng thiếu ý quan trọng nên chưa phải đáp án chuẩn. Gợi ý thêm: Các ý kiến còn lại là duy tâm hoặc bất khả tri."
+      }
+    },
+    {
+      "id": 32,
+      "category": "Chủ nghĩa Xã hội Khoa học",
+      "question": "Chủ trương xây dựng Nhà nước pháp quyền của dân, do dân và vì dân là chủ trương của ai?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Mác"
+        },
+        {
+          "id": "B",
+          "text": "Ăngghen"
+        },
+        {
+          "id": "C",
+          "text": "Lênin"
+        },
+        {
+          "id": "D",
+          "text": "Hồ Chí Minh"
+        }
+      ],
+      "correctId": "D",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án D. Đây là tư tưởng đặc sắc của Chủ tịch Hồ Chí Minh.",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là D (Hồ Chí Minh). Đây là tư tưởng đặc sắc của Chủ tịch Hồ Chí Minh. A sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). B sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). C sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác)."
+      }
+    },
+    {
+      "id": 33,
+      "category": "Chủ nghĩa Duy vật Biện chứng",
+      "question": "Theo Ph.Ănghen, tính thống nhất vật chất của thế giới được chứng minh bởi:",
+      "options": [
+        {
+          "id": "A",
+          "text": "Thực tiễn lịch sử"
+        },
+        {
+          "id": "B",
+          "text": "Thực tiễn cách mạng"
+        },
+        {
+          "id": "C",
+          "text": "Sự phát triển lâu dài của khoa học."
+        },
+        {
+          "id": "D",
+          "text": "Sự phát triển lâu dài và khó khăn của triết học và khoa học tự nhiên"
+        }
+      ],
+      "correctId": "D",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án D. Cần sự kiểm chứng của cả khoa học tự nhiên và sự khái quát của triết học.",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là D (Sự phát triển lâu dài và khó khăn của triết học và khoa học tự nhiên). Cần sự kiểm chứng của cả khoa học tự nhiên và sự khái quát của triết học. A sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). B sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). C sai vì đúng một phần nhưng thiếu ý quan trọng nên chưa phải đáp án chuẩn."
+      }
+    },
+    {
+      "id": 34,
+      "category": "Phép biện chứng",
+      "question": "Chọn đáp án đúng nhất. Mâu thuẫn biện chứng là:",
+      "options": [
+        {
+          "id": "A",
+          "text": "Sự thống nhất giữa các sự vật, hiện tượng khác nhau"
+        },
+        {
+          "id": "B",
+          "text": "Sự thống nhất và đấu tranh giữa các mặt đối lập trong cùng một sự vật hiện tượng..."
+        },
+        {
+          "id": "C",
+          "text": "Sự đấu tranh giữa các mặt đối lập trong cùng một sự vật hiện tượng"
+        },
+        {
+          "id": "D",
+          "text": "Sự tác động theo khuynh hướng bài trừ nhau của các mặt đối lập"
+        }
+      ],
+      "correctId": "B",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án B. Mâu thuẫn bao gồm cả hai mặt: thống nhất và đấu tranh.",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là B (Sự thống nhất và đấu tranh giữa các mặt đối lập trong cùng một sự vật hiện tượng...). Mâu thuẫn bao gồm cả hai mặt: thống nhất và đấu tranh. A sai vì chưa đầy đủ/không chuẩn nhất so với đáp án B. C sai vì chưa đầy đủ/không chuẩn nhất so với đáp án B. D sai vì chưa đầy đủ/không chuẩn nhất so với đáp án B. Gợi ý thêm: Thiếu một trong hai mặt."
+      }
+    },
+    {
+      "id": 35,
+      "category": "Chủ nghĩa Duy vật Lịch sử",
+      "question": "Đặc trưng của hình thái ý thức xã hội triết học trong xã hội có giai cấp là gì?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Mang tính giai cấp."
+        },
+        {
+          "id": "B",
+          "text": "Không có tính giai cấp."
+        },
+        {
+          "id": "C",
+          "text": "Là một phần của kiến trúc thượng tầng"
+        },
+        {
+          "id": "D",
+          "text": "Thế giới quan của giai cấp cầm quyền"
+        }
+      ],
+      "correctId": "A",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án A. Trong xã hội có giai cấp, triết học luôn mang tính đảng (tính giai cấp).",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là A (Mang tính giai cấp.). Trong xã hội có giai cấp, triết học luôn mang tính đảng (tính giai cấp). B sai vì đúng một phần nhưng thiếu ý quan trọng nên chưa phải đáp án chuẩn. C sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). D sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác)."
+      }
+    },
+    {
+      "id": 36,
+      "category": "Triết học Mác - Lênin",
+      "question": "Hãy cho biết phương pháp của Mác là phương pháp nào?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Phương pháp biện chứng tự phát"
+        },
+        {
+          "id": "B",
+          "text": "Phương pháp biện chứng duy vật"
+        },
+        {
+          "id": "C",
+          "text": "Phương pháp biện chứng duy tâm"
+        },
+        {
+          "id": "D",
+          "text": "Phương pháp siêu hình"
+        }
+      ],
+      "correctId": "B",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án B. Mác đã cải tạo phép biện chứng của Hêghen (duy tâm) thành phép biện chứng duy vật.",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là B (Phương pháp biện chứng duy vật). Mác đã cải tạo phép biện chứng của Hêghen (duy tâm) thành phép biện chứng duy vật. A sai vì đúng một phần nhưng thiếu ý quan trọng nên chưa phải đáp án chuẩn. C sai vì đây là lập trường duy tâm, trái với đáp án B. D sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác)."
+      }
+    },
+    {
+      "id": 37,
+      "category": "Nhập môn Triết học",
+      "question": "Chọn nhận định đúng về triết học?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Không phải mọi triết học đều là khoa học, nhưng mỗi học thuyết triết học đều có những đóng góp riêng..."
+        },
+        {
+          "id": "B",
+          "text": "Chỉ có triết học Mác- Lênin mới có đóng góp cho sự phát triển của triết học"
+        },
+        {
+          "id": "C",
+          "text": "Tất cả triết học đều là khoa học"
+        },
+        {
+          "id": "D",
+          "text": "Tất cả đáp án trên đều sai"
+        }
+      ],
+      "correctId": "A",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án A. Triết học Mác là triết học khoa học, nhưng các trường phái khác vẫn có giá trị lịch sử nhất định.",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là A (Không phải mọi triết học đều là khoa học, nhưng mỗi học thuyết triết học đều có những đóng góp riêng...). Triết học Mác là triết học khoa học, nhưng các trường phái khác vẫn có giá trị lịch sử nhất định. B sai vì đúng một phần nhưng thiếu ý quan trọng nên chưa phải đáp án chuẩn. C sai vì không phải tổ hợp này; đáp án đúng là A. D sai vì không phải tổ hợp này; đáp án đúng là A."
+      }
+    },
+    {
+      "id": 38,
+      "category": "Nhập môn Triết học",
+      "question": "Tính giai cấp của triết học được thể hiện như thế nào?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Là sự phân chia giai cấp giữa các nhà triết học"
+        },
+        {
+          "id": "B",
+          "text": "Mỗi tư tưởng triết học đều thuộc về và phục vụ cho một tầng lớp nhất định trong xã hội"
+        },
+        {
+          "id": "C",
+          "text": "Quan điểm về giai cấp của các nhà triết học"
+        },
+        {
+          "id": "D",
+          "text": "Tất cả đáp án trên"
+        }
+      ],
+      "correctId": "B",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án B. Triết học không trung lập, nó phản ánh lợi ích của giai cấp mà nhà triết học đại diện.",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là B (Mỗi tư tưởng triết học đều thuộc về và phục vụ cho một tầng lớp nhất định trong xã hội). Triết học không trung lập, nó phản ánh lợi ích của giai cấp mà nhà triết học đại diện. A sai vì đúng một phần nhưng thiếu ý quan trọng nên chưa phải đáp án chuẩn. C sai vì đúng một phần nhưng thiếu ý quan trọng nên chưa phải đáp án chuẩn. D sai vì không phải tổ hợp này; đáp án đúng là B."
+      }
+    },
+    {
+      "id": 39,
+      "category": "Phép biện chứng",
+      "question": "Quy luật nào yêu cầu trong phát triển cần phải “kế thừa”, “chọn lọc”?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Quy luật từ những thay đổi về lượng dẫn đến những thay đổi về chất"
+        },
+        {
+          "id": "B",
+          "text": "Quy luật thống nhất và đấu tranh của các mặt đối lập"
+        },
+        {
+          "id": "C",
+          "text": "Quy luật phủ định của phủ định"
+        },
+        {
+          "id": "D",
+          "text": "Quy luật cung – cầu"
+        }
+      ],
+      "correctId": "C",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án C. Phủ định biện chứng là sự phủ định có tính kế thừa (giữ lại cái tích cực, gạt bỏ cái tiêu cực).",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là C (Quy luật phủ định của phủ định). Phủ định biện chứng là sự phủ định có tính kế thừa (giữ lại cái tích cực, gạt bỏ cái tiêu cực). A sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). B sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). D sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác)."
+      }
+    },
+    {
+      "id": 40,
+      "category": "Nhập môn Triết học",
+      "question": "Quan điểm triết học nào sau đây là quan điểm của Chủ nghĩa Duy vật?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Vật chất có trước, ý thức có sau, vật chất quyết định ý thức"
+        },
+        {
+          "id": "B",
+          "text": "Ý thức có trước, vật chất có sau, ý thức quyết định vật chất"
+        },
+        {
+          "id": "C",
+          "text": "Vật chất và ý thức tồn tại độc lập"
+        },
+        {
+          "id": "D",
+          "text": "Vật chất và ý thức không nằm trong quan hệ sản sinh..."
+        }
+      ],
+      "correctId": "A",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án A. Đây là lập trường cơ bản phân biệt Duy vật và Duy tâm.",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là A (Vật chất có trước, ý thức có sau, vật chất quyết định ý thức). Đây là lập trường cơ bản phân biệt Duy vật và Duy tâm. B sai vì đã đảo ngược quan hệ vật chất–ý thức (đây là quan điểm duy tâm). C sai vì rơi vào nhị nguyên luận; triết học Mác–Lênin khẳng định vật chất quyết định ý thức. D sai vì đúng một phần nhưng thiếu ý quan trọng nên chưa phải đáp án chuẩn. Gợi ý thêm: B là Duy tâm, C là Nhị nguyên."
+      }
+    },
+    {
+      "id": 41,
+      "category": "Phép biện chứng",
+      "question": "Phép biện chứng duy vật là gì? Xác định câu trả lời đúng nhất.",
+      "options": [
+        {
+          "id": "A",
+          "text": "Là khoa học nghiên cứu về sự vận động, phát triển..."
+        },
+        {
+          "id": "B",
+          "text": "Là khoa học nghiên cứu về mối liên hệ phổ biến và về sự phát triển của sự vật hiện tượng..."
+        },
+        {
+          "id": "C",
+          "text": "Là khoa học về những quy luật phổ biến của sự vận động và sự phát triển..."
+        },
+        {
+          "id": "D",
+          "text": "Là khoa học về những quy luật phát triển của xã hội loài người và của tư duy"
+        }
+      ],
+      "correctId": "B",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án B. Hai nguyên lý cơ bản của PB CDV là: Mối liên hệ phổ biến và Sự phát triển.",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là B (Là khoa học nghiên cứu về mối liên hệ phổ biến và về sự phát triển của sự vật hiện tượng...). Hai nguyên lý cơ bản của PB CDV là: Mối liên hệ phổ biến và Sự phát triển. A sai vì chưa đầy đủ/không chuẩn nhất so với đáp án B. C sai vì chưa đầy đủ/không chuẩn nhất so với đáp án B. D sai vì chưa đầy đủ/không chuẩn nhất so với đáp án B."
+      }
+    },
+    {
+      "id": 42,
+      "category": "Phép biện chứng",
+      "question": "Quan điểm sau đây là quan điểm của triết học Mác-Lênin về sự phát triển:",
+      "options": [
+        {
+          "id": "A",
+          "text": "Phát triển là một quá trình tiến lên liên tục trơn tru..."
+        },
+        {
+          "id": "B",
+          "text": "Sự phát triển được thực hiện bởi sự tác động của những thế lực siêu tự nhiên..."
+        },
+        {
+          "id": "C",
+          "text": "Phát triển là một trường hợp đặc biệt của sự vận động... đấu tranh giữa các mặt đối lập..."
+        },
+        {
+          "id": "D",
+          "text": "Tất cả các đáp án trên."
+        }
+      ],
+      "correctId": "C",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án C. Phát triển là sự vận động đi lên, thông qua mâu thuẫn và phủ định.",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là C (Phát triển là một trường hợp đặc biệt của sự vận động... đấu tranh giữa các mặt đối lập...). Phát triển là sự vận động đi lên, thông qua mâu thuẫn và phủ định. A sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). B sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). D sai vì không phải tổ hợp này; đáp án đúng là C. Gợi ý thêm: A là quan điểm siêu hình, B là duy tâm."
+      }
+    },
+    {
+      "id": 43,
+      "category": "Chủ nghĩa Duy vật Biện chứng",
+      "question": "Chọn câu trả lời đúng nhất theo quan điểm triết học Mác- Lênin về vật chất:",
+      "options": [
+        {
+          "id": "A",
+          "text": "Vật chất biểu hiện sự tồn tại của mình thông qua sự nhận thức của con người."
+        },
+        {
+          "id": "B",
+          "text": "Vật chất vận động trong không gian và thời gian và thông qua sự vận động mà biểu hiện sự tồn tại của mình"
+        },
+        {
+          "id": "C",
+          "text": "Vật chất biểu hiện sự tồn tại của mình thông qua sự nhận thức của Thượng đế"
+        },
+        {
+          "id": "D",
+          "text": "Cả A và C"
+        }
+      ],
+      "correctId": "B",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án B. Vận động là phương thức tồn tại của vật chất; Không gian, thời gian là hình thức tồn tại của vật chất.",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là B (Vật chất vận động trong không gian và thời gian và thông qua sự vận động mà biểu hiện sự tồn tại của mình). Vận động là phương thức tồn tại của vật chất; Không gian, thời gian là hình thức tồn tại của vật chất. A sai vì chưa đầy đủ/không chuẩn nhất so với đáp án B. C sai vì chưa đầy đủ/không chuẩn nhất so với đáp án B. D sai vì không phải tổ hợp này; đáp án đúng là B."
+      }
+    },
+    {
+      "id": 44,
+      "category": "Chủ nghĩa Duy vật Lịch sử",
+      "question": "Chính trị, pháp quyền, đạo đức là những yếu tố thuộc phạm trù nào sau đây?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Cơ sở hạ tầng"
+        },
+        {
+          "id": "B",
+          "text": "Quan hệ sản xuất"
+        },
+        {
+          "id": "C",
+          "text": "Lực lượng sản xuất"
+        },
+        {
+          "id": "D",
+          "text": "Kiến trúc thượng tầng"
+        }
+      ],
+      "correctId": "D",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án D. Kiến trúc thượng tầng là toàn bộ những quan điểm chính trị, pháp quyền, đạo đức... và các thiết chế tương ứng.",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là D (Kiến trúc thượng tầng). Kiến trúc thượng tầng là toàn bộ những quan điểm chính trị, pháp quyền, đạo đức... và các thiết chế tương ứng. A sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). B sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). C sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác)."
+      }
+    },
+    {
+      "id": 45,
+      "category": "Chủ nghĩa Duy vật Lịch sử",
+      "question": "Chọn đáp án đúng nhất: Đấu tranh giai cấp giữ vai trò là:",
+      "options": [
+        {
+          "id": "A",
+          "text": "Động lực duy nhất của sự phát triển xã hội"
+        },
+        {
+          "id": "B",
+          "text": "Một trong những phương thức và động lực của sự phát triển xã hội ngày nay."
+        },
+        {
+          "id": "C",
+          "text": "Một trong những nguồn gốc và động lực quan trọng của mọi xã hội."
+        },
+        {
+          "id": "D",
+          "text": "Là một phương thức, động lực của sự tiến bộ, phát triển xã hội trong điều kiện xã hội có sự phân hoá thành đối kháng giai cấp"
+        }
+      ],
+      "correctId": "D",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án D. Đấu tranh giai cấp là động lực phát triển nhưng chỉ trong xã hội có giai cấp đối kháng.",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là D (Là một phương thức, động lực của sự tiến bộ, phát triển xã hội trong điều kiện xã hội có sự phân hoá thành đối kháng giai cấp). Đấu tranh giai cấp là động lực phát triển nhưng chỉ trong xã hội có giai cấp đối kháng. A sai vì chưa đầy đủ/không chuẩn nhất so với đáp án D. B sai vì chưa đầy đủ/không chuẩn nhất so với đáp án D. C sai vì chưa đầy đủ/không chuẩn nhất so với đáp án D."
+      }
+    },
+    {
+      "id": 46,
+      "category": "Lý luận nhận thức",
+      "question": "Hoạt động nào giữ vị trí quan trọng nhất trong các hình thức thực tiễn?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Hoạt động sản xuất vật chất"
+        },
+        {
+          "id": "B",
+          "text": "Hoạt động nghệ thuật sáng tạo"
+        },
+        {
+          "id": "C",
+          "text": "Hoạt động thực nghiệm khoa học"
+        },
+        {
+          "id": "D",
+          "text": "Hoạt động chính trị - xã hội"
+        }
+      ],
+      "correctId": "A",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án A. Sản xuất vật chất là hoạt động cơ bản nhất, quyết định sự tồn tại và các hoạt động khác của con người.",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là A (Hoạt động sản xuất vật chất). Sản xuất vật chất là hoạt động cơ bản nhất, quyết định sự tồn tại và các hoạt động khác của con người. B sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). C sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). D sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác)."
+      }
+    },
+    {
+      "id": 47,
+      "category": "Phép biện chứng",
+      "question": "Trong một điều kiện nhất định, mối liên hệ tất nhiên được hình thành là do nguyên nhân nào gây ra?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Nguyên nhân bên ngoài"
+        },
+        {
+          "id": "B",
+          "text": "Nguyên nhân bên trong"
+        },
+        {
+          "id": "C",
+          "text": "Nguyên nhân bản chất"
+        },
+        {
+          "id": "D",
+          "text": "Nguyên nhân không bản chất"
+        }
+      ],
+      "correctId": "B",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án B. Tất nhiên phát sinh từ bản chất bên trong của sự vật.",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là B (Nguyên nhân bên trong). Tất nhiên phát sinh từ bản chất bên trong của sự vật. A sai vì đúng một phần nhưng thiếu ý quan trọng nên chưa phải đáp án chuẩn. C sai vì đúng một phần nhưng thiếu ý quan trọng nên chưa phải đáp án chuẩn. D sai vì đúng một phần nhưng thiếu ý quan trọng nên chưa phải đáp án chuẩn. Gợi ý thêm: Nguyên nhân bên ngoài thường dẫn đến Ngẫu nhiên."
+      }
+    },
+    {
+      "id": 48,
+      "category": "Phép biện chứng",
+      "question": "Phạm trù triết học chỉ sự biểu hiện ra bên ngoài của bản chất gọi là gì?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Cái đơn nhất"
+        },
+        {
+          "id": "B",
+          "text": "Hiện tượng"
+        },
+        {
+          "id": "C",
+          "text": "Cái riêng"
+        },
+        {
+          "id": "D",
+          "text": "Hình thức"
+        }
+      ],
+      "correctId": "B",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án B. Bản chất là cái bên trong, Hiện tượng là cái biểu hiện ra bên ngoài.",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là B (Hiện tượng). Bản chất là cái bên trong, Hiện tượng là cái biểu hiện ra bên ngoài. A sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). C sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). D sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác)."
+      }
+    },
+    {
+      "id": 49,
+      "category": "Chủ nghĩa Xã hội Khoa học",
+      "question": "Nhà triết gia, chính trị gia nào là người đã “hiện thực hóa” lý luận về hình thái kinh tế - xã hội cộng sản chủ nghĩa?",
+      "options": [
+        {
+          "id": "A",
+          "text": "V.I.Lênin"
+        },
+        {
+          "id": "B",
+          "text": "Hồ Chí Minh"
+        },
+        {
+          "id": "C",
+          "text": "Hugo Chávez"
+        },
+        {
+          "id": "D",
+          "text": "Phidel Castro"
+        }
+      ],
+      "correctId": "A",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án A. Với Cách mạng Tháng Mười Nga, Lênin là người đầu tiên đưa CNXH từ lý thuyết vào thực tế.",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là A (V.I.Lênin). Với Cách mạng Tháng Mười Nga, Lênin là người đầu tiên đưa CNXH từ lý thuyết vào thực tế. B sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). C sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). D sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác)."
+      }
+    },
+    {
+      "id": 50,
+      "category": "Chủ nghĩa Duy vật Biện chứng",
+      "question": "Ph.Ăngghen viết: “[…] đã sáng tạo ra bản thân con người”. Hãy điền vào chỗ trống.",
+      "options": [
+        {
+          "id": "A",
+          "text": "Lao động"
+        },
+        {
+          "id": "B",
+          "text": "Vật chất"
+        },
+        {
+          "id": "C",
+          "text": "Tự nhiên"
+        },
+        {
+          "id": "D",
+          "text": "Sản xuất"
+        }
+      ],
+      "correctId": "A",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án A. Lao động là điều kiện cơ bản đầu tiên của toàn bộ đời sống loài người.",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là A (Lao động). Lao động là điều kiện cơ bản đầu tiên của toàn bộ đời sống loài người. B sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). C sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). D sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác)."
+      }
+    },
+    {
+      "id": 51,
+      "category": "Nhập môn Triết học",
+      "question": "Các trường phái cơ bản của chủ nghĩa duy tâm là:",
+      "options": [
+        {
+          "id": "A",
+          "text": "Chủ nghĩa duy tâm khách quan và chủ nghĩa duy tâm chủ quan"
+        },
+        {
+          "id": "B",
+          "text": "Chủ nghĩa duy tâm hữu thần và chủ nghĩa duy tâm vô thần"
+        },
+        {
+          "id": "C",
+          "text": "Chủ nghĩa duy tâm tích cực và chủ nghĩa duy tâm cực đoan"
+        },
+        {
+          "id": "D",
+          "text": "Chủ nghĩa duy tâm lý tính và chủ nghĩa duy tâm cảm tính"
+        }
+      ],
+      "correctId": "A",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án A. Duy tâm chủ quan (cảm giác của tôi là tất cả) và Duy tâm khách quan (Ý niệm tuyệt đối/Thượng đế).",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là A (Chủ nghĩa duy tâm khách quan và chủ nghĩa duy tâm chủ quan). Duy tâm chủ quan (cảm giác của tôi là tất cả) và Duy tâm khách quan (Ý niệm tuyệt đối/Thượng đế). B sai vì đúng một phần nhưng thiếu ý quan trọng nên chưa phải đáp án chuẩn. C sai vì đúng một phần nhưng thiếu ý quan trọng nên chưa phải đáp án chuẩn. D sai vì đúng một phần nhưng thiếu ý quan trọng nên chưa phải đáp án chuẩn."
+      }
+    },
+    {
+      "id": 52,
+      "category": "Lịch sử Triết học",
+      "question": "Đặc điểm chung của quan niệm về vật chất ở thời cổ đại là gì?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Đồng nhất vật chất nói chung với thế giới tự nhiên"
+        },
+        {
+          "id": "B",
+          "text": "Đồng nhất vật chất nói chung với một vài dạng vật chất cụ thể của nó"
+        },
+        {
+          "id": "C",
+          "text": "Đồng nhất vật chất với khối lượng và xem chúng là khởi nguyên của thế giới."
+        },
+        {
+          "id": "D",
+          "text": "Đồng nhất vật chất với ý thức và xem chúng là khởi nguyên của thế giới."
+        }
+      ],
+      "correctId": "B",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án B. Ví dụ: Thales cho là Nước, Heraclitus cho là Lửa...",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là B (Đồng nhất vật chất nói chung với một vài dạng vật chất cụ thể của nó). Ví dụ: Thales cho là Nước, Heraclitus cho là Lửa... A sai vì đúng một phần nhưng thiếu ý quan trọng nên chưa phải đáp án chuẩn. C sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). D sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác)."
+      }
+    },
+    {
+      "id": 53,
+      "category": "Chủ nghĩa Duy vật Biện chứng",
+      "question": "Theo quan điểm của triết học Mác – Lênin, các dạng cụ thể của vật chất biểu hiện sự tồn tại của mình ở đâu?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Trong không gian và thời gian"
+        },
+        {
+          "id": "B",
+          "text": "Trong sự nhận thức của con người."
+        },
+        {
+          "id": "C",
+          "text": "Trong vũ trụ"
+        },
+        {
+          "id": "D",
+          "text": "Thông qua các ý niệm"
+        }
+      ],
+      "correctId": "A",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án A. Không gian và thời gian là hình thức tồn tại khách quan của vật chất.",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là A (Trong không gian và thời gian). Không gian và thời gian là hình thức tồn tại khách quan của vật chất. B sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). C sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). D sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác)."
+      }
+    },
+    {
+      "id": 54,
+      "category": "Chủ nghĩa Duy vật Lịch sử",
+      "question": "Giữa cơ sở hạ tầng và kiến trúc thượng tầng, yếu tố nào giữ vai trò quyết định?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Cơ sở hạ tầng"
+        },
+        {
+          "id": "B",
+          "text": "Kiến trúc thượng tầng"
+        },
+        {
+          "id": "C",
+          "text": "Không có cái nào quyết định"
+        },
+        {
+          "id": "D",
+          "text": "Tác động lẫn nhau"
+        }
+      ],
+      "correctId": "A",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án A. Kinh tế (CSHT) quyết định Chính trị - Xã hội (KTTT).",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là A (Cơ sở hạ tầng). Kinh tế (CSHT) quyết định Chính trị - Xã hội (KTTT). B sai vì đúng một phần nhưng thiếu ý quan trọng nên chưa phải đáp án chuẩn. C sai vì đúng một phần nhưng thiếu ý quan trọng nên chưa phải đáp án chuẩn. D sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác)."
+      }
+    },
+    {
+      "id": 55,
+      "category": "Nhập môn Triết học",
+      "question": "Những nhà triết học đứng trên lập trường của chủ nghĩa duy vật khẳng định:",
+      "options": [
+        {
+          "id": "A",
+          "text": "Thế giới vật chất do con người tạo ra"
+        },
+        {
+          "id": "B",
+          "text": "Vật chất và giới tự nhiên có trước và quyết định ý thức con người"
+        },
+        {
+          "id": "C",
+          "text": "Thế giới vật chất do ý thức con người tạo ra"
+        },
+        {
+          "id": "D",
+          "text": "Thế giới vật chất do ý thức niệm tuyệt đối tạo thành"
+        }
+      ],
+      "correctId": "B",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án B. Khẳng định tính thứ nhất của vật chất.",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là B (Vật chất và giới tự nhiên có trước và quyết định ý thức con người). Khẳng định tính thứ nhất của vật chất. A sai vì đúng một phần nhưng thiếu ý quan trọng nên chưa phải đáp án chuẩn. C sai vì đúng một phần nhưng thiếu ý quan trọng nên chưa phải đáp án chuẩn. D sai vì đúng một phần nhưng thiếu ý quan trọng nên chưa phải đáp án chuẩn."
+      }
+    },
+    {
+      "id": 56,
+      "category": "Lý luận nhận thức",
+      "question": "Đâu là phương thức phản ánh của nhận thức cảm tính?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Phản ánh trực tiếp khách thể nhận thức thông qua các giác quan"
+        },
+        {
+          "id": "B",
+          "text": "Liên kết các khái niệm để hình thành nên phán đoán về khách thể nhận thức"
+        },
+        {
+          "id": "C",
+          "text": "Phản ánh bản thân các sự vật, hiện tượng trong hiện thực khách quan gián tiếp"
+        },
+        {
+          "id": "D",
+          "text": "Phản ánh bản chất, quy luật của sự vật, hiện tượng"
+        }
+      ],
+      "correctId": "A",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án A. Nhận thức cảm tính (Cảm giác, Tri giác, Biểu tượng) là giai đoạn thấp, phản ánh trực tiếp.",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là A (Phản ánh trực tiếp khách thể nhận thức thông qua các giác quan). Nhận thức cảm tính (Cảm giác, Tri giác, Biểu tượng) là giai đoạn thấp, phản ánh trực tiếp. B sai vì đúng một phần nhưng thiếu ý quan trọng nên chưa phải đáp án chuẩn. C sai vì đúng một phần nhưng thiếu ý quan trọng nên chưa phải đáp án chuẩn. D sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). Gợi ý thêm: Các phương án còn lại thuộc nhận thức lý tính."
+      }
+    },
+    {
+      "id": 57,
+      "category": "Chủ nghĩa Duy vật Lịch sử",
+      "question": "Nguồn gốc kinh tế dẫn đến sự ra đời giai cấp?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Sự phát triển của đời sống vật chất"
+        },
+        {
+          "id": "B",
+          "text": "Sự ra đời của chế độ tư hữu về tư liệu sản xuất"
+        },
+        {
+          "id": "C",
+          "text": "Công cụ lao động bằng đá ra đời"
+        },
+        {
+          "id": "D",
+          "text": "Có phân công lao động xã hội trong khu vực sản xuất vật chất"
+        }
+      ],
+      "correctId": "B",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án B. Tư hữu xuất hiện là nguyên nhân trực tiếp về kinh tế dẫn đến phân chia giai cấp.",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là B (Sự ra đời của chế độ tư hữu về tư liệu sản xuất). Tư hữu xuất hiện là nguyên nhân trực tiếp về kinh tế dẫn đến phân chia giai cấp. A sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). C sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). D sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác)."
+      }
+    },
+    {
+      "id": 58,
+      "category": "Chủ nghĩa Duy vật Biện chứng",
+      "question": "Đặc trưng bản chất nhất của ý thức là:",
+      "options": [
+        {
+          "id": "A",
+          "text": "Phản ánh sáng tạo trên cơ sở thực tiễn"
+        },
+        {
+          "id": "B",
+          "text": "Khả năng tiếp nhận thông tin"
+        },
+        {
+          "id": "C",
+          "text": "Lưu giữ thông tin và xử lý thông tin"
+        },
+        {
+          "id": "D",
+          "text": "Phản ánh thế giới một cách bị động"
+        }
+      ],
+      "correctId": "A",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án A. Ý thức không phải là sự sao chép thụ động (như gương soi) mà là sự phản ánh năng động, sáng tạo.",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là A (Phản ánh sáng tạo trên cơ sở thực tiễn). Ý thức không phải là sự sao chép thụ động (như gương soi) mà là sự phản ánh năng động, sáng tạo. B sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). C sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). D sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác)."
+      }
+    },
+    {
+      "id": 59,
+      "category": "Lịch sử Triết học",
+      "question": "Triết học Mác ra đời vào lúc nào?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Thế kỷ XVII"
+        },
+        {
+          "id": "B",
+          "text": "Thế kỷ XVIII"
+        },
+        {
+          "id": "C",
+          "text": "Thế kỷ XIX"
+        },
+        {
+          "id": "D",
+          "text": "Thế kỷ XX"
+        }
+      ],
+      "correctId": "C",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án C. Vào những năm 40 của thế kỷ XIX.",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là C (Thế kỷ XIX). Vào những năm 40 của thế kỷ XIX. A sai vì đúng một phần nhưng thiếu ý quan trọng nên chưa phải đáp án chuẩn. B sai vì đúng một phần nhưng thiếu ý quan trọng nên chưa phải đáp án chuẩn. D sai vì đúng một phần nhưng thiếu ý quan trọng nên chưa phải đáp án chuẩn."
+      }
+    },
+    {
+      "id": 60,
+      "category": "Triết học Mác - Lênin",
+      "question": "Triết học Mác – Lênin được cấu thành từ những nội dung cơ bản nào?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Mối quan hệ giữa vật chất và ý thức"
+        },
+        {
+          "id": "B",
+          "text": "Chủ nghĩa duy vật biện chứng và chủ nghĩa duy vật lịch sử"
+        },
+        {
+          "id": "C",
+          "text": "Các nguyên lý cơ bản của phép biện chứng duy vật"
+        },
+        {
+          "id": "D",
+          "text": "Các quy luật cơ bản của phép biện chứng duy vật"
+        }
+      ],
+      "correctId": "B",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án B. Đây là 2 trụ cột chính của Triết học Mác - Lênin.",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là B (Chủ nghĩa duy vật biện chứng và chủ nghĩa duy vật lịch sử). Đây là 2 trụ cột chính của Triết học Mác - Lênin. A sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). C sai vì đúng một phần nhưng thiếu ý quan trọng nên chưa phải đáp án chuẩn. D sai vì đúng một phần nhưng thiếu ý quan trọng nên chưa phải đáp án chuẩn."
+      }
+    },
+    {
+      "id": 61,
+      "category": "Lịch sử Triết học",
+      "question": "Chủ nghĩa duy vật siêu hình là hình thức cơ bản của chủ nghĩa duy vật thời kỳ nào?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Thời kỳ Cổ đại"
+        },
+        {
+          "id": "B",
+          "text": "Thời kỳ Trung cổ (thế kỷ XIV)"
+        },
+        {
+          "id": "C",
+          "text": "Thời kỳ Phục hưng, Cận đại"
+        },
+        {
+          "id": "D",
+          "text": "Thời kỳ Hiện đại"
+        }
+      ],
+      "correctId": "C",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án C. Gắn liền với sự phát triển của cơ học cổ điển (thế kỷ XVII - XVIII).",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là C (Thời kỳ Phục hưng, Cận đại). Gắn liền với sự phát triển của cơ học cổ điển (thế kỷ XVII - XVIII). A sai vì đúng một phần nhưng thiếu ý quan trọng nên chưa phải đáp án chuẩn. B sai vì đúng một phần nhưng thiếu ý quan trọng nên chưa phải đáp án chuẩn. D sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác)."
+      }
+    },
+    {
+      "id": 62,
+      "category": "Chủ nghĩa Duy vật Biện chứng",
+      "question": "Trong các yếu tố cấu thành ý thức, nhân tố cơ bản, cốt lõi nhất là:",
+      "options": [
+        {
+          "id": "A",
+          "text": "Tình cảm"
+        },
+        {
+          "id": "B",
+          "text": "Tri thức"
+        },
+        {
+          "id": "C",
+          "text": "Ý chí"
+        },
+        {
+          "id": "D",
+          "text": "Niềm tin"
+        }
+      ],
+      "correctId": "B",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án B. Không có tri thức thì không có ý thức.",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là B (Tri thức). Không có tri thức thì không có ý thức. A sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). C sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). D sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác)."
+      }
+    },
+    {
+      "id": 63,
+      "category": "Lý luận nhận thức",
+      "question": "Vai trò của nhận thức lý tính đối với tư duy?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Giúp tư duy nắm bắt được tiến trình phát triển diễn ra tự nhiên, khách quan"
+        },
+        {
+          "id": "B",
+          "text": "Hỗ trợ tư duy phản ánh đối tượng một cách cục bộ..."
+        },
+        {
+          "id": "C",
+          "text": "Biểu hiện sự biến đổi của tư duy về lượng tương ứng với chất của sự vật."
+        },
+        {
+          "id": "D",
+          "text": "Từ việc phản ánh bản chất, quy luật của khách thể nhận thức, thúc đẩy tư duy hoàn thiện."
+        }
+      ],
+      "correctId": "D",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án D. Nhận thức lý tính (Khái niệm, Phán đoán, Suy luận) giúp đi sâu vào bản chất.",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là D (Từ việc phản ánh bản chất, quy luật của khách thể nhận thức, thúc đẩy tư duy hoàn thiện.). Nhận thức lý tính (Khái niệm, Phán đoán, Suy luận) giúp đi sâu vào bản chất. A sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). B sai vì đúng một phần nhưng thiếu ý quan trọng nên chưa phải đáp án chuẩn. C sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác)."
+      }
+    },
+    {
+      "id": 64,
+      "category": "Chủ nghĩa Duy vật Lịch sử",
+      "question": "Nguồn gốc sâu xa của các cuộc cách mạng xã hội?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Mâu thuẫn giữa lực lượng sản xuất mới và quan hệ sản xuất cũ"
+        },
+        {
+          "id": "B",
+          "text": "Quần chúng lao động bị áp bức với lực lượng thống trị"
+        },
+        {
+          "id": "C",
+          "text": "Giai cấp cầm quyền bị khủng hoảng về đường lối cai trị."
+        },
+        {
+          "id": "D",
+          "text": "Sự phát triển của phương thức sản xuất"
+        }
+      ],
+      "correctId": "A",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án A. Khi QHSX kìm hãm sự phát triển của LLSX thì cách mạng xã hội nổ ra.",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là A (Mâu thuẫn giữa lực lượng sản xuất mới và quan hệ sản xuất cũ). Khi QHSX kìm hãm sự phát triển của LLSX thì cách mạng xã hội nổ ra. B sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). C sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). D sai vì đúng một phần nhưng thiếu ý quan trọng nên chưa phải đáp án chuẩn."
+      }
+    },
+    {
+      "id": 65,
+      "category": "Chủ nghĩa Duy vật Lịch sử",
+      "question": "Trong lực lượng sản xuất nhân tố nào đóng vai trò quan trong nhất?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Cộng cụ lao động"
+        },
+        {
+          "id": "B",
+          "text": "Đối tượng lao động"
+        },
+        {
+          "id": "C",
+          "text": "Người lao động"
+        },
+        {
+          "id": "D",
+          "text": "Tư liệu lao động"
+        }
+      ],
+      "correctId": "C",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án C. Người lao động là chủ thể sáng tạo và sử dụng công cụ.",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là C (Người lao động). Người lao động là chủ thể sáng tạo và sử dụng công cụ. A sai vì đúng một phần nhưng thiếu ý quan trọng nên chưa phải đáp án chuẩn. B sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). D sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác)."
+      }
+    },
+    {
+      "id": 66,
+      "category": "Chủ nghĩa Duy vật Lịch sử",
+      "question": "Cấu trúc cơ bản của hình thái kinh tế - xã hội?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Lực lượng sản xuất, quan hệ sản xuất và kiến trúc thượng tầng."
+        },
+        {
+          "id": "B",
+          "text": "Cơ sở kinh tế, thể chế nhà nước và kiến trúc thượng tầng."
+        },
+        {
+          "id": "C",
+          "text": "Lực lượng sản xuất, cơ sở kinh tế và quan hệ sản xuất."
+        },
+        {
+          "id": "D",
+          "text": "Lực lượng sản xuất, cơ sở kinh tế và kiến trúc thượng tầng"
+        }
+      ],
+      "correctId": "A",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án A. Ba yếu tố cấu thành hình thái KT-XH: LLSX, QHSX (Cơ sở hạ tầng), KTTT.",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là A (Lực lượng sản xuất, quan hệ sản xuất và kiến trúc thượng tầng.). Ba yếu tố cấu thành hình thái KT-XH: LLSX, QHSX (Cơ sở hạ tầng), KTTT. B sai vì đúng một phần nhưng thiếu ý quan trọng nên chưa phải đáp án chuẩn. C sai vì gần đúng nhưng diễn đạt chưa chính xác/không đúng phạm vi câu hỏi. D sai vì gần đúng nhưng diễn đạt chưa chính xác/không đúng phạm vi câu hỏi."
+      }
+    },
+    {
+      "id": 67,
+      "category": "Phép biện chứng",
+      "question": "Khi điều kiện có tính tất yếu thay đổi, mối quan hệ giữa nguyên nhân và kết quả sẽ như thế nào?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Điều kiện hay hoàn cảnh không gây ảnh hưởng kết quả do nguyên nhân gây ra."
+        },
+        {
+          "id": "B",
+          "text": "Điều kiện hay hoàn cảnh thay đổi có thể làm thay đổi kết quả do nguyên nhân gây ra"
+        },
+        {
+          "id": "C",
+          "text": "Thực thể tinh thần ngoài và điều kiện hay hoàn cảnh không gây ảnh hưởng..."
+        },
+        {
+          "id": "D",
+          "text": "Nguyên nhân như thế nào thì kết quả như thế ấy..."
+        }
+      ],
+      "correctId": "B",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án B. Kết quả không chỉ do nguyên nhân sinh ra mà còn chịu ảnh hưởng của điều kiện.",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là B (Điều kiện hay hoàn cảnh thay đổi có thể làm thay đổi kết quả do nguyên nhân gây ra). Kết quả không chỉ do nguyên nhân sinh ra mà còn chịu ảnh hưởng của điều kiện. A sai vì gần đúng nhưng diễn đạt chưa chính xác/không đúng phạm vi câu hỏi. C sai vì đúng một phần nhưng thiếu ý quan trọng nên chưa phải đáp án chuẩn. D sai vì đúng một phần nhưng thiếu ý quan trọng nên chưa phải đáp án chuẩn."
+      }
+    },
+    {
+      "id": 68,
+      "category": "Chủ nghĩa Duy vật Lịch sử",
+      "question": "Lực lượng sáng tạo ra lịch sử, quyết định lịch sử là:",
+      "options": [
+        {
+          "id": "A",
+          "text": "Giai cấp thống trị xã hội."
+        },
+        {
+          "id": "B",
+          "text": "Quần chúng nhân dân lao động."
+        },
+        {
+          "id": "C",
+          "text": "Các vĩ nhân, những cá nhân kiệt xuất."
+        },
+        {
+          "id": "D",
+          "text": "Các lực lượng siêu tự nhiên."
+        }
+      ],
+      "correctId": "B",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án B. Quần chúng nhân dân là người làm nên lịch sử (sáng tạo của cải vật chất, tinh thần và là động lực cách mạng).",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là B (Quần chúng nhân dân lao động.). Quần chúng nhân dân là người làm nên lịch sử (sáng tạo của cải vật chất, tinh thần và là động lực cách mạng). A sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). C sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). D sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác)."
+      }
+    },
+    {
+      "id": 69,
+      "category": "Lịch sử Triết học",
+      "question": "Điểm chung trong quan niệm của các nhà triết học duy vật thời kỳ cổ đại về vật chất là gì?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Đồng nhất vật chất với vật thể cụ thể cảm tính"
+        },
+        {
+          "id": "B",
+          "text": "Đồng nhất vật chất với thuộc tính phổ biến của vật thể."
+        },
+        {
+          "id": "C",
+          "text": "Đồng nhất vật chất với nguyên tử."
+        },
+        {
+          "id": "D",
+          "text": "Đồng nhất vật chất với thực tại khách quan."
+        }
+      ],
+      "correctId": "A",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án A. Họ thường quy vật chất về Nước, Lửa, Đất, Không khí...",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là A (Đồng nhất vật chất với vật thể cụ thể cảm tính). Họ thường quy vật chất về Nước, Lửa, Đất, Không khí... B sai vì đúng một phần nhưng thiếu ý quan trọng nên chưa phải đáp án chuẩn. C sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). D sai vì đúng một phần nhưng thiếu ý quan trọng nên chưa phải đáp án chuẩn."
+      }
+    },
+    {
+      "id": 70,
+      "category": "Chủ nghĩa Duy vật Lịch sử",
+      "question": "Khái niệm quan hệ sản xuất dùng để chỉ:",
+      "options": [
+        {
+          "id": "A",
+          "text": "Mối quan hệ giữa con người và giới tự nhiên..."
+        },
+        {
+          "id": "B",
+          "text": "Mối quan hệ giữa con người và con người trong quá trình sản xuất..."
+        },
+        {
+          "id": "C",
+          "text": "Mối quan hệ giữa con người với con người..."
+        },
+        {
+          "id": "D",
+          "text": "Mối quan hệ về mặt kinh tế giữa con người với con người trong quá trình sản xuất và tái sản xuất của xã hội."
+        }
+      ],
+      "correctId": "D",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án D. Nhấn mạnh tính chất 'kinh tế' (sở hữu, quản lý, phân phối).",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là D (Mối quan hệ về mặt kinh tế giữa con người với con người trong quá trình sản xuất và tái sản xuất của xã hội.). Nhấn mạnh tính chất 'kinh tế' (sở hữu, quản lý, phân phối). A sai vì đúng một phần nhưng thiếu ý quan trọng nên chưa phải đáp án chuẩn. B sai vì gần đúng nhưng diễn đạt chưa chính xác/không đúng phạm vi câu hỏi. C sai vì đúng một phần nhưng thiếu ý quan trọng nên chưa phải đáp án chuẩn."
+      }
+    },
+    {
+      "id": 71,
+      "category": "Chủ nghĩa Duy vật Biện chứng",
+      "question": "Đặc tính của không gian và thời gian?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Có bắt đầu và có kết thúc"
+        },
+        {
+          "id": "B",
+          "text": "Vô cùng, vô tận"
+        },
+        {
+          "id": "C",
+          "text": "Đi từ quá khứ đến tương lai"
+        },
+        {
+          "id": "D",
+          "text": "Có 3 chiều"
+        }
+      ],
+      "correctId": "B",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án B. Vật chất là vô tận nên hình thức tồn tại của nó (không gian, thời gian) cũng vô tận.",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là B (Vô cùng, vô tận). Vật chất là vô tận nên hình thức tồn tại của nó (không gian, thời gian) cũng vô tận. A sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). C sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). D sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác)."
+      }
+    },
+    {
+      "id": 72,
+      "category": "Chủ nghĩa Duy vật Biện chứng",
+      "question": "Định nghĩa vật chất được V.I.Lênin trình bày trong tác phẩm nào?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Tuyên ngôn của Đảng cộng sản"
+        },
+        {
+          "id": "B",
+          "text": "Hệ tư tưởng Đức"
+        },
+        {
+          "id": "C",
+          "text": "Đường cách mệnh"
+        },
+        {
+          "id": "D",
+          "text": "Chủ nghĩa duy vật và chủ nghĩa kinh nghiệm phê phán"
+        }
+      ],
+      "correctId": "D",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án D. Tác phẩm này ra đời năm 1909 để bảo vệ chủ nghĩa duy vật trước sự tấn công của chủ nghĩa duy tâm vật lý học.",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là D (Chủ nghĩa duy vật và chủ nghĩa kinh nghiệm phê phán). Tác phẩm này ra đời năm 1909 để bảo vệ chủ nghĩa duy vật trước sự tấn công của chủ nghĩa duy tâm vật lý học. A sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). B sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). C sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác)."
+      }
+    },
+    {
+      "id": 73,
+      "category": "Lý luận nhận thức",
+      "question": "Thuyết bất khả tri là gì?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Là lý thuyết phủ nhận sự tồn tại của thế giới khách quan"
+        },
+        {
+          "id": "B",
+          "text": "Là lý thuyết bàn về sự tồn tại của thế giới"
+        },
+        {
+          "id": "C",
+          "text": "Là học thuyết phủ nhận khả năng nhận thức của con người"
+        },
+        {
+          "id": "D",
+          "text": "Là học thuyết thừa nhận khả năng nhận thức của con người"
+        }
+      ],
+      "correctId": "C",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án C. Bất khả tri = Không thể biết.",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là C (Là học thuyết phủ nhận khả năng nhận thức của con người). Bất khả tri = Không thể biết. A sai vì đúng một phần nhưng thiếu ý quan trọng nên chưa phải đáp án chuẩn. B sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). D sai vì gần đúng nhưng diễn đạt chưa chính xác/không đúng phạm vi câu hỏi."
+      }
+    },
+    {
+      "id": 74,
+      "category": "Chủ nghĩa Duy vật Lịch sử",
+      "question": "Vai trò của khoa học và công nghệ trong cấu trúc của lực lượng sản xuất hiện đại?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Lực lượng sản xuất hiện đại bao gồm máy móc, hạ tầng số..."
+        },
+        {
+          "id": "B",
+          "text": "Khoa học – công nghệ chưa trở thành thành tố của lực lượng sản xuất hiện đại"
+        },
+        {
+          "id": "C",
+          "text": "Khoa học – công nghệ là một bộ phận của lực lượng sản xuất hiện đại"
+        },
+        {
+          "id": "D",
+          "text": "Lực lượng sản xuất hiện đại bao gồm người lao động và tư liệu sản xuất"
+        }
+      ],
+      "correctId": "C",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án C. Khoa học trở thành lực lượng sản xuất trực tiếp.",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là C (Khoa học – công nghệ là một bộ phận của lực lượng sản xuất hiện đại). Khoa học trở thành lực lượng sản xuất trực tiếp. A sai vì đúng một phần nhưng thiếu ý quan trọng nên chưa phải đáp án chuẩn. B sai vì gần đúng nhưng diễn đạt chưa chính xác/không đúng phạm vi câu hỏi. D sai vì đúng một phần nhưng thiếu ý quan trọng nên chưa phải đáp án chuẩn."
+      }
+    },
+    {
+      "id": 75,
+      "category": "Phép biện chứng",
+      "question": "Hai nguyên lý cơ bản của chủ nghĩa duy vật biện chứng là:",
+      "options": [
+        {
+          "id": "A",
+          "text": "Nguyên lý cung - cầu và nguyên lý mối liên hệ phổ biến"
+        },
+        {
+          "id": "B",
+          "text": "Nguyên lý về mối liên hệ phổ biến và nguyên lý về sự phát triển"
+        },
+        {
+          "id": "C",
+          "text": "Nguyên lý lượng - chất và nguyên lý phủ định"
+        },
+        {
+          "id": "D",
+          "text": "Nguyên lý thống nhất và đấu tranh giữa các mặt đối lập"
+        }
+      ],
+      "correctId": "B",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án B. Đây là xương sống của phép biện chứng duy vật.",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là B (Nguyên lý về mối liên hệ phổ biến và nguyên lý về sự phát triển). Đây là xương sống của phép biện chứng duy vật. A sai vì gần đúng nhưng diễn đạt chưa chính xác/không đúng phạm vi câu hỏi. C sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). D sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác)."
+      }
+    },
+    {
+      "id": 76,
+      "category": "Phép biện chứng",
+      "question": "Phát triển là gì?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Phát triển là sự thay đổi thuần tuý về mặt số lượng hay khối lượng..."
+        },
+        {
+          "id": "B",
+          "text": "Phát triển là sự thay đổi về vị trí của sự vật hiện tượng..."
+        },
+        {
+          "id": "C",
+          "text": "Phát triển không chỉ là sự thay đổi về số lượng... mà còn là sự thay đổi về chất..."
+        },
+        {
+          "id": "D",
+          "text": "Cả a và b"
+        }
+      ],
+      "correctId": "C",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án C. Phát triển là quá trình vận động đi lên, có sự thay đổi về chất.",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là C (Phát triển không chỉ là sự thay đổi về số lượng... mà còn là sự thay đổi về chất...). Phát triển là quá trình vận động đi lên, có sự thay đổi về chất. A sai vì gần đúng nhưng diễn đạt chưa chính xác/không đúng phạm vi câu hỏi. B sai vì đúng một phần nhưng thiếu ý quan trọng nên chưa phải đáp án chuẩn. D sai vì không phải tổ hợp này; đáp án đúng là C."
+      }
+    },
+    {
+      "id": 77,
+      "category": "Chủ nghĩa Duy vật Lịch sử",
+      "question": "Sản xuất vật chất là gì?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Là quá trình con người sử dụng công cụ lao động tác động..."
+        },
+        {
+          "id": "B",
+          "text": "Cải biến các dạng vật chất của giới tự nhiên để thỏa mãn nhu cầu..."
+        },
+        {
+          "id": "C",
+          "text": "Là quá trình con người chinh phục tự nhiên."
+        },
+        {
+          "id": "D",
+          "text": "Cả a và b"
+        }
+      ],
+      "correctId": "D",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án D. Bao gồm cả hành động tác động và mục đích cải biến.",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là D (Cả a và b). Bao gồm cả hành động tác động và mục đích cải biến. A sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). B sai vì đúng một phần nhưng thiếu ý quan trọng nên chưa phải đáp án chuẩn. C sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác)."
+      }
+    },
+    {
+      "id": 78,
+      "category": "Nhập môn Triết học",
+      "question": "Chức năng của triết học Mác – Lênin là:",
+      "options": [
+        {
+          "id": "A",
+          "text": "Phương pháp luận"
+        },
+        {
+          "id": "B",
+          "text": "Thế giới quan"
+        },
+        {
+          "id": "C",
+          "text": "Nhân thức luận"
+        },
+        {
+          "id": "D",
+          "text": "Cả a và b"
+        }
+      ],
+      "correctId": "D",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án D. Hai chức năng cơ bản: Thế giới quan và Phương pháp luận.",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là D (Cả a và b). Hai chức năng cơ bản: Thế giới quan và Phương pháp luận. A sai vì đúng một phần nhưng thiếu ý quan trọng nên chưa phải đáp án chuẩn. B sai vì đúng một phần nhưng thiếu ý quan trọng nên chưa phải đáp án chuẩn. C sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác)."
+      }
+    },
+    {
+      "id": 79,
+      "category": "Lịch sử Triết học",
+      "question": "Khổng Tử là nhà triết gia của:",
+      "options": [
+        {
+          "id": "A",
+          "text": "Ấn Độ cổ đại"
+        },
+        {
+          "id": "B",
+          "text": "Lưỡng Hà cổ đại"
+        },
+        {
+          "id": "C",
+          "text": "Trung Quốc cổ đại"
+        },
+        {
+          "id": "D",
+          "text": "Hy Lạp cổ đại"
+        }
+      ],
+      "correctId": "C",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án C. Khổng Tử là người sáng lập Nho giáo tại Trung Quốc.",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là C (Trung Quốc cổ đại). Khổng Tử là người sáng lập Nho giáo tại Trung Quốc. A sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). B sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). D sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác)."
+      }
+    },
+    {
+      "id": 80,
+      "category": "Phép biện chứng",
+      "question": "Mối liên hệ là gì?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Là liên hệ giữa hai đối tượng khác nhau"
+        },
+        {
+          "id": "B",
+          "text": "Là sự chi phối giữa hai đối tượng khác nhau"
+        },
+        {
+          "id": "C",
+          "text": "Là các mối ràng buộc, tương hỗ, quy định và ảnh hưởng lẫn nhau giữa các yếu tố..."
+        },
+        {
+          "id": "D",
+          "text": "Là các mối ràng buộc, tương hỗ, quy định và ảnh hưởng lẫn nhau giữa các đối tượng với nhau."
+        }
+      ],
+      "correctId": "C",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án C. Bao hàm cả liên hệ bên trong (các yếu tố) và bên ngoài (các đối tượng).",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là C (Là các mối ràng buộc, tương hỗ, quy định và ảnh hưởng lẫn nhau giữa các yếu tố...). Bao hàm cả liên hệ bên trong (các yếu tố) và bên ngoài (các đối tượng). A sai vì đúng một phần nhưng thiếu ý quan trọng nên chưa phải đáp án chuẩn. B sai vì đúng một phần nhưng thiếu ý quan trọng nên chưa phải đáp án chuẩn. D sai vì gần đúng nhưng diễn đạt chưa chính xác/không đúng phạm vi câu hỏi. Gợi ý thêm: Phương án D chưa đủ (thiếu liên hệ bên trong)."
+      }
+    },
+    {
+      "id": 81,
+      "category": "Phép biện chứng",
+      "question": "Đối lập với phương pháp biện chứng là:",
+      "options": [
+        {
+          "id": "A",
+          "text": "Phương pháp duy vật"
+        },
+        {
+          "id": "B",
+          "text": "Phương pháp duy tâm"
+        },
+        {
+          "id": "C",
+          "text": "Phương pháp siêu hình"
+        },
+        {
+          "id": "D",
+          "text": "Cả a,b,c đều sai"
+        }
+      ],
+      "correctId": "C",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án C. Siêu hình xem xét sự vật trong trạng thái tĩnh tại, cô lập; Biện chứng xem xét trong trạng thái vận động, liên hệ.",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là C (Phương pháp siêu hình). Siêu hình xem xét sự vật trong trạng thái tĩnh tại, cô lập; Biện chứng xem xét trong trạng thái vận động, liên hệ. A sai vì đúng một phần nhưng thiếu ý quan trọng nên chưa phải đáp án chuẩn. B sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). D sai vì không phải tổ hợp này; đáp án đúng là C."
+      }
+    },
+    {
+      "id": 82,
+      "category": "Chủ nghĩa Duy vật Biện chứng",
+      "question": "Nguồn gốc trực tiếp dẫn đến sự hình thành ý thức người là:",
+      "options": [
+        {
+          "id": "A",
+          "text": "Hiện thực khách quan"
+        },
+        {
+          "id": "B",
+          "text": "Các cuộc cách mạng công nghiệp"
+        },
+        {
+          "id": "C",
+          "text": "Quá trình sản xuất vật chất"
+        },
+        {
+          "id": "D",
+          "text": "Lao động và ngôn ngữ"
+        }
+      ],
+      "correctId": "D",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án D. Lao động và ngôn ngữ là hai nguồn gốc xã hội trực tiếp.",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là D (Lao động và ngôn ngữ). Lao động và ngôn ngữ là hai nguồn gốc xã hội trực tiếp. A sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). B sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). C sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác)."
+      }
+    },
+    {
+      "id": 83,
+      "category": "Phép biện chứng",
+      "question": "Đâu là nguồn gốc của sự phát triển theo quan điểm của chủ nghĩa duy vật biện chứng?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Là do sự đấu tranh giữa các mặt đối lập bên trong sự vật, hiện tương"
+        },
+        {
+          "id": "B",
+          "text": "Là do sự chi phối của các thế lực siêu nhiên"
+        },
+        {
+          "id": "C",
+          "text": "Là do khả năng cải biến thế giới khách quan của con người"
+        },
+        {
+          "id": "D",
+          "text": "Cả a,b,c đều sai"
+        }
+      ],
+      "correctId": "A",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án A. Mâu thuẫn là nguồn gốc và động lực của sự phát triển.",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là A (Là do sự đấu tranh giữa các mặt đối lập bên trong sự vật, hiện tương). Mâu thuẫn là nguồn gốc và động lực của sự phát triển. B sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). C sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). D sai vì không phải tổ hợp này; đáp án đúng là A."
+      }
+    },
+    {
+      "id": 84,
+      "category": "Lịch sử Triết học",
+      "question": "Phật giáo ra đời ở đâu?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Ấn Độ cổ đại"
+        },
+        {
+          "id": "B",
+          "text": "Trung Đông"
+        },
+        {
+          "id": "C",
+          "text": "Trung Quốc cổ đại"
+        },
+        {
+          "id": "D",
+          "text": "Lưỡng Hà, Ai Cập cổ đại"
+        }
+      ],
+      "correctId": "A",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án A. Phật giáo ra đời tại Ấn Độ khoảng thế kỷ VI TCN.",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là A (Ấn Độ cổ đại). Phật giáo ra đời tại Ấn Độ khoảng thế kỷ VI TCN. B sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). C sai vì đúng một phần nhưng thiếu ý quan trọng nên chưa phải đáp án chuẩn. D sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác)."
+      }
+    },
+    {
+      "id": 85,
+      "category": "Phép biện chứng",
+      "question": "Biện chứng khách quan là gì?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Là khái niệm dùng để chỉ biện chứng độc lập với ý thức người"
+        },
+        {
+          "id": "B",
+          "text": "Là khái niệm dùng để chỉ biện chứng của bản thân tồn tại khách quan, độc lập với ý thức người"
+        },
+        {
+          "id": "C",
+          "text": "Là khái niệm chỉ biện chứng của tư duy"
+        },
+        {
+          "id": "D",
+          "text": "Là khái niệm chỉ sự liên hệ trong thế giới khách quan"
+        }
+      ],
+      "correctId": "B",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án B. Biện chứng của bản thân thế giới vật chất (khách quan).",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là B (Là khái niệm dùng để chỉ biện chứng của bản thân tồn tại khách quan, độc lập với ý thức người). Biện chứng của bản thân thế giới vật chất (khách quan). A sai vì gần đúng nhưng diễn đạt chưa chính xác/không đúng phạm vi câu hỏi. C sai vì đúng một phần nhưng thiếu ý quan trọng nên chưa phải đáp án chuẩn. D sai vì đúng một phần nhưng thiếu ý quan trọng nên chưa phải đáp án chuẩn. Gợi ý thêm: Biện chứng chủ quan là biện chứng của tư duy."
+      }
+    },
+    {
+      "id": 86,
+      "category": "Nhập môn Triết học",
+      "question": "Những nhà triết học cho rằng cảm giác là tồn tại duy nhất, sản sinh ra thế giới vật chất thì thuộc trường phái nào?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Chủ nghĩa duy vật biện chứng"
+        },
+        {
+          "id": "B",
+          "text": "Chủ nghĩa duy vật siêu hình"
+        },
+        {
+          "id": "C",
+          "text": "Chủ nghĩa duy tâm khách quan"
+        },
+        {
+          "id": "D",
+          "text": "Chủ nghĩa duy tâm chủ quan"
+        }
+      ],
+      "correctId": "D",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án D. Duy tâm chủ quan tuyệt đối hóa vai trò của cảm giác cá nhân (Tôi cảm thấy thế giới, nên thế giới tồn tại).",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là D (Chủ nghĩa duy tâm chủ quan). Duy tâm chủ quan tuyệt đối hóa vai trò của cảm giác cá nhân (Tôi cảm thấy thế giới, nên thế giới tồn tại). A sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). B sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). C sai vì đúng một phần nhưng thiếu ý quan trọng nên chưa phải đáp án chuẩn."
+      }
+    },
+    {
+      "id": 87,
+      "category": "Nhập môn Triết học",
+      "question": "Vấn đề cơ bản của triết học là gì?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Nghiên cứu về bản nguyên của thế giới"
+        },
+        {
+          "id": "B",
+          "text": "Giải quyết mối quan hệ giữa tư duy với tồn tại hay giữa vật chất với ý thức"
+        },
+        {
+          "id": "C",
+          "text": "Nghiên cứu về năng lực nhận thức của con người"
+        },
+        {
+          "id": "D",
+          "text": "Nghiên cứu những vấn đề liên quan đến lịch sử xã hội loài người"
+        }
+      ],
+      "correctId": "B",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án B. Vấn đề cơ bản lớn của mọi triết học là mối quan hệ giữa Tư duy và Tồn tại.",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là B (Giải quyết mối quan hệ giữa tư duy với tồn tại hay giữa vật chất với ý thức). Vấn đề cơ bản lớn của mọi triết học là mối quan hệ giữa Tư duy và Tồn tại. A sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). C sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). D sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác)."
+      }
+    },
+    {
+      "id": 88,
+      "category": "Chủ nghĩa Duy vật Biện chứng",
+      "question": "Đâu là các trạng thái cơ bản của thế giới vật chất?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Vận động, phát triển, liên hệ"
+        },
+        {
+          "id": "B",
+          "text": "Liên hệ, mâu thuẫn và đấu tranh"
+        },
+        {
+          "id": "C",
+          "text": "Tách rời, cô lập, không thay đổi"
+        },
+        {
+          "id": "D",
+          "text": "Đấu tranh giữa các mặt đối lập"
+        }
+      ],
+      "correctId": "A",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án A. Thế giới không đứng im mà luôn ở trong trạng thái liên hệ và vận động phát triển.",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là A (Vận động, phát triển, liên hệ). Thế giới không đứng im mà luôn ở trong trạng thái liên hệ và vận động phát triển. B sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). C sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). D sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác)."
+      }
+    },
+    {
+      "id": 89,
+      "category": "Phép biện chứng",
+      "question": "Nguyên lý phản ánh trạng thái phát triển của thế giới là:",
+      "options": [
+        {
+          "id": "A",
+          "text": "Nguyên lý về mối liên hệ phổ biến"
+        },
+        {
+          "id": "B",
+          "text": "Nguyên lý về sự vận động của thế giới vật chất"
+        },
+        {
+          "id": "C",
+          "text": "Nguyên lý về sự phát triển"
+        },
+        {
+          "id": "D",
+          "text": "Nguyên lý về bảo toàn năng lượng"
+        }
+      ],
+      "correctId": "C",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án C. Nguyên lý này khẳng định khuynh hướng đi lên của sự vật.",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là C (Nguyên lý về sự phát triển). Nguyên lý này khẳng định khuynh hướng đi lên của sự vật. A sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). B sai vì gần đúng nhưng diễn đạt chưa chính xác/không đúng phạm vi câu hỏi. D sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác)."
+      }
+    },
+    {
+      "id": 90,
+      "category": "Câu trả lời ngắn (Chuyển thể)",
+      "question": "Các yếu tố cấu thành Quan hệ sản xuất (QHSX) bao gồm những gì?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Quan hệ sở hữu TLSX; Quan hệ tổ chức – quản lý; Quan hệ phân phối sản phẩm"
+        },
+        {
+          "id": "B",
+          "text": "Quan hệ sở hữu TLSX; Quan hệ giai cấp; Quan hệ pháp luật"
+        },
+        {
+          "id": "C",
+          "text": "Quan hệ quản lý con người; Quan hệ phân phối tài nguyên; Quan hệ tiêu dùng"
+        },
+        {
+          "id": "D",
+          "text": "Quan hệ giữa người với tự nhiên; Quan hệ sở hữu; Quan hệ chính trị"
+        }
+      ],
+      "correctId": "A",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án A. QHSX gồm 3 mặt: Sở hữu (quyết định), Tổ chức quản lý và Phân phối.",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là A (Quan hệ sở hữu TLSX; Quan hệ tổ chức – quản lý; Quan hệ phân phối sản phẩm). QHSX gồm 3 mặt: Sở hữu (quyết định), Tổ chức quản lý và Phân phối. B sai vì đúng một phần nhưng thiếu ý quan trọng nên chưa phải đáp án chuẩn. C sai vì đúng một phần nhưng thiếu ý quan trọng nên chưa phải đáp án chuẩn. D sai vì đúng một phần nhưng thiếu ý quan trọng nên chưa phải đáp án chuẩn. Gợi ý thêm: Các phương án khác chứa yếu tố không thuộc QHSX (như pháp luật, chính trị)."
+      }
+    },
+    {
+      "id": 91,
+      "category": "Câu trả lời ngắn (Chuyển thể)",
+      "question": "Ý thức có những cấp độ nào?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Ý thức cá nhân và ý thức xã hội"
+        },
+        {
+          "id": "B",
+          "text": "Ý thức thông thường và ý thức lý luận"
+        },
+        {
+          "id": "C",
+          "text": "Ý thức cảm tính và ý thức lý tính"
+        },
+        {
+          "id": "D",
+          "text": "Tiềm thức và Vô thức"
+        }
+      ],
+      "correctId": "B",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án B. Theo chiều sâu của nhận thức, ý thức chia làm 2 cấp độ: Thông thường (đời sống hàng ngày) và Lý luận (hệ thống hóa).",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là B (Ý thức thông thường và ý thức lý luận). Theo chiều sâu của nhận thức, ý thức chia làm 2 cấp độ: Thông thường (đời sống hàng ngày) và Lý luận (hệ thống hóa). A sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). C sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). D sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác)."
+      }
+    },
+    {
+      "id": 92,
+      "category": "Câu trả lời ngắn (Chuyển thể)",
+      "question": "Các hình thức cơ bản của thực tiễn bao gồm:",
+      "options": [
+        {
+          "id": "A",
+          "text": "Sản xuất vật chất; Hoạt động chính trị – xã hội; Thực nghiệm khoa học"
+        },
+        {
+          "id": "B",
+          "text": "Sản xuất vật chất; Sáng tạo nghệ thuật; Nghiên cứu lý thuyết"
+        },
+        {
+          "id": "C",
+          "text": "Hoạt động tôn giáo; Hoạt động đạo đức; Sản xuất vật chất"
+        },
+        {
+          "id": "D",
+          "text": "Thực nghiệm khoa học; Giáo dục đào tạo; Hoạt động kinh tế"
+        }
+      ],
+      "correctId": "A",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án A. Đây là 3 hình thức cơ bản, trong đó sản xuất vật chất là quan trọng nhất.",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là A (Sản xuất vật chất; Hoạt động chính trị – xã hội; Thực nghiệm khoa học). Đây là 3 hình thức cơ bản, trong đó sản xuất vật chất là quan trọng nhất. B sai vì đúng một phần nhưng thiếu ý quan trọng nên chưa phải đáp án chuẩn. C sai vì đúng một phần nhưng thiếu ý quan trọng nên chưa phải đáp án chuẩn. D sai vì đúng một phần nhưng thiếu ý quan trọng nên chưa phải đáp án chuẩn."
+      }
+    },
+    {
+      "id": 93,
+      "category": "Câu trả lời ngắn (Chuyển thể)",
+      "question": "Yếu tố quan trọng nhất trong các yếu tố cấu thành ý thức là gì?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Tình cảm"
+        },
+        {
+          "id": "B",
+          "text": "Ý chí"
+        },
+        {
+          "id": "C",
+          "text": "Tri thức"
+        },
+        {
+          "id": "D",
+          "text": "Niềm tin"
+        }
+      ],
+      "correctId": "C",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án C. Tri thức là phương thức tồn tại của ý thức và là nhân tố cốt lõi.",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là C (Tri thức). Tri thức là phương thức tồn tại của ý thức và là nhân tố cốt lõi. A sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). B sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). D sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác)."
+      }
+    },
+    {
+      "id": 94,
+      "category": "Câu trả lời ngắn (Chuyển thể)",
+      "question": "Trong mối quan hệ giữa Lực lượng sản xuất (LLSX) và Quan hệ sản xuất (QHSX), yếu tố nào giữ vai trò quyết định?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Quan hệ sản xuất quyết định Lực lượng sản xuất"
+        },
+        {
+          "id": "B",
+          "text": "Lực lượng sản xuất quyết định Quan hệ sản xuất"
+        },
+        {
+          "id": "C",
+          "text": "Hai yếu tố ngang hàng nhau"
+        },
+        {
+          "id": "D",
+          "text": "Kiến trúc thượng tầng quyết định cả hai"
+        }
+      ],
+      "correctId": "B",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án B. LLSX là nội dung (động), QHSX là hình thức (tĩnh hơn). Nội dung quyết định hình thức.",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là B (Lực lượng sản xuất quyết định Quan hệ sản xuất). LLSX là nội dung (động), QHSX là hình thức (tĩnh hơn). Nội dung quyết định hình thức. A sai vì gần đúng nhưng diễn đạt chưa chính xác/không đúng phạm vi câu hỏi. C sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). D sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác)."
+      }
+    },
+    {
+      "id": 95,
+      "category": "Câu trả lời ngắn (Chuyển thể)",
+      "question": "Trong xã hội có giai cấp, yếu tố nào là quan trọng nhất của Kiến trúc thượng tầng?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Đảng phái chính trị"
+        },
+        {
+          "id": "B",
+          "text": "Giáo hội"
+        },
+        {
+          "id": "C",
+          "text": "Nhà nước"
+        },
+        {
+          "id": "D",
+          "text": "Pháp luật"
+        }
+      ],
+      "correctId": "C",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án C. Nhà nước là công cụ quyền lực chính trị đặc biệt để duy trì sự thống trị.",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là C (Nhà nước). Nhà nước là công cụ quyền lực chính trị đặc biệt để duy trì sự thống trị. A sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). B sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). D sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác)."
+      }
+    },
+    {
+      "id": 96,
+      "category": "Câu trả lời ngắn (Chuyển thể)",
+      "question": "Chức năng cơ bản của triết học Mác – Lênin là gì?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Chức năng giáo dục và thẩm mỹ"
+        },
+        {
+          "id": "B",
+          "text": "Chức năng thế giới quan và phương pháp luận"
+        },
+        {
+          "id": "C",
+          "text": "Chức năng kinh tế và chính trị"
+        },
+        {
+          "id": "D",
+          "text": "Chức năng dự báo và quản lý"
+        }
+      ],
+      "correctId": "B",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án B. Giúp con người hiểu thế giới (TGQ) và có cách thức cải tạo thế giới (PPL).",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là B (Chức năng thế giới quan và phương pháp luận). Giúp con người hiểu thế giới (TGQ) và có cách thức cải tạo thế giới (PPL). A sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). C sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). D sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác)."
+      }
+    },
+    {
+      "id": 97,
+      "category": "Câu trả lời ngắn (Chuyển thể)",
+      "question": "Ý nghĩa của việc nhận thức đúng mối quan hệ giữa tất nhiên và ngẫu nhiên là gì?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Bỏ qua cái ngẫu nhiên, chỉ tập trung vào cái tất nhiên"
+        },
+        {
+          "id": "B",
+          "text": "Coi mọi thứ đều là ngẫu nhiên để không cần chịu trách nhiệm"
+        },
+        {
+          "id": "C",
+          "text": "Giúp hiểu đúng bản chất, dự báo xu hướng và có phương án dự phòng"
+        },
+        {
+          "id": "D",
+          "text": "Để chứng minh mọi sự vật đều tuân theo ý muốn chủ quan"
+        }
+      ],
+      "correctId": "C",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án C. Tất nhiên vạch ra đường đi, ngẫu nhiên làm cho đường đi đó phong phú. Cần dựa vào tất nhiên nhưng không bỏ qua ngẫu nhiên.",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là C (Giúp hiểu đúng bản chất, dự báo xu hướng và có phương án dự phòng). Tất nhiên vạch ra đường đi, ngẫu nhiên làm cho đường đi đó phong phú. Cần dựa vào tất nhiên nhưng không bỏ qua ngẫu nhiên. A sai vì đúng một phần nhưng thiếu ý quan trọng nên chưa phải đáp án chuẩn. B sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). D sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác)."
+      }
+    },
+    {
+      "id": 98,
+      "category": "Câu trả lời ngắn (Chuyển thể)",
+      "question": "Nhận định: 'Cái chung tồn tại trước, chi phối cái riêng' là Đúng hay Sai theo quan điểm biện chứng?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Đúng, vì cái chung lớn hơn cái riêng"
+        },
+        {
+          "id": "B",
+          "text": "Sai, vì cái chung chỉ tồn tại trong cái riêng, thông qua cái riêng"
+        },
+        {
+          "id": "C",
+          "text": "Đúng, vì cái chung là bản chất vĩnh cửu"
+        },
+        {
+          "id": "D",
+          "text": "Sai, vì cái riêng quyết định hoàn toàn cái chung"
+        }
+      ],
+      "correctId": "B",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án B. Cái chung không tồn tại lơ lửng bên ngoài, nó nằm ngay trong từng sự vật cụ thể (cái riêng).",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là B (Sai, vì cái chung chỉ tồn tại trong cái riêng, thông qua cái riêng). Cái chung không tồn tại lơ lửng bên ngoài, nó nằm ngay trong từng sự vật cụ thể (cái riêng). A sai vì nhận định này không phù hợp với quan điểm biện chứng duy vật; đáp án đúng là B. C sai vì nhận định này không phù hợp với quan điểm biện chứng duy vật; đáp án đúng là B. D sai vì nhận định này không phù hợp với quan điểm biện chứng duy vật; đáp án đúng là B. Gợi ý thêm: Quan điểm A và C là của phái Duy thực (duy tâm)."
+      }
+    },
+    {
+      "id": 99,
+      "category": "Câu trả lời ngắn (Chuyển thể)",
+      "question": "Cấu trúc của Kiến trúc thượng tầng bao gồm những gì?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Các quan hệ sản xuất và lực lượng sản xuất"
+        },
+        {
+          "id": "B",
+          "text": "Các hình thái ý thức xã hội và các thiết chế chính trị – xã hội tương ứng"
+        },
+        {
+          "id": "C",
+          "text": "Cơ sở hạ tầng và môi trường tự nhiên"
+        },
+        {
+          "id": "D",
+          "text": "Tư liệu sản xuất và người lao động"
+        }
+      ],
+      "correctId": "B",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án B. Gồm ý thức chính trị, pháp quyền... và Nhà nước, đảng phái, giáo hội...",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là B (Các hình thái ý thức xã hội và các thiết chế chính trị – xã hội tương ứng). Gồm ý thức chính trị, pháp quyền... và Nhà nước, đảng phái, giáo hội... A sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). C sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). D sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác)."
+      }
+    },
+    {
+      "id": 100,
+      "category": "Câu trả lời ngắn (Chuyển thể)",
+      "question": "Phương pháp biện chứng là phương pháp xem xét sự vật như thế nào?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Trong trạng thái cô lập, tĩnh tại và không thay đổi"
+        },
+        {
+          "id": "B",
+          "text": "Trong mối liên hệ, vận động, phát triển và mâu thuẫn"
+        },
+        {
+          "id": "C",
+          "text": "Chỉ nhìn thấy cây mà không thấy rừng"
+        },
+        {
+          "id": "D",
+          "text": "Chấp nhận sự vật như vẻ bề ngoài của nó"
+        }
+      ],
+      "correctId": "B",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án B. Biện chứng là nhìn thấy sự vật trong sự sinh thành và tiêu vong, trong mối liên hệ chằng chịt.",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là B (Trong mối liên hệ, vận động, phát triển và mâu thuẫn). Biện chứng là nhìn thấy sự vật trong sự sinh thành và tiêu vong, trong mối liên hệ chằng chịt. A sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). C sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). D sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). Gợi ý thêm: A là phương pháp siêu hình."
+      }
+    },
+    {
+      "id": 101,
+      "category": "Câu trả lời ngắn (Chuyển thể)",
+      "question": "Theo quan điểm Mác - Lênin, xu hướng của sự phát triển diễn ra như thế nào?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Theo đường thẳng đi lên mãi mãi"
+        },
+        {
+          "id": "B",
+          "text": "Theo vòng tròn khép kín, lặp lại như cũ"
+        },
+        {
+          "id": "C",
+          "text": "Theo đường xoắn ốc: đi lên nhưng quanh co, phức tạp, có thể thụt lùi tạm thời"
+        },
+        {
+          "id": "D",
+          "text": "Hoàn toàn ngẫu nhiên, không có xu hướng xác định"
+        }
+      ],
+      "correctId": "C",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án C. Phủ định của phủ định cho thấy sự phát triển có tính kế thừa và lặp lại ở trình độ cao hơn (đường xoắn ốc).",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là C (Theo đường xoắn ốc: đi lên nhưng quanh co, phức tạp, có thể thụt lùi tạm thời). Phủ định của phủ định cho thấy sự phát triển có tính kế thừa và lặp lại ở trình độ cao hơn (đường xoắn ốc). A sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). B sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). D sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác)."
+      }
+    },
+    {
+      "id": 102,
+      "category": "Câu trả lời ngắn (Chuyển thể)",
+      "question": "Phép biện chứng duy vật do ai xây dựng và ai bổ sung phát triển?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Do Hêghen xây dựng, Mác bổ sung"
+        },
+        {
+          "id": "B",
+          "text": "Do C.Mác và Ph.Ăngghen xây dựng, V.I.Lênin bổ sung phát triển"
+        },
+        {
+          "id": "C",
+          "text": "Do Lênin xây dựng, Hồ Chí Minh bổ sung"
+        },
+        {
+          "id": "D",
+          "text": "Do Phơ-bách xây dựng, Mác bổ sung"
+        }
+      ],
+      "correctId": "B",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án B. Mác và Ăngghen là người sáng lập, Lênin là người bảo vệ và phát triển trong thời đại đế quốc chủ nghĩa.",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là B (Do C.Mác và Ph.Ăngghen xây dựng, V.I.Lênin bổ sung phát triển). Mác và Ăngghen là người sáng lập, Lênin là người bảo vệ và phát triển trong thời đại đế quốc chủ nghĩa. A sai vì đúng một phần nhưng thiếu ý quan trọng nên chưa phải đáp án chuẩn. C sai vì đúng một phần nhưng thiếu ý quan trọng nên chưa phải đáp án chuẩn. D sai vì đúng một phần nhưng thiếu ý quan trọng nên chưa phải đáp án chuẩn."
+      }
+    },
+    {
+      "id": 103,
+      "category": "Câu trả lời ngắn (Chuyển thể)",
+      "question": "Vai trò của thực tiễn đối với nhận thức là gì?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Là cơ sở, động lực, mục đích và tiêu chuẩn kiểm tra chân lý"
+        },
+        {
+          "id": "B",
+          "text": "Là sự phản ánh thụ động của nhận thức"
+        },
+        {
+          "id": "C",
+          "text": "Thực tiễn cản trở tư duy trừu tượng"
+        },
+        {
+          "id": "D",
+          "text": "Thực tiễn chỉ là nơi áp dụng lý thuyết"
+        }
+      ],
+      "correctId": "A",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án A. Thực tiễn là điểm khởi đầu và cũng là điểm kết thúc của một chu trình nhận thức.",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là A (Là cơ sở, động lực, mục đích và tiêu chuẩn kiểm tra chân lý). Thực tiễn là điểm khởi đầu và cũng là điểm kết thúc của một chu trình nhận thức. B sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). C sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). D sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác)."
+      }
+    },
+    {
+      "id": 104,
+      "category": "Câu trả lời ngắn (Chuyển thể)",
+      "question": "Bản chất của ý thức là gì?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Là một dạng vật chất đặc biệt trong não người"
+        },
+        {
+          "id": "B",
+          "text": "Là quà tặng của thượng đế"
+        },
+        {
+          "id": "C",
+          "text": "Là hình ảnh chủ quan của thế giới khách quan, mang tính năng động sáng tạo"
+        },
+        {
+          "id": "D",
+          "text": "Là sự sao chép y nguyên thế giới bên ngoài"
+        }
+      ],
+      "correctId": "C",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án C. Ý thức là hình ảnh của thế giới khách quan bị khúc xạ qua lăng kính chủ quan của bộ óc con người.",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là C (Là hình ảnh chủ quan của thế giới khách quan, mang tính năng động sáng tạo). Ý thức là hình ảnh của thế giới khách quan bị khúc xạ qua lăng kính chủ quan của bộ óc con người. A sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). B sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). D sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác)."
+      }
+    },
+    {
+      "id": 105,
+      "category": "Câu trả lời ngắn (Chuyển thể)",
+      "question": "Đặc trưng cơ bản của phủ định biện chứng là gì?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Tính chủ quan và tính nhất thời"
+        },
+        {
+          "id": "B",
+          "text": "Tính khách quan và tính kế thừa"
+        },
+        {
+          "id": "C",
+          "text": "Tính hủy diệt và xóa bỏ hoàn toàn"
+        },
+        {
+          "id": "D",
+          "text": "Tính ngẫu nhiên và hỗn loạn"
+        }
+      ],
+      "correctId": "B",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án B. Phủ định biện chứng là tự phủ định (khách quan) và giữ lại hạt nhân hợp lý (kế thừa).",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là B (Tính khách quan và tính kế thừa). Phủ định biện chứng là tự phủ định (khách quan) và giữ lại hạt nhân hợp lý (kế thừa). A sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). C sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). D sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác)."
+      }
+    },
+    {
+      "id": 106,
+      "category": "Câu trả lời ngắn (Chuyển thể)",
+      "question": "Nền tảng của nhận thức lý tính là gì?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Niềm tin tôn giáo"
+        },
+        {
+          "id": "B",
+          "text": "Trực giác siêu nhiên"
+        },
+        {
+          "id": "C",
+          "text": "Nhận thức cảm tính (Cảm giác - Tri giác - Biểu tượng)"
+        },
+        {
+          "id": "D",
+          "text": "Kinh nghiệm chủ quan thuần túy"
+        }
+      ],
+      "correctId": "C",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án C. Không có dữ liệu từ nhận thức cảm tính thì nhận thức lý tính không thể hoạt động được.",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là C (Nhận thức cảm tính (Cảm giác - Tri giác - Biểu tượng)). Không có dữ liệu từ nhận thức cảm tính thì nhận thức lý tính không thể hoạt động được. A sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). B sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). D sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác)."
+      }
+    },
+    {
+      "id": 107,
+      "category": "Câu trả lời ngắn (Chuyển thể)",
+      "question": "Ngoài nguyên nhân, kết quả còn chịu ảnh hưởng bởi yếu tố nào?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Điều kiện (hoàn cảnh) và môi trường"
+        },
+        {
+          "id": "B",
+          "text": "Không chịu ảnh hưởng bởi yếu tố nào khác"
+        },
+        {
+          "id": "C",
+          "text": "Chỉ chịu ảnh hưởng bởi đấng sáng tạo"
+        },
+        {
+          "id": "D",
+          "text": "Ý muốn chủ quan của con người"
+        }
+      ],
+      "correctId": "A",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án A. Một nguyên nhân trong các điều kiện khác nhau có thể sinh ra các kết quả khác nhau.",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là A (Điều kiện (hoàn cảnh) và môi trường). Một nguyên nhân trong các điều kiện khác nhau có thể sinh ra các kết quả khác nhau. B sai vì gần đúng nhưng diễn đạt chưa chính xác/không đúng phạm vi câu hỏi. C sai vì đúng một phần nhưng thiếu ý quan trọng nên chưa phải đáp án chuẩn. D sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác)."
+      }
+    },
+    {
+      "id": 108,
+      "category": "Câu trả lời ngắn (Chuyển thể)",
+      "question": "Tại sao nghiên cứu đối tượng cụ thể phải tuân thủ 'Nguyên tắc toàn diện'?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Để thấy được tất cả các mặt, tránh phiến diện, một chiều"
+        },
+        {
+          "id": "B",
+          "text": "Để làm phức tạp hóa vấn đề"
+        },
+        {
+          "id": "C",
+          "text": "Để không phải đưa ra kết luận cuối cùng"
+        },
+        {
+          "id": "D",
+          "text": "Để dàn trải, không cần tập trung vào trọng tâm"
+        }
+      ],
+      "correctId": "A",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án A. Nguyên tắc toàn diện giúp nhận thức đúng bản chất sự vật bằng cách xem xét nó trong đa dạng các mối liên hệ.",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là A (Để thấy được tất cả các mặt, tránh phiến diện, một chiều). Nguyên tắc toàn diện giúp nhận thức đúng bản chất sự vật bằng cách xem xét nó trong đa dạng các mối liên hệ. B sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). C sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). D sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác)."
+      }
+    },
+    {
+      "id": 109,
+      "category": "Câu trả lời ngắn (Chuyển thể)",
+      "question": "Nhận định: 'Thực tiễn là tất cả các hoạt động cảm tính của con người' là Đúng hay Sai?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Đúng, vì con người hoạt động bằng cảm tính"
+        },
+        {
+          "id": "B",
+          "text": "Sai, thực tiễn là hoạt động vật chất có mục đích, mang tính lịch sử - xã hội"
+        },
+        {
+          "id": "C",
+          "text": "Đúng, mọi hoạt động của con người đều là thực tiễn"
+        },
+        {
+          "id": "D",
+          "text": "Sai, thực tiễn chỉ là hoạt động tinh thần"
+        }
+      ],
+      "correctId": "B",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án B. Hoạt động bản năng, cảm tính không mục đích (như phản xạ) không được gọi là thực tiễn.",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là B (Sai, thực tiễn là hoạt động vật chất có mục đích, mang tính lịch sử - xã hội). Hoạt động bản năng, cảm tính không mục đích (như phản xạ) không được gọi là thực tiễn. A sai vì nhận định này không phù hợp với quan điểm biện chứng duy vật; đáp án đúng là B. C sai vì nhận định này không phù hợp với quan điểm biện chứng duy vật; đáp án đúng là B. D sai vì nhận định này không phù hợp với quan điểm biện chứng duy vật; đáp án đúng là B."
+      }
+    },
+    {
+      "id": 110,
+      "category": "Câu trả lời ngắn (Chuyển thể)",
+      "question": "Tiêu chuẩn duy nhất để kiểm tra chân lý là gì?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Chân lý khác"
+        },
+        {
+          "id": "B",
+          "text": "Sự tán thành của đa số"
+        },
+        {
+          "id": "C",
+          "text": "Thực tiễn"
+        },
+        {
+          "id": "D",
+          "text": "Sách vở kinh điển"
+        }
+      ],
+      "correctId": "C",
+      "explanation": {
+        "correct": "Đúng! 🌟 Đáp án C. Chỉ có đem lý luận áp dụng vào thực tiễn mới biết lý luận đó đúng hay sai.",
+        "incorrect": "❌ Chưa đúng rồi. Đáp án đúng là C (Thực tiễn). Chỉ có đem lý luận áp dụng vào thực tiễn mới biết lý luận đó đúng hay sai. A sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). B sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác). D sai vì nội dung này lệch trọng tâm câu hỏi (nhầm sang khái niệm khác)."
+      }
+    }
+  ]
+
+        // State Management
+        let deck = JSON.parse(localStorage.getItem('anki_deck')) || [...INITIAL_DECK];
+        let currentCardIndex = parseInt(localStorage.getItem('anki_index')) || 0;
+        let sessionStats = JSON.parse(localStorage.getItem('anki_stats')) || { correct: 0, total: 0 };
+        let showExplanation = false;
+        let selectedOption = null;
+
+        // Init App
+        function init() {
+            lucide.createIcons();
+            render();
+            
+            // File input listener
+            document.getElementById('fileInput').addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    try {
+                        const data = JSON.parse(ev.target.result);
+                        if (data.deck) {
+                            if(confirm("Nhập dữ liệu mới? Dữ liệu hiện tại sẽ bị ghi đè.")) {
+                                deck = data.deck;
+                                currentCardIndex = data.currentCardIndex;
+                                sessionStats = data.sessionStats;
+                                saveData();
+                                resetView();
+                                render();
+                                alert("Nhập thành công!");
+                            }
+                        }
+                    } catch (err) {
+                        alert("Lỗi đọc file!");
+                    }
+                };
+                reader.readAsText(file);
+                e.target.value = null; // Reset input
+            });
+        }
+
+        function saveData() {
+            localStorage.setItem('anki_deck', JSON.stringify(deck));
+            localStorage.setItem('anki_index', currentCardIndex);
+            localStorage.setItem('anki_stats', JSON.stringify(sessionStats));
+        }
+
+        function render() {
+            if (deck.length === 0) {
+                document.getElementById('card-question').innerText = "Đã hết câu hỏi!";
+                return;
+            }
+
+            const card = deck[currentCardIndex];
+            
+            // Update Stats
+            document.getElementById('progress-text').innerText = `${currentCardIndex + 1} / ${deck.length}`;
+            document.getElementById('score-correct').innerText = sessionStats.correct;
+            document.getElementById('score-wrong').innerText = sessionStats.total - sessionStats.correct;
+
+            // Render Question
+            document.getElementById('card-category').innerHTML = `<i data-lucide="award" class="w-4 h-4"></i> ${card.category}`;
+            document.getElementById('card-question').innerText = card.question;
+
+            // Render Options
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+            
+            card.options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = `w-full p-4 pl-5 text-left rounded-2xl transition-all duration-300 flex items-center justify-between group relative overflow-hidden backdrop-blur-md border ${getOptionStyle(opt.id, card.correctId)}`;
+                if (!showExplanation) {
+                    btn.classList.add('hover:scale-[1.02]', 'active:scale-[0.98]');
+                    btn.onclick = () => handleSelect(opt.id, card.correctId);
+                } else {
+                    btn.disabled = true;
+                }
+
+                // Inner content
+                let iconHtml = '';
+                if (showExplanation) {
+                    if (opt.id === card.correctId) iconHtml = `<i data-lucide="check-circle" class="w-6 h-6 text-green-500 drop-shadow-sm"></i>`;
+                    else if (opt.id === selectedOption && selectedOption !== card.correctId) iconHtml = `<i data-lucide="x-circle" class="w-6 h-6 text-red-500 drop-shadow-sm"></i>`;
+                }
+
+                btn.innerHTML = `
+                    <div class="absolute inset-0 bg-gradient-to-b from-white/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+                    <div class="flex items-center gap-5 relative z-10">
+                        <span class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold border transition-colors shadow-sm ${getBadgeStyle(opt.id, card.correctId)}">
+                            ${opt.id}
+                        </span>
+                        <span class="font-medium text-lg tracking-wide">${opt.text}</span>
+                    </div>
+                    <div class="relative z-10">${iconHtml}</div>
+                `;
+                optionsContainer.appendChild(btn);
+            });
+
+            // Render Explanation
+            const expSection = document.getElementById('explanation-section');
+            const ratingBar = document.getElementById('rating-bar');
+            
+            if (showExplanation) {
+                expSection.classList.remove('hidden');
+                ratingBar.classList.remove('hidden');
+                
+                const isCorrect = selectedOption === card.correctId;
+                const resultHeader = document.getElementById('result-header');
+                if (isCorrect) {
+                    resultHeader.className = "mb-6 flex items-center gap-3 font-black text-xl tracking-tight text-green-600";
+                    resultHeader.innerHTML = `<div class="p-1.5 bg-green-100 rounded-full border border-green-200"><i data-lucide="check-circle" class="w-5 h-5"></i></div> <span>CHÍNH XÁC!</span>`;
+                } else {
+                    resultHeader.className = "mb-6 flex items-center gap-3 font-black text-xl tracking-tight text-red-600";
+                    resultHeader.innerHTML = `<div class="p-1.5 bg-red-100 rounded-full border border-red-200"><i data-lucide="x-circle" class="w-5 h-5"></i></div> <span>SAI RỒI!</span>`;
+                }
+
+                document.getElementById('explanation-correct').innerText = card.explanation.correct;
+                document.getElementById('explanation-incorrect').innerText = card.explanation.incorrect;
+            } else {
+                expSection.classList.add('hidden');
+                ratingBar.classList.add('hidden');
+            }
+
+            lucide.createIcons(); // Refresh icons
+        }
+
+        function handleSelect(id, correctId) {
+            if (showExplanation) return;
+            selectedOption = id;
+            showExplanation = true;
+            
+            if (id === correctId) {
+                sessionStats.correct++;
+            }
+            sessionStats.total++;
+            saveData();
+            render();
+        }
+
+        function handleRating(difficulty) {
+            const currentCard = deck[currentCardIndex];
+            
+            if (difficulty === 'again' || difficulty === 'hard') {
+                // Copy current card and push to end with new ID (simulate re-queue)
+                const retryCard = {...currentCard, id: Date.now()};
+                deck.push(retryCard);
+            }
+
+            // Move next
+            if (currentCardIndex < deck.length - 1) {
+                currentCardIndex++;
+                resetView();
+                saveData();
+                render();
+            } else {
+                alert(`🎉 Hoàn thành phiên ôn tập!\nKết quả: ${sessionStats.correct}/${sessionStats.total}`);
+                handleReset(); // Auto reset or stay
+            }
+        }
+
+        function resetView() {
+            showExplanation = false;
+            selectedOption = null;
+        }
+
+        function resetApp() {
+            if (confirm("Bạn có chắc muốn xóa dữ liệu và học lại từ đầu?")) {
+                deck = [...INITIAL_DECK];
+                currentCardIndex = 0;
+                sessionStats = { correct: 0, total: 0 };
+                resetView();
+                saveData();
+                render();
+            }
+        }
+
+        function exportData() {
+            const data = { deck, currentCardIndex, sessionStats, exportedAt: new Date().toISOString() };
+            const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `anki-data-${new Date().toLocaleDateString('vi-VN').replace(/\//g,'-')}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+
+        // Helper Styles
+        function getOptionStyle(id, correctId) {
+            if (!showExplanation) {
+                return selectedOption === id 
+                    ? "bg-blue-50 border-blue-400 text-blue-800 shadow-[0_4px_12px_rgba(59,130,246,0.2)]"
+                    : "bg-white/60 hover:bg-white/90 border-white/40 text-gray-700 hover:text-gray-900 hover:shadow-md";
+            }
+            if (id === correctId) return "bg-green-50 border-green-500 text-green-800 shadow-[0_0_20px_rgba(74,222,128,0.3)]";
+            if (id === selectedOption) return "bg-red-50 border-red-500 text-red-800 shadow-[0_0_20px_rgba(248,113,113,0.3)]";
+            return "bg-gray-50/50 border-gray-100 text-gray-400 opacity-60";
+        }
+
+        function getBadgeStyle(id, correctId) {
+            if (!showExplanation) {
+                return selectedOption === id
+                    ? "bg-white border-blue-400 text-blue-600"
+                    : "bg-white border-gray-200 text-gray-500 group-hover:border-indigo-300 group-hover:text-indigo-600";
+            }
+            if (id === correctId) return "bg-green-500 border-green-400 text-white shadow-green-200";
+            if (id === selectedOption) return "bg-red-500 border-red-400 text-white shadow-red-200";
+            return "bg-white border-gray-200 text-gray-400";
+        }
+
+        // Start
+        init();
+    </script>
+</body>
+</html>
