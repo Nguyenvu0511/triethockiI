@@ -3,821 +3,3066 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nihongo Flashcards - Spaced Repetition</title>
-    <!-- Tailwind CSS -->
+    <title>VisionFlash - Ôn Tập Pháp Luật Đại Cương</title>
+    <!-- Tailwind CSS via CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
-    
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                        jp: ['Noto Sans JP', 'sans-serif'],
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
                     },
                     colors: {
-                        brand: {
-                            50: '#f0fdfa',
-                            100: '#ccfbf1',
-                            500: '#14b8a6', // Teal 500
-                            600: '#0d9488',
-                            700: '#0f766e',
+                        glass: {
+                            DEFAULT: 'rgba(255, 255, 255, 0.7)',
+                            border: 'rgba(255, 255, 255, 0.4)',
                         }
-                    }
+                    },
                 }
             }
         }
     </script>
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons via CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Custom animations for Pastel Orbs and Liquid Glow -->
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
-        .jp-text { font-family: 'Noto Sans JP', sans-serif; }
-        
-        /* Custom scrollbar for textarea */
-        textarea::-webkit-scrollbar { width: 8px; }
-        textarea::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
-        textarea::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-        textarea::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-
-        /* Animations */
-        .fade-in { animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+        body {
+            background: #f0f4f8;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
         }
-
-        /* Furigana Styling */
-        ruby { ruby-align: center; }
-        rt { font-size: 0.6em; color: #64748b; font-weight: normal; }
+        @keyframes float-slow {
+            0%, 100% { transform: translateY(0px) scale(1); }
+            50% { transform: translateY(-20px) scale(1.05); }
+        }
+        @keyframes float-medium {
+            0%, 100% { transform: translateY(0px) scale(1.05); }
+            50% { transform: translateY(-15px) scale(0.95); }
+        }
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.45;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .orb-1 {
+            width: 450px;
+            height: 450px;
+            background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
+            top: -10%;
+            left: -10%;
+            animation: float-slow 15s infinite ease-in-out;
+        }
+        .orb-2 {
+            width: 400px;
+            height: 400px;
+            background: linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%);
+            bottom: 5%;
+            right: -10%;
+            animation: float-medium 18s infinite ease-in-out;
+        }
+        .orb-3 {
+            width: 350px;
+            height: 350px;
+            background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
+            top: 40%;
+            left: 60%;
+            animation: float-slow 12s infinite ease-in-out;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.08);
+        }
+        .glass-btn {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .glass-btn:hover {
+            background: rgba(255, 255, 255, 0.85);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+        .glass-btn:active {
+            transform: translateY(0px);
+        }
+        /* Card Flip effect if needed, but we'll use sleek animations */
+        .option-button {
+            transition: all 0.25s ease;
+        }
+        /* Custom scrollbar for glass panel */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 0, 0, 0.2);
+        }
     </style>
 </head>
-<body class="text-slate-800 antialiased min-h-screen flex flex-col">
+<body class="min-h-screen relative flex flex-col justify-between pb-24">
 
-    <nav class="bg-brand-600 text-white shadow-md">
-        <div class="max-w-3xl mx-auto px-4 py-3 flex justify-between items-center">
-            <h1 class="text-xl font-bold flex items-center gap-2 cursor-pointer" onclick="UI.showDashboard()">
-                <i class="fa-solid fa-layer-group"></i> NihongoCards
-            </h1>
-            <button onclick="UI.toggleSettings()" class="hover:bg-brand-700 p-2 rounded-full transition-colors" title="Cài đặt">
-                <i class="fa-solid fa-gear"></i>
+    <!-- Pastel Gradient Orbs background -->
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+
+    <!-- Header -->
+    <header class="w-full max-w-4xl mx-auto px-4 pt-6 z-10 relative">
+        <div class="glass-panel rounded-2xl px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="bg-indigo-600/80 p-2.5 rounded-xl shadow-lg shadow-indigo-600/20 backdrop-blur">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="text-white w-6 h-6">
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M4.40742 8.09524C7.18519 5.04762 10.6111 5.14286 12.463 7.04762C8.48149 8 11.5508 12.3565 14.6852 11.0476C18.0325 9.64989 17.816 4.32746 11.4652 2.06342C11.8229 2.02153 12.1868 2 12.5556 2C17.7633 2 21.9865 6.29285 22 11.5936C21.3437 9.70785 20.4315 8.33938 19.2222 7.33333C20.1895 11.3727 18.9445 14.0952 15.9815 14.6667C17.463 10.8571 11.64 11.0476 11.5075 14.9627C11.3872 18.5194 15.8821 20.4397 20.742 16.4576C19.2355 19.7321 15.9704 22 12.1852 22C10.3717 22 8.67755 21.4794 7.239 20.5769C9.22743 20.9627 11.0913 20.9497 12.463 20.2857C8.48149 19.5238 6.90742 16.381 7.55557 13.9048C10.3334 17.0476 12.926 12.0952 9.77779 9.90476C6.7775 8.12796 2.52737 10.8471 3.60184 17.1708C2.5903 15.6389 2 13.7944 2 11.8095C2 8.34408 3.79931 5.30665 6.49835 3.61347C5.30199 5.08027 4.61148 6.57774 4.40742 8.09524Z" fill="currentColor"/>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold text-slate-800 tracking-tight flex items-center gap-1">
+                        VisionFlash
+                    </h1>
+                    <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Pháp luật đại cương</span>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <button onclick="exportData()" class="glass-btn p-2 rounded-xl text-slate-600" title="Xuất dữ liệu">
+                    <i data-lucide="download" class="w-5 h-5"></i>
+                </button>
+                <label class="glass-btn p-2 rounded-xl text-slate-600 cursor-pointer" title="Nhập dữ liệu">
+                    <input type="file" id="importFile" onchange="importData(event)" class="hidden">
+                    <i data-lucide="upload" class="w-5 h-5"></i>
+                </label>
+                <button onclick="confirmReset()" class="glass-btn p-2 rounded-xl text-red-500" title="Reset học lại đầu">
+                    <i data-lucide="rotate-ccw" class="w-5 h-5"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="w-full max-w-4xl mx-auto px-4 py-8 z-10 flex-grow flex items-center justify-center relative">
+        
+        <!-- Complete Screen -->
+        <div id="complete-screen" class="hidden w-full max-w-2xl glass-panel rounded-3xl p-8 text-center space-y-6 animate-fade-in">
+            <div class="w-24 h-24 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto shadow-inner">
+                <i data-lucide="award" class="w-12 h-12"></i>
+            </div>
+            <div class="space-y-2">
+                <h2 class="text-3xl font-extrabold text-slate-800">Hoàn Thành Xuất Sắc!</h2>
+                <p class="text-slate-500">Bạn đã ôn tập và ghi nhớ tất cả câu hỏi trong hệ thống.</p>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-4 max-w-md mx-auto py-4">
+                <div class="bg-white/40 border border-white/60 p-4 rounded-2xl">
+                    <span class="block text-2xl font-bold text-slate-700" id="stat-accuracy">100%</span>
+                    <span class="text-xs text-slate-500 font-semibold uppercase">Độ chính xác</span>
+                </div>
+                <div class="bg-white/40 border border-white/60 p-4 rounded-2xl">
+                    <span class="block text-2xl font-bold text-slate-700" id="stat-total">0</span>
+                    <span class="text-xs text-slate-500 font-semibold uppercase">Tổng số câu học</span>
+                </div>
+            </div>
+
+            <button onclick="resetApp()" class="glass-btn bg-indigo-600/90 text-white hover:bg-indigo-600 font-bold px-8 py-3 rounded-2xl flex items-center gap-2 mx-auto">
+                <i data-lucide="rotate-ccw" class="w-5 h-5"></i> Học lại từ đầu
             </button>
         </div>
-    </nav>
 
-    <main class="flex-grow max-w-3xl mx-auto w-full p-4 relative">
-        
-        <div id="dashboard-screen" class="fade-in mt-4 space-y-6">
-            <!-- Stats Card -->
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
-                <h2 class="text-2xl font-bold text-slate-800 mb-4">Tiến độ học tập</h2>
-                <div class="grid grid-cols-2 gap-4 text-center">
-                    <div class="bg-blue-50 text-blue-700 p-4 rounded-xl">
-                        <div class="text-3xl font-bold" id="stat-new">0</div>
-                        <div class="text-sm font-medium mt-1">Thẻ mới</div>
-                    </div>
-                    <div class="bg-rose-50 text-rose-700 p-4 rounded-xl">
-                        <div class="text-3xl font-bold" id="stat-due">0</div>
-                        <div class="text-sm font-medium mt-1">Đến hạn ôn</div>
-                    </div>
-                </div>
-                <button onclick="App.startStudy()" class="w-full mt-6 bg-brand-500 hover:bg-brand-600 text-white font-semibold py-3 px-6 rounded-xl shadow-md hover:shadow-lg transition-all flex justify-center items-center gap-2">
-                    <i class="fa-solid fa-play"></i> Bắt đầu học
-                </button>
-            </div>
-
-            <!-- Audio Preload Card -->
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
-                <div class="flex justify-between items-start mb-4">
-                    <div>
-                        <h3 class="text-lg font-bold text-slate-800">Tải âm thanh AI (Offline)</h3>
-                        <p class="text-sm text-slate-500 mt-1">Tải trước audio Gemini TTS để phát không độ trễ.</p>
-                    </div>
-                    <i class="fa-solid fa-cloud-arrow-down text-2xl text-slate-300"></i>
-                </div>
+        <!-- Flashcard View -->
+        <div id="flashcard-container" class="w-full max-w-2xl space-y-6">
+            
+            <!-- Question Card -->
+            <div class="glass-panel rounded-3xl p-6 md:p-8 space-y-6 relative overflow-hidden transition-all duration-300">
                 
-                <div class="space-y-3">
-                    <div class="flex justify-between text-sm font-medium">
-                        <span id="preload-status" class="text-slate-600">Sẵn sàng</span>
-                        <span id="preload-count" class="text-brand-600">0/15</span>
+                <!-- Floating Stats -->
+                <div class="flex items-center justify-between text-xs text-slate-500 font-medium">
+                    <div class="flex items-center gap-1.5 bg-white/40 px-3 py-1.5 rounded-full border border-white/60">
+                        <i data-lucide="layers" class="w-3.5 h-3.5 text-indigo-500"></i>
+                        <span>Còn lại: <strong id="queue-remaining">0</strong> câu</span>
                     </div>
-                    <div class="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
-                        <div id="preload-bar" class="bg-brand-500 h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
-                    </div>
-                    <div class="flex gap-2">
-                        <button id="btn-preload" onclick="AudioSystem.togglePreload()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-white font-medium py-2 px-4 rounded-lg transition-colors flex items-center justify-center gap-2">
-                            <i class="fa-solid fa-download"></i> Tải toàn bộ âm thanh
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div id="study-screen" class="hidden fade-in mt-4 flex flex-col h-full max-h-[80vh]">
-            <!-- Progress top -->
-            <div class="flex justify-between items-center text-sm font-medium text-slate-500 mb-4 px-2">
-                <span>Thẻ <span id="card-current-idx">1</span> / <span id="card-total">10</span></span>
-                <button onclick="UI.showDashboard()" class="hover:text-brand-600"><i class="fa-solid fa-xmark text-lg"></i> Kết thúc</button>
-            </div>
-
-            <!-- The Card -->
-            <div class="bg-white rounded-2xl shadow-lg border border-slate-100 flex-grow flex flex-col relative overflow-hidden">
-                <!-- Question Section -->
-                <div class="p-6 md:p-8 flex-grow flex flex-col justify-center border-b border-slate-100 relative">
-                    <button onclick="AudioSystem.playCurrentQuestion()" class="absolute top-4 right-4 text-slate-400 hover:text-brand-500 p-2">
-                        <i class="fa-solid fa-volume-high text-xl"></i>
-                    </button>
-                    <div class="text-sm text-brand-600 font-semibold mb-2 uppercase tracking-wider">Câu hỏi</div>
-                    <div id="card-question" class="text-xl md:text-2xl text-slate-800 font-medium leading-relaxed jp-text">
-                        <!-- Question content -->
+                    <div class="flex items-center gap-1.5 bg-white/40 px-3 py-1.5 rounded-full border border-white/60">
+                        <i data-lucide="check-circle" class="w-3.5 h-3.5 text-green-500"></i>
+                        <span>Đã thuộc: <strong id="mastered-count">0</strong>/<strong id="total-count">0</strong></span>
                     </div>
                 </div>
 
-                <!-- Input Section (Active Recall) -->
-                <div id="active-recall-section" class="p-6 md:p-8 bg-slate-50">
-                    <label class="block text-sm font-medium text-slate-700 mb-2">Câu trả lời của bạn:</label>
-                    <textarea id="user-answer" rows="3" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-brand-500 focus:ring-2 focus:ring-brand-200 outline-none transition-all resize-none jp-text text-lg" placeholder="Gõ câu trả lời vào đây..."></textarea>
-                    <div class="flex justify-between items-center mt-4">
-                        <span class="text-xs text-slate-400"><kbd class="bg-slate-200 px-1 rounded">Ctrl</kbd> + <kbd class="bg-slate-200 px-1 rounded">Enter</kbd> để kiểm tra</span>
-                        <button onclick="App.checkAnswer()" class="bg-brand-500 hover:bg-brand-600 text-white font-medium py-2.5 px-6 rounded-xl shadow transition-colors">
-                            Kiểm tra đáp án
-                        </button>
+                <!-- Question Stem -->
+                <div class="space-y-4">
+                    <div class="text-xs font-bold text-indigo-600 uppercase tracking-widest" id="card-id-badge">Thẻ bài #1</div>
+                    <h2 class="text-lg md:text-xl font-bold text-slate-800 leading-relaxed" id="question-text">
+                        Đang tải câu hỏi...
+                    </h2>
+                </div>
+
+                <!-- Answer Options -->
+                <div class="grid grid-cols-1 gap-3.5 pt-2" id="options-container">
+                    <!-- Dynamic rendering -->
+                </div>
+
+                <!-- Explanation Area (hidden initially) -->
+                <div id="explanation-container" class="hidden border-t border-slate-200/50 pt-5 space-y-3 animate-slide-down">
+                    <h3 class="text-sm font-bold text-slate-700 flex items-center gap-2">
+                        <i data-lucide="help-circle" class="w-4 h-4 text-indigo-500"></i>
+                        Giải thích pháp luật
+                    </h3>
+                    <div class="text-sm text-slate-600 leading-relaxed bg-indigo-50/40 border border-indigo-100/40 p-4 rounded-2xl" id="explanation-text">
+                        Nội dung giải thích chi tiết...
                     </div>
                 </div>
 
-                <!-- Answer Section (Hidden initially) -->
-                <div id="answer-section" class="hidden p-6 md:p-8 bg-white fade-in">
-                    <!-- User diff -->
-                    <div class="mb-6 p-4 rounded-xl bg-slate-50 border border-slate-100">
-                        <div class="text-xs font-semibold text-slate-500 uppercase mb-1">Bạn đã gõ:</div>
-                        <div id="display-user-answer" class="text-lg text-slate-700 jp-text italic min-h-[1.5rem]"></div>
-                    </div>
-                    
-                    <!-- Correct Answer -->
-                    <div class="relative">
-                        <button onclick="AudioSystem.playCurrentAnswer()" class="absolute -top-1 right-0 text-slate-400 hover:text-brand-500 p-2">
-                            <i class="fa-solid fa-volume-high text-xl"></i>
-                        </button>
-                        <div class="text-xs font-semibold text-emerald-600 uppercase mb-2">Đáp án chuẩn:</div>
-                        <div id="card-answer" class="text-xl md:text-2xl font-bold text-slate-800 jp-text mb-3"></div>
-                        <div id="card-meaning" class="text-base text-slate-600 border-l-4 border-brand-300 pl-3"></div>
-                    </div>
-                </div>
             </div>
 
-            <!-- SRS Buttons (Hidden initially) -->
-            <div id="srs-buttons" class="hidden mt-6 grid grid-cols-4 gap-2 md:gap-4 fade-in">
-                <button onclick="App.handleSRS(0)" class="flex flex-col items-center justify-center p-3 rounded-xl bg-white border-2 border-rose-100 hover:border-rose-400 hover:bg-rose-50 transition-colors group">
-                    <span class="text-sm font-bold text-rose-600">Lại</span>
-                    <span class="text-xs text-slate-400 mt-1" id="time-again">1m</span>
-                </button>
-                <button onclick="App.handleSRS(1)" class="flex flex-col items-center justify-center p-3 rounded-xl bg-white border-2 border-orange-100 hover:border-orange-400 hover:bg-orange-50 transition-colors group">
-                    <span class="text-sm font-bold text-orange-600">Khó</span>
-                    <span class="text-xs text-slate-400 mt-1" id="time-hard">10m</span>
-                </button>
-                <button onclick="App.handleSRS(2)" class="flex flex-col items-center justify-center p-3 rounded-xl bg-white border-2 border-emerald-100 hover:border-emerald-400 hover:bg-emerald-50 transition-colors group">
-                    <span class="text-sm font-bold text-emerald-600">Vừa</span>
-                    <span class="text-xs text-slate-400 mt-1" id="time-good">1d</span>
-                </button>
-                <button onclick="App.handleSRS(3)" class="flex flex-col items-center justify-center p-3 rounded-xl bg-white border-2 border-blue-100 hover:border-blue-400 hover:bg-blue-50 transition-colors group">
-                    <span class="text-sm font-bold text-blue-600">Dễ</span>
-                    <span class="text-xs text-slate-400 mt-1" id="time-easy">4d</span>
-                </button>
-            </div>
-        </div>
-
-        <div id="settings-modal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 fade-in">
-            <div class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
-                <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center">
-                    <h3 class="text-lg font-bold text-slate-800">Cài đặt hệ thống</h3>
-                    <button onclick="UI.toggleSettings()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-xl"></i></button>
-                </div>
-                <div class="p-6 space-y-4">
-                    <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1">Gemini API Key (Cho AI Voice)</label>
-                        <input type="password" id="api-key-input" class="w-full px-4 py-2 rounded-lg border border-slate-300 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none" placeholder="Nhập API key của bạn...">
-                        <p class="text-xs text-slate-500 mt-2">Bỏ trống để sử dụng giọng đọc mặc định của trình duyệt (Web Speech API).</p>
-                    </div>
-                </div>
-                <div class="px-6 py-4 bg-slate-50 border-t border-slate-100 flex justify-end">
-                    <button onclick="App.saveSettings()" class="bg-brand-500 hover:bg-brand-600 text-white font-medium py-2 px-6 rounded-lg transition-colors">Lưu cài đặt</button>
-                </div>
-            </div>
         </div>
 
     </main>
 
+    <!-- Bottom Sticky Footer (Anki evaluation buttons) -->
+    <footer id="anki-footer" class="hidden fixed bottom-0 left-0 right-0 py-4 px-4 bg-gradient-to-t from-slate-100/90 via-slate-100/70 to-transparent backdrop-blur-sm z-20 transition-all duration-300">
+        <div class="max-w-xl mx-auto glass-panel border border-white/50 rounded-2xl p-4 flex flex-col md:flex-row items-center gap-4 justify-between shadow-2xl">
+            <div class="text-center md:text-left">
+                <p class="text-xs text-slate-400 font-bold uppercase tracking-wider">Đánh giá độ thuộc</p>
+                <p class="text-sm font-semibold text-slate-700">Bạn thấy câu này như thế nào?</p>
+            </div>
+            
+            <div class="grid grid-cols-4 gap-2 w-full md:w-auto">
+                <button onclick="handleAnkiRating('again')" class="glass-btn hover:bg-red-50 text-red-600 border-red-200 py-2.5 px-3 rounded-xl flex flex-col items-center">
+                    <span class="text-xs font-bold">Lại</span>
+                    <span class="text-[9px] text-red-400 font-medium font-mono">&lt;1p</span>
+                </button>
+                <button onclick="handleAnkiRating('hard')" class="glass-btn hover:bg-yellow-50 text-yellow-600 border-yellow-200 py-2.5 px-3 rounded-xl flex flex-col items-center">
+                    <span class="text-xs font-bold">Khó</span>
+                    <span class="text-[9px] text-yellow-400 font-medium font-mono">10p</span>
+                </button>
+                <button onclick="handleAnkiRating('good')" class="glass-btn hover:bg-green-50 text-green-600 border-green-200 py-2.5 px-3 rounded-xl flex flex-col items-center">
+                    <span class="text-xs font-bold">Tốt</span>
+                    <span class="text-[9px] text-green-400 font-medium font-mono">1d</span>
+                </button>
+                <button onclick="handleAnkiRating('easy')" class="glass-btn hover:bg-blue-50 text-blue-600 border-blue-200 py-2.5 px-3 rounded-xl flex flex-col items-center">
+                    <span class="text-xs font-bold">Dễ</span>
+                    <span class="text-[9px] text-blue-400 font-medium font-mono">4d</span>
+                </button>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Audio assets -->
+    <audio id="audio-correct" src="https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3"></audio>
+    <audio id="audio-incorrect" src="https://assets.mixkit.co/active_storage/sfx/2003/2003-preview.mp3"></audio>
+
+    <!-- Global CSS utility animations -->
     <script>
-        // Data input transformation
-        const quizData = [
-            {
-                id: "q1",
-                question: "Đặt một câu tiếng Nhật có sử dụng từ sau:<br><strong class='text-brand-600'>「~とき(khi...)」</strong>",
-                answer: "<ruby>子<rt>こ</rt></ruby>どものとき、よく<ruby>川<rt>かわ</rt></ruby>で<ruby>泳<rt>およ</rt></ruby>ぎました。",
-                meaning: "(Khi còn nhỏ, tôi hay bơi ở sông)"
-            },
-            {
-                id: "q2",
-                question: "Đặt một câu tiếng Nhật có sử dụng từ sau:<br><strong class='text-brand-600'>「~てみます(thử làm gì)」</strong>",
-                answer: "このケーキはおいしそうですね。<ruby>食<rt>た</rt></ruby>べてみます。",
-                meaning: "(Bánh này trông ngon quá. Tôi sẽ ăn thử)"
-            },
-            {
-                id: "q3",
-                question: "Hoàn thành câu dưới đây với gợi ý cho sẵn:<br>さくらはくぶつかんは (  ) たてものです。<br><span class='text-sm text-slate-500'>(おおきいです + りっぱです)</span>",
-                answer: "おおきくて、りっぱな",
-                meaning: "Nối tính từ đuôi い thành くて, nối tính từ đuôi な đứng trước danh từ bằng chữ な.<br>Dịch: Bảo tàng Sakura là tòa nhà to và tráng lệ."
-            },
-            {
-                id: "q4",
-                question: "Hãy đặt câu hỏi cho câu trả lời sau:<br><span class='jp-text'>とうきょうのてんきはとても あついです。</span><br><span class='text-sm text-slate-500'>(Thời tiết ở Tokyo rất nóng.)</span>",
-                answer: "とうきょうのてんきはどうですか。",
-                meaning: "Dùng どうですか để hỏi về tính chất. Dịch: Thời tiết ở Tokyo như thế nào?"
-            },
-            {
-                id: "q5",
-                question: "Dịch sang tiếng Việt:<br><span class='jp-text'><ruby>昨日<rt>きのう</rt></ruby>のたんじょうびにははにぼうしを あげました。</span>",
-                answer: "Sinh nhật ngày hôm qua, tôi đã tặng mẹ một cái mũ.",
-                meaning: ""
-            },
-            {
-                id: "q6",
-                question: "Viết nghĩa của câu sau bằng tiếng Việt:<br><span class='jp-text'>「しごとのあとでかいものをします」</span>",
-                answer: "Sau khi làm việc xong, tôi sẽ đi mua sắm.",
-                meaning: "N + のあとで = Sau khi làm N"
-            },
-            {
-                id: "q7",
-                question: "Dịch câu sau sang tiếng Nhật:<br><strong class='text-slate-700'>\"Tiếng Nhật thì khó nhưng thú vị.\"</strong>",
-                answer: "<ruby>日本語<rt>にほんご</rt></ruby>はむずかしいですが、おもしろいです。",
-                meaning: "Nối 2 vế trái ngược nhau dùng が hoặc けれども"
-            },
-            {
-                id: "q8",
-                question: "Sắp xếp thứ tự đúng của câu sau:<br><span class='jp-text'>スペイン語 (たんご / おぼえる / かんたんです / を / は / のが)。</span>",
-                answer: "スペイン語 は たんごを おぼえるのが かんたんです。",
-                meaning: "Cấu trúc Vる + のが + Tính từ. Dịch: Tiếng Tây Ban Nha thì việc nhớ từ vựng rất dễ"
-            },
-            {
-                id: "q9",
-                question: "Sắp xếp lại các từ sau để tạo thành câu tiếng Nhật hoàn chỉnh:<br><span class='jp-text'>(は / が / を / です / かくの / むずかしい / もじ / 中国語)。</span>",
-                answer: "<ruby>中国語<rt>ちゅうごくご</rt></ruby>は もじを かくのが むずかしいです。",
-                meaning: "Cấu trúc Vる + のが + Tính từ. Dịch: Tiếng Trung thì việc viết chữ rất khó"
-            },
-            {
-                id: "q10",
-                question: "Sắp xếp thứ tự đúng của câu sau:<br><span class='jp-text'>びじゅつかん / まがって / は / わたってください / 右に / こうさてんを。</span>",
-                answer: "びじゅつかんは こうさてんを わたって、<ruby>右<rt>みぎ</rt></ruby>に まがってください。",
-                meaning: "Nối 2 hành động liên tiếp bằng thểて. Dịch: Bảo tàng thì, hãy băng qua ngã tư rồi rẽ phải"
-            },
-            {
-                id: "q11",
-                question: "Dịch sang tiếng Nhật:<br><strong class='text-slate-700'>Trung tâm thương mại Nozomi là một tòa nhà mới và sạch sẽ.</strong>",
-                answer: "のぞみショッピングセンターは <ruby>新<rt>あたら</rt></ruby>しくて、きれいな たてものです。",
-                meaning: "Nối 2 tính từ 新しい và きれい"
-            },
-            {
-                id: "q12",
-                question: "Trả lời câu hỏi sau bằng tiếng Nhật:<br><span class='jp-text'>あなたはどのきせつが好きですか。どうしてですか。</span><br><span class='text-sm text-slate-500'>(Bạn thích mùa nào? Tại sao?)</span>",
-                answer: "わたしは <ruby>秋<rt>あき</rt></ruby>が好きです。すずしいですから。",
-                meaning: "(Tôi thích mùa thu. Vì nó mát mẻ -> Đưa ra lý do với đuôi から). Các đáp án khác có thể chấp nhận nếu đúng ngữ pháp."
-            },
-            {
-                id: "q13",
-                question: "Hãy trả lời câu hỏi sau với gợi ý cho sẵn:<br><span class='jp-text'>あなたは エンジニアですか。</span><span class='text-sm text-slate-500'>(Bạn là kỹ sư à?)</span>",
-                answer: "いいえ、( エンジニア ) じゃなくて、( がくせい ) です。",
-                meaning: "Cấu trúc N1 じゃなくて N2. Dịch: Không, tôi không phải kỹ sư mà là học sinh"
-            },
-            {
-                id: "q14",
-                question: "Dịch câu sau sang tiếng Việt:<br><span class='jp-text'>せんせい、もういちど<ruby>言<rt>い</rt></ruby>って くださいませんか。</span>",
-                answer: "Thưa thầy/cô, thầy/cô có thể nói lại một lần nữa được không ạ?",
-                meaning: "Vて + くださいませんか: Yêu cầu lịch sự"
-            },
-            {
-                id: "q15",
-                question: "Đặt câu hỏi cho câu trả lời sau:<br><span class='jp-text'><ruby>雪<rt>ゆき</rt></ruby>ででんしゃが<ruby>止<rt>と</rt></ruby>まりました。</span><br><span class='text-sm text-slate-500'>(Tàu đã dừng lại VÌ TUYẾT.)</span>",
-                answer: "どうして (hoặc 何で) でんしゃが <ruby>止<rt>と</rt></ruby>まりましたか。",
-                meaning: "Câu trả lời có nguyên nhân 雪で nên phải dùng từ để hỏi lý do どうして. Dịch: Tại sao tàu lại dừng?"
+        // Insert custom animation styles dynamically
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slide-down {
+                from { opacity: 0; transform: translateY(-10px); }
+                to { opacity: 1; transform: translateY(0); }
             }
-        ];
+            .animate-slide-down {
+                animation: slide-down 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            }
+            @keyframes fade-in {
+                from { opacity: 0; transform: scale(0.95); }
+                to { opacity: 1; transform: scale(1); }
+            }
+            .animate-fade-in {
+                animation: fade-in 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
 
-        // LocalStorage for SRS data and Settings
-        const Storage = {
-            getSRS: () => JSON.parse(localStorage.getItem('srsData')) || {},
-            saveSRS: (data) => localStorage.setItem('srsData', JSON.stringify(data)),
-            getAPIKey: () => localStorage.getItem('geminiApiKey') || '',
-            saveAPIKey: (key) => localStorage.setItem('geminiApiKey', key)
+    <!-- JavaScript logic -->
+    <script>
+        // The embedded 208 questions deck
+        const INITIAL_DECK = [
+  {
+    "id": 1,
+    "question": "Lựa chọn đúng về thứ tự ra đời của các kiểu nhà nước",
+    "options": [
+      "Nhà nước Phong kiến, Nhà nước Chủ nô, Nhà nước Tư bản, Nhà nước Xã hội chủ nghĩa",
+      "Nhà nước Phong kiến, Nhà nước Chủ nô, Nhà nước Xã hội chủ nghĩa, Nhà nước Tư bản",
+      "Nhà nước Chủ nô, Nhà nước Phong kiến, Nhà nước Tu bản, Nhà nước Xã hội chủ nghĩa",
+      "Nhà nước Tư bản, Nhà nước Chủ nô, Nhà nước Phong kiến, Nhà nước Xã hội chủ nghĩa"
+    ],
+    "correctAnswerIndex": 2,
+    "explanation": "Về lý luận chung về Nhà nước: Lịch sử loài người trải qua 4 kiểu nhà nước tương ứng với các hình thái KT-XH có giai cấp: Chủ nô -> Phong kiến -> Tư bản -> Xã hội chủ nghĩa."
+  },
+  {
+    "id": 2,
+    "question": "Lựa chọn đúng về bản chất của Nhà nước",
+    "options": [
+      "Thể hiện tính giai cấp",
+      "Thể hiện tính xã hội",
+      "A và B đều đúng",
+      "A và B đều sai"
+    ],
+    "correctAnswerIndex": 2,
+    "explanation": "Giải thích: Đáp án đúng là **C. A và B đều đúng**. Đây là câu trả lời chính xác dựa trên giáo trình Pháp luật đại cương hiện hành."
+  },
+  {
+    "id": 3,
+    "question": "Lựa chọn đúng về chức năng của pháp luật",
+    "options": [
+      "Chức năng điều chỉnh",
+      "Chức năng bảo vệ",
+      "Chức năng giáo dục",
+      "Tất cả phương án trên"
+    ],
+    "correctAnswerIndex": 3,
+    "explanation": "Giải thích: Đáp án đúng là **D. Tất cả phương án trên**. Đây là câu trả lời chính xác dựa trên giáo trình Pháp luật đại cương hiện hành."
+  },
+  {
+    "id": 4,
+    "question": "Sắp xếp các văn bản pháp luật sau theo trật tự cao xuống thấp",
+    "options": [
+      "Hiến pháp, Bộ luật, Pháp lệnh, Thông tư",
+      "Hiến pháp, Pháp lệnh, Thông tư, Bộ luật",
+      "Hiến pháp, Pháp lệnh, Bộ luật, Thông tư",
+      "Thông tư, Pháp lệnh, Bộ luật, Hiến pháp"
+    ],
+    "correctAnswerIndex": 0,
+    "explanation": "Giải thích: Đáp án đúng là **A. Hiến pháp, Bộ luật, Pháp lệnh, Thông tư**. Đây là câu trả lời chính xác dựa trên giáo trình Pháp luật đại cương hiện hành."
+  },
+  {
+    "id": 5,
+    "question": "Các bộ phận cấu thành quy phạm pháp luật",
+    "options": [
+      "Giả định, chủ thể, khách thể",
+      "Quy định, nội dung, chủ thể",
+      "Giả định, quy định, chế tài",
+      "Chủ thể, khách  thể, nội dung"
+    ],
+    "correctAnswerIndex": 2,
+    "explanation": "Cấu trúc quy phạm pháp luật gồm 3 bộ phận: **Giả định:** Chỉ ra chủ thể, điều kiện hoàn cảnh chịu sự điều chỉnh của quy phạm (thường trả lời câu hỏi 'Ai? Khi nào?')."
+  },
+  {
+    "id": 6,
+    "question": "Trong điều luật sau: “Công dân Việt Nam nào câu kết với nước ngoài nhằm gây nguy hại cho độc lập, chủ quyền, thống nhất và toàn vẹn lãnh thổ của Tổ quốc, chế độ xã hội chủ nghĩa và Nhà nước Cộng hòa xã hội chủ nghĩa Việt Nam, tiềm lực quốc phòng, an ninh, thì bị phạt tù từ 12  năm đến 20 năm, tù chung than hoặc tử hình.” (Khoản 1. Điều 108. Bộ luật Hình sự 2015) thì: bị phạt tù từ 12 năm đến 20 năm, tù chung thân hoặc tử hình là:",
+    "options": [
+      "Giả định",
+      "Quy định",
+      "Chế tài",
+      "Tất cả đều sai"
+    ],
+    "correctAnswerIndex": 2,
+    "explanation": "Theo quy định của Bộ luật Hình sự 2015: Đáp án đúng là 'Chế tài', dựa trên các quy định về phân loại tội phạm, chế tài hình sự và trình tự thủ tục tố tụng hình sự."
+  },
+  {
+    "id": 7,
+    "question": "Văn bản có giá trị pháp lý cao nhất trong hệ thống pháp luật Việt Nam là",
+    "options": [
+      "Hiến pháp",
+      "Bộ luật",
+      "Luật",
+      "Pháp lệnh"
+    ],
+    "correctAnswerIndex": 0,
+    "explanation": "Giải thích: Đáp án đúng là **A. Hiến pháp**. Đây là câu trả lời chính xác dựa trên giáo trình Pháp luật đại cương hiện hành."
+  },
+  {
+    "id": 8,
+    "question": "Chính phủ có thẩm quyền ban hành",
+    "options": [
+      "Nghị định",
+      "Thông tư",
+      "Luật",
+      "Hiến pháp"
+    ],
+    "correctAnswerIndex": 0,
+    "explanation": "Theo Luật ban hành văn bản quy phạm pháp luật: Thẩm quyền ban hành văn bản pháp luật được phân định rõ ràng giữa các cơ quan quyền lực và cơ quan hành chính. Đáp án đúng: 'Nghị định'."
+  },
+  {
+    "id": 9,
+    "question": "Văn bản nào sau đây là văn bản quy phạm pháp luật",
+    "options": [
+      "Nghị quyết của ĐCSVN",
+      "Nghị quyết của Ủy ban thường vụ Quốc hội",
+      "Nội quy trường Đại học Duy Tân",
+      "Điều lệ Đoàn Thanh niên Cộng sản Hồ Chí Minh"
+    ],
+    "correctAnswerIndex": 1,
+    "explanation": "Cấu trúc quy phạm pháp luật gồm 3 bộ phận: Phương án đúng là 'Nghị quyết của Ủy ban thường vụ Quốc hội', chỉ ra chính xác các bộ phận hoặc định nghĩa của quy phạm pháp luật."
+  },
+  {
+    "id": 10,
+    "question": "Chủ thể của quan hệ pháp luật bao gồm",
+    "options": [
+      "Ông Nguyễn Văn A",
+      "Công ty TNHH Sông Hàn",
+      "Nước CHXHXN Việt Nam",
+      "Tất cả các phương án trên"
+    ],
+    "correctAnswerIndex": 3,
+    "explanation": "Giải thích: Đáp án đúng là **D. Tất cả các phương án trên**. Đây là câu trả lời chính xác dựa trên giáo trình Pháp luật đại cương hiện hành."
+  },
+  {
+    "id": 11,
+    "question": "Trong quan hệ pháp luật ông Nguyễn Văn A là chủ thể theo hình thức",
+    "options": [
+      "Cá nhân",
+      "Tổ chức",
+      "Nhà nước",
+      "Tất cả các phương án trên"
+    ],
+    "correctAnswerIndex": 0,
+    "explanation": "Giải thích: Đáp án đúng là **A. Cá nhân**. Đây là câu trả lời chính xác dựa trên giáo trình Pháp luật đại cương hiện hành."
+  },
+  {
+    "id": 12,
+    "question": "Năng lực dựa vào độ tuổi và khả năng nhận thức của chủ thể là",
+    "options": [
+      "Năng lực pháp luật",
+      "Năng lực hành vi",
+      "Cả A và B đều đúng",
+      "Cả A và B đều sai"
+    ],
+    "correctAnswerIndex": 1,
+    "explanation": "Giải thích: Đáp án đúng là **B. Năng lực hành vi**. Đây là câu trả lời chính xác dựa trên giáo trình Pháp luật đại cương hiện hành."
+  },
+  {
+    "id": 13,
+    "question": "Sự kiện pháp lý diễn ra không phụ thuộc vào ý chí của con người",
+    "options": [
+      "Sự biến pháp lý",
+      "Sự kiện pháp lý",
+      "Cả A và B đều đúng",
+      "Cả A và B đều sai"
+    ],
+    "correctAnswerIndex": 0,
+    "explanation": "Giải thích: Đáp án đúng là **A. Sự biến pháp lý**. Đây là câu trả lời chính xác dựa trên giáo trình Pháp luật đại cương hiện hành."
+  },
+  {
+    "id": 14,
+    "question": "Đại dịch Covid-19 là",
+    "options": [
+      "Sự kiện pháp lý",
+      "Sự biến pháp lý",
+      "Hành vi pháp lý",
+      "Tất cả phương án trên đều sai"
+    ],
+    "correctAnswerIndex": 1,
+    "explanation": "Giải thích: Đáp án đúng là **B. Sự biến pháp lý**. Đây là câu trả lời chính xác dựa trên giáo trình Pháp luật đại cương hiện hành."
+  },
+  {
+    "id": 15,
+    "question": "Ngày 21/2/2021 ông Nguyễn Văn A mua của cửa hàng FPT một chiếc điện thoại SamSung Galaxy Z Fold 3 trên đường Nguyễn Văn Linh. Quyền sở hữu tài sản và chuyển giao quyền sở hữu đối với chiếc điện thoại trong trường hợp này là",
+    "options": [
+      "Chủ thể quan hệ pháp luật",
+      "Khách thể của quan hệ pháp luật",
+      "Nội dung của quan hệ pháp luật",
+      "Tất cả phương án trên đều sai"
+    ],
+    "correctAnswerIndex": 1,
+    "explanation": "Giải thích: Đáp án đúng là **B. Khách thể của quan hệ pháp luật**. Đây là câu trả lời chính xác dựa trên giáo trình Pháp luật đại cương hiện hành."
+  },
+  {
+    "id": 16,
+    "question": "Cách xử sự mà pháp luật cho phép chủ thể tiến hành và được bảo vệ bằng biện pháp cưỡng chế của nhà nước",
+    "options": [
+      "Quyền của chủ thể",
+      "Nghĩa vụ của chủ thể",
+      "A và B đều đúng",
+      "A và B đều sai"
+    ],
+    "correctAnswerIndex": 0,
+    "explanation": "Giải thích: Đáp án đúng là **A. Quyền của chủ thể**. Đây là câu trả lời chính xác dựa trên giáo trình Pháp luật đại cương hiện hành."
+  },
+  {
+    "id": 17,
+    "question": "Năng lực pháp luật của tổ chức chấm dứt khi",
+    "options": [
+      "Tổ chức đó phá sản hoặc giải thể",
+      "Người đứng đầu tổ chức đó chết",
+      "Người đứng đầu tổ chức đó bị cơ quan chức năng tuyên mất năng lực hành vi",
+      "Người đứng đầu tổ chức mất năng lực hành vi dân sự"
+    ],
+    "correctAnswerIndex": 1,
+    "explanation": "Giải thích: Đáp án đúng là **B. Người đứng đầu tổ chức đó chết**. Đây là câu trả lời chính xác dựa trên giáo trình Pháp luật đại cương hiện hành."
+  },
+  {
+    "id": 18,
+    "question": "Cấu trúc của một quan hệ pháp luật bao gồm",
+    "options": [
+      "Chủ thể",
+      "Nội dung",
+      "Khách thể",
+      "Tất cả các phương án trên"
+    ],
+    "correctAnswerIndex": 3,
+    "explanation": "Giải thích: Đáp án đúng là **D. Tất cả các phương án trên**. Đây là câu trả lời chính xác dựa trên giáo trình Pháp luật đại cương hiện hành."
+  },
+  {
+    "id": 19,
+    "question": "Các hình thức tuân thủ pháp luật bao gồm",
+    "options": [
+      "Thực hiện pháp luật",
+      "Tuân thủ pháp luật",
+      "Sử dụng pháp luật",
+      "Tất cả các phương án trên"
+    ],
+    "correctAnswerIndex": 3,
+    "explanation": "Phân biệt 4 hình thức thực hiện pháp luật: **Tuân thủ pháp luật:** Chủ thể kiềm chế không thực hiện hành vi bị cấm (dưới dạng thụ động, ví dụ: không lái xe khi say rượu)."
+  },
+  {
+    "id": 20,
+    "question": "A và B là bạn thân học chung lớp. Do nghi ngờ A có tình cảm với C là crush của mình nên B đã dùng dao đâm nhiều nhát vào A dẫn đến A tử vong tại chỗ. Yếu tố lỗi trong trường hợp này là",
+    "options": [
+      "Cố ý trực tiếp",
+      "Vô ý do cẩu thả",
+      "Vô ý vì quá tự tin",
+      "Tất cả đều sai"
+    ],
+    "correctAnswerIndex": 0,
+    "explanation": "Giải thích: Đáp án đúng là **A. Cố ý trực tiếp**. Đây là câu trả lời chính xác dựa trên giáo trình Pháp luật đại cương hiện hành."
+  },
+  {
+    "id": 21,
+    "question": "Trong các trường hợp sau đây, trường hợp nào không có yếu tố lỗi",
+    "options": [
+      "Phòng vệ chính đáng",
+      "Sự kiện bất khả kháng",
+      "Tình thế cấp thiết",
+      "Tất cả các phương án trên"
+    ],
+    "correctAnswerIndex": 3,
+    "explanation": "Giải thích: Đáp án đúng là **D. Tất cả các phương án trên**. Đây là câu trả lời chính xác dựa trên giáo trình Pháp luật đại cương hiện hành."
+  },
+  {
+    "id": 22,
+    "question": "Vi phạm pháp luật có các dấu hiệu nào dưới đây",
+    "options": [
+      "Là hành vi gây nguy hiểm cho xã hội",
+      "Là hành vi trái pháp luật, xâm hại đến các quan hệ xã hội được pháp luật bảo vệ",
+      "Là hành vi trái pháp luật, có lỗi, do người có năng lực trách nhiệm pháp lí thực hiện, xâm hại đến các quan hệ xã hội được pháp luật bảo vệ",
+      "Là hành vi vi phạm các quy tắc quản lí nhà nước"
+    ],
+    "correctAnswerIndex": 2,
+    "explanation": "Về mặt lý luận cấu thành vi phạm pháp luật: Vi phạm pháp luật phải có đủ 4 yếu tố cấu thành: Chủ thể, Khách thể, Mặt chủ quan, Mặt khách quan. Đáp án đúng là 'Là hành vi trái pháp luật, có lỗi, do người có năng lực trách nhiệm pháp lí thực hiện, xâm hại đến các quan hệ xã hội được pháp luật bảo vệ'."
+  },
+  {
+    "id": 23,
+    "question": "Vi phạm pháp luật hành chính là gì",
+    "options": [
+      "Hành vi vi phạm pháp luật xâm phạm các quan hệ về tài sản",
+      "Hành vi vi phạm pháp luật gây nguy hiểm cho xã hội quy định trong Bộ luật hình sự",
+      "Hành vi vi phạm pháp luật xâm phạm các quy tắc quản lí nhà nước mà không phải là tội phạm",
+      "Hành vi vi phạm pháp luật xâm phạm các quan hệ kỉ luật lao động"
+    ],
+    "correctAnswerIndex": 2,
+    "explanation": "Về mặt lý luận cấu thành vi phạm pháp luật: Vi phạm pháp luật phải có đủ 4 yếu tố cấu thành: Chủ thể, Khách thể, Mặt chủ quan, Mặt khách quan. Đáp án đúng là 'Hành vi vi phạm pháp luật xâm phạm các quy tắc quản lí nhà nước mà không phải là tội phạm'."
+  },
+  {
+    "id": 24,
+    "question": "Tùng 18 tuổi,  sử dụng xe máy đi vào đường cấm và bị công an xử phạt. Hành vi của Tùng đã vi phạm pháp luật gì ?",
+    "options": [
+      "Vi phạm pháp luật hình sự",
+      "Vi phạm pháp luật dân sự",
+      "Vi phạm pháp luật hành chính",
+      "Vi phạm kỉ luật"
+    ],
+    "correctAnswerIndex": 2,
+    "explanation": "Phân biệt 4 hình thức thực hiện pháp luật: **Sử dụng pháp luật:** Chủ thể thực hiện quyền hạn được cho phép, có thể làm hoặc không làm (ví dụ: đăng ký kết hôn, khiếu nại, đi học)."
+  },
+  {
+    "id": 25,
+    "question": "Theo quy định của pháp luật, độ tuổi chịu trách nhiệm hành chính là",
+    "options": [
+      "Từ đủ 13 tuổi trở lên",
+      "Từ đủ 14 tuổi trở lên",
+      "Từ đủ 15 tuổi trở lên",
+      "Từ đủ 16 tuổi trở lên"
+    ],
+    "correctAnswerIndex": 3,
+    "explanation": "Cấu trúc quy phạm pháp luật gồm 3 bộ phận: **Quy định:** Chỉ ra mẫu hành vi xử sự được phép, phải làm hoặc bị cấm (trả lời câu hỏi 'Được làm gì? Phải làm gì?')."
+  },
+  {
+    "id": 26,
+    "question": "Độ tuổi chịu trách nhiệm pháp luật của cá nhân",
+    "options": [
+      "Là người từ đủ 18 tuổi",
+      "Tùy thuộc vào từng ngành luật cụ thể mà độ tuổi chịu trách nhiệm pháp luật có thể giao động",
+      "A và B đều đúng",
+      "A và B đều sai"
+    ],
+    "correctAnswerIndex": 1,
+    "explanation": "Giải thích: Đáp án đúng là **B. Tùy thuộc vào từng ngành luật cụ thể mà độ tuổi chịu trách nhiệm pháp luật có thể giao động**. Đây là câu trả lời chính xác dựa trên giáo trình Pháp luật đại cương hiện hành."
+  },
+  {
+    "id": 27,
+    "question": "Nguyễn Văn A là sinh viên trường Đại học Duy Tân, ngày 20/2/2020 trên đường đi học về qua đoạn Điện Biên Phủ, A bị một đám côn đồ lạ mặt chặn đánh và dùng các hung khí nguy hiểm, để bảo vệ bản thân A đã có hành vi chống trả lại đám côn đồ trên. Hành vi của A là",
+    "options": [
+      "Phòng vệ chính đáng",
+      "Sự kiện bất khả kháng",
+      "Cả A và B đều đúng",
+      "Cả A và B đều sai"
+    ],
+    "correctAnswerIndex": 0,
+    "explanation": "Giải thích: Đáp án đúng là **A. Phòng vệ chính đáng**. Đây là câu trả lời chính xác dựa trên giáo trình Pháp luật đại cương hiện hành."
+  },
+  {
+    "id": 28,
+    "question": "Điều kiện của một hành vi vi phạm pháp luật là",
+    "options": [
+      "Hành vi trái pháp luật",
+      "Có yếu tố lỗi",
+      "Chủ thể đủ năng lực trách nhiệm pháp lý",
+      "Tất cả các phương án trên"
+    ],
+    "correctAnswerIndex": 3,
+    "explanation": "Về mặt lý luận cấu thành vi phạm pháp luật: Vi phạm pháp luật phải có đủ 4 yếu tố cấu thành: Chủ thể, Khách thể, Mặt chủ quan, Mặt khách quan. Đáp án đúng là 'Tất cả các phương án trên'."
+  },
+  {
+    "id": 29,
+    "question": "Quan điểm “Thượng đế là người sắp đặt trật tự xã hội, Nhà nước là do thượng đế sáng tạo ra” lý giải sự ra đời của Nhà nước dựa vào học thuyết",
+    "options": [
+      "Thần học",
+      "Khế ước xã hội",
+      "Gia trưởng",
+      "Quan điểm của chủ nghĩa Mác-Lê Nin"
+    ],
+    "correctAnswerIndex": 0,
+    "explanation": "Về lý luận chung về Nhà nước: Đáp án đúng là 'Thần học', phản ánh lý luận khoa học Mác-Lênin về sự ra đời, bản chất và chức năng của nhà nước."
+  },
+  {
+    "id": 30,
+    "question": "Quan điểm “Quyền lực của Nhà nước về bản chất cũng giống như quyền lực gia trưởng của người đứng đầu trong gia đình” lý giải sự ra đời của Nhà nước dựa vào học thuyết",
+    "options": [
+      "Thần học",
+      "Khế ước xã hội",
+      "Gia trưởng",
+      "Quan điểm của chủ nghĩa Mác-Lê Nin"
+    ],
+    "correctAnswerIndex": 2,
+    "explanation": "Về lý luận chung về Nhà nước: Đáp án đúng là 'Gia trưởng', phản ánh lý luận khoa học Mác-Lênin về sự ra đời, bản chất và chức năng của nhà nước."
+  },
+  {
+    "id": 31,
+    "question": "Hình thái kinh tế - xã hội xuất hiện đầu tiên",
+    "options": [
+      "Cộng sản nguyên thủy",
+      "Chiếm hữu nô lệ",
+      "Phong kiến",
+      "Tư bản chủ nghĩa"
+    ],
+    "correctAnswerIndex": 0,
+    "explanation": "Giải thích: Đáp án đúng là **A. Cộng sản nguyên thủy**. Đây là câu trả lời chính xác dựa trên giáo trình Pháp luật đại cương hiện hành."
+  },
+  {
+    "id": 32,
+    "question": "Thương nghiệp ra đời và phát triển là đặc điểm của việc phân công lao động lần thứ",
+    "options": [
+      "1",
+      "2",
+      "3",
+      "Tất cả các phương án trên đều sai"
+    ],
+    "correctAnswerIndex": 2,
+    "explanation": "Theo quy định của Bộ luật Lao động 2019: Phương án đúng là '3', đáp ứng đúng các quy định về quan hệ lao động, tiền lương và quyền lợi của người lao động."
+  },
+  {
+    "id": 33,
+    "question": "Kiểu Nhà nước hình thành do sự tan rã của chế độ thị tộc, bộ lạc",
+    "options": [
+      "Nhà nước chủ nô",
+      "Nhà nước phong kiến",
+      "Nhà nước tư bản",
+      "Nhà nước xã hội chủ nghĩa"
+    ],
+    "correctAnswerIndex": 0,
+    "explanation": "Về lý luận chung về Nhà nước: Lịch sử loài người trải qua 4 kiểu nhà nước tương ứng với các hình thái KT-XH có giai cấp: Chủ nô -> Phong kiến -> Tư bản -> Xã hội chủ nghĩa."
+  },
+  {
+    "id": 34,
+    "question": "Quyền lực nhà nước tập trung tuyệt đối vào người đứng đầu là đặc trưng của kiểu nhà nước nào",
+    "options": [
+      "Quân chủ lập hiến",
+      "Quân chủ tuyệt đối",
+      "Cộng hòa quý tộc",
+      "Cộng hòa dân chủ"
+    ],
+    "correctAnswerIndex": 1,
+    "explanation": "Về lý luận chung về Nhà nước: Lịch sử loài người trải qua 4 kiểu nhà nước tương ứng với các hình thái KT-XH có giai cấp: Chủ nô -> Phong kiến -> Tư bản -> Xã hội chủ nghĩa."
+  },
+  {
+    "id": 35,
+    "question": "Trong các lựa chọn sau, đâu là con đường hình thành pháp luật",
+    "options": [
+      "Thừa nhận tập quán pháp",
+      "Thừa nhận tiền lệ pháp",
+      "Ban hành văn bản pháp luật mới",
+      "Tất cả các phương án trên"
+    ],
+    "correctAnswerIndex": 3,
+    "explanation": "Giải thích: Đáp án đúng là **D. Tất cả các phương án trên**. Đây là câu trả lời chính xác dựa trên giáo trình Pháp luật đại cương hiện hành."
+  },
+  {
+    "id": 36,
+    "question": "Đặc điểm của quy phạm pháp luật",
+    "options": [
+      "Do nhà nước ban hành",
+      "Mang tính bắt buộc chung",
+      "Xác định chặt chẽ về mặt hình thức",
+      "Tất cả các phương án trên"
+    ],
+    "correctAnswerIndex": 3,
+    "explanation": "Cấu trúc quy phạm pháp luật gồm 3 bộ phận: Phương án đúng là 'Tất cả các phương án trên', chỉ ra chính xác các bộ phận hoặc định nghĩa của quy phạm pháp luật."
+  },
+  {
+    "id": 37,
+    "question": "Quy phạm pháp luật sau thiếu bộ phận nào ? “Người nào dùng mọi thủ đoạn khiến người lệ thuộc mình hoặc người đang ở trong tình trạng quẫn bách phải miễn cưỡng giao cấu hoặc miễn cưỡng thực hiện hành vi quan hệ tình dục khác, thì bị phạt tù từ 01 năm đến 05 năm”",
+    "options": [
+      "Giả định",
+      "Quy định",
+      "Chế tài",
+      "Đây là một quy phạm pháp luật đầy đủ"
+    ],
+    "correctAnswerIndex": 1,
+    "explanation": "Cấu trúc quy phạm pháp luật gồm 3 bộ phận: **Quy định:** Chỉ ra mẫu hành vi xử sự được phép, phải làm hoặc bị cấm (trả lời câu hỏi 'Được làm gì? Phải làm gì?')."
+  },
+  {
+    "id": 38,
+    "question": "Quy phạm pháp luật sau thiếu bộ phận nào ? “Người sử dụng lao động sử dụng từ 10 lao động trở lên phải có nội quy lao động bằng văn bản”",
+    "options": [
+      "Giả định",
+      "Quy định",
+      "Chế tài",
+      "Đây là một quy phạm pháp luật đầy đủ"
+    ],
+    "correctAnswerIndex": 2,
+    "explanation": "Phân biệt 4 hình thức thực hiện pháp luật: **Sử dụng pháp luật:** Chủ thể thực hiện quyền hạn được cho phép, có thể làm hoặc không làm (ví dụ: đăng ký kết hôn, khiếu nại, đi học)."
+  },
+  {
+    "id": 39,
+    "question": "“Kiềm chế không thực hiện những điều mà pháp luật ngăn cấm” là hình thức thực hiện pháp luật nào ?",
+    "options": [
+      "Tuân thủ pháp luật",
+      "Áp dụng pháp luật",
+      "Sử dụng pháp luật",
+      "Thi hành pháp luật"
+    ],
+    "correctAnswerIndex": 0,
+    "explanation": "Phân biệt 4 hình thức thực hiện pháp luật: **Tuân thủ pháp luật:** Chủ thể kiềm chế không thực hiện hành vi bị cấm (dưới dạng thụ động, ví dụ: không lái xe khi say rượu)."
+  },
+  {
+    "id": 40,
+    "question": "“Chủ thể bằng hành vi tích cực của mình thực hiện những điều pháp luật bắt buộc phải làm” là hình thức thực hiện pháp luật nào ?",
+    "options": [
+      "Tuân thủ pháp luật",
+      "Áp dụng pháp luật",
+      "Sử dụng pháp luật",
+      "Thi hành pháp luật"
+    ],
+    "correctAnswerIndex": 3,
+    "explanation": "Phân biệt 4 hình thức thực hiện pháp luật: **Thi hành (Chấp hành) pháp luật:** Chủ thể thực hiện nghĩa vụ bắt buộc bằng hành động tích cực (ví dụ: đóng thuế, thực hiện nghĩa vụ quân sự)."
+  },
+  {
+    "id": 41,
+    "question": "“Chủ thể thông qua những hành vi hành động hoặc không hành động thực hiện những điều mà pháp luật cho phép” là hình thức thực hiện pháp luật nào ?",
+    "options": [
+      "Tuân thủ pháp luật",
+      "Áp dụng pháp luật",
+      "Sử pháp luật dụng",
+      "Thi hành pháp luật"
+    ],
+    "correctAnswerIndex": 2,
+    "explanation": "Phân biệt 4 hình thức thực hiện pháp luật: Phương án 'Sử pháp luật dụng' mô tả đúng hình thức thực hiện pháp luật tương ứng."
+  },
+  {
+    "id": 42,
+    "question": "Ông Nguyễn Văn A tiến hành lập di chúc để lại di sản thừa kế cho các con là hình thức thực hiện pháp luật nào ?",
+    "options": [
+      "Tuân thủ pháp luật",
+      "Áp dụng pháp luật",
+      "Sử dụng pháp luật",
+      "Thi hành pháp luật"
+    ],
+    "correctAnswerIndex": 2,
+    "explanation": "Theo quy định của Bộ luật Dân sự 2015: Phương án đúng là 'Sử dụng pháp luật' vì phù hợp với các quy tắc phân chia di sản thừa kế theo di chúc hoặc theo pháp luật."
+  },
+  {
+    "id": 43,
+    "question": "Hình thức thực hiện pháp luật do cơ quan hoặc tổ chức xã hội được nhà nước trao quyền thực hiện là",
+    "options": [
+      "Tuân thủ pháp luật",
+      "Áp dụng pháp luật",
+      "Sử dụng pháp luật",
+      "Thi hành pháp luật"
+    ],
+    "correctAnswerIndex": 1,
+    "explanation": "Phân biệt 4 hình thức thực hiện pháp luật: **Áp dụng pháp luật:** Cơ quan nhà nước, người có thẩm quyền ra quyết định áp dụng quy phạm pháp luật cho các trường hợp cụ thể để phát sinh, thay đổi, chấm dứt quan hệ pháp luật."
+  },
+  {
+    "id": 44,
+    "question": "Vi phạm pháp luật là",
+    "options": [
+      "Hành vi trái pháp luật",
+      "Có lỗi",
+      "Do chủ thể có năng lực thực hiện",
+      "Tất cả phương án trên"
+    ],
+    "correctAnswerIndex": 3,
+    "explanation": "Về mặt lý luận cấu thành vi phạm pháp luật: Vi phạm pháp luật phải có đủ 4 yếu tố cấu thành: Chủ thể, Khách thể, Mặt chủ quan, Mặt khách quan. Đáp án đúng là 'Tất cả phương án trên'."
+  },
+  {
+    "id": 45,
+    "question": "Hậu quả của vi phạm pháp luật là",
+    "options": [
+      "Mặt khách quan cấu thành vi phạm pháp luật",
+      "Mặt chủ quan cấu thành vi phạm pháp luật",
+      "Khách thể của vi phạm pháp luật",
+      "Chủ thể của vi phạm pháp luật"
+    ],
+    "correctAnswerIndex": 0,
+    "explanation": "Về mặt lý luận cấu thành vi phạm pháp luật: Vi phạm pháp luật phải có đủ 4 yếu tố cấu thành: Chủ thể, Khách thể, Mặt chủ quan, Mặt khách quan. Đáp án đúng là 'Mặt khách quan cấu thành vi phạm pháp luật'."
+  },
+  {
+    "id": 46,
+    "question": "Trong các yếu tố sau, yếu tố nào không cấu thành mặt khách quan của vi phạm pháp luật",
+    "options": [
+      "Động cơ",
+      "Hành vi trái pháp luật",
+      "Hậu quả",
+      "Mối quan hệ giữa hành vi và hậu quả"
+    ],
+    "correctAnswerIndex": 2,
+    "explanation": "Về mặt lý luận cấu thành vi phạm pháp luật: Mặt khách quan bao gồm các biểu hiện bên ngoài: hành vi trái pháp luật, hậu quả nguy hại, và mối quan hệ nhân quả giữa hành vi và hậu quả."
+  },
+  {
+    "id": 47,
+    "question": "Chủ thể thực hiện hành vi trái pháp luật, nhận thức hành vi của mình là nguy hiểm cho xã hội và thấy trước hậu quả do hành vi gây ra nhưng vẫn mong muốn hậu quả xảy ra là lỗi gì ?",
+    "options": [
+      "Cố ý trực tiếp",
+      "Cố ý gián tiếp",
+      "Vô ý do cẩu thả",
+      "Vô ý do quá tự tin"
+    ],
+    "correctAnswerIndex": 0,
+    "explanation": "Giải thích: Đáp án đúng là **A. Cố ý trực tiếp**. Đây là câu trả lời chính xác dựa trên giáo trình Pháp luật đại cương hiện hành."
+  },
+  {
+    "id": 48,
+    "question": "Chủ thể thực hiện hành vi trái pháp luật nhận thức hành vi của mình là nguy hiểm cho xã hội và thấy trước hậu quả do hành vi gây ra tuy không mong muốn nhưng có ý thức bỏ mặt cho hậu quả xảy ra là lỗi gì?",
+    "options": [
+      "Cố ý trực tiếp",
+      "Cố ý gián tiếp",
+      "Vô ý do cẩu thả",
+      "Vô ý do quá tự tin"
+    ],
+    "correctAnswerIndex": 1,
+    "explanation": "Giải thích: Đáp án đúng là **B. Cố ý gián tiếp**. Đây là câu trả lời chính xác dựa trên giáo trình Pháp luật đại cương hiện hành."
+  },
+  {
+    "id": 49,
+    "question": "Chủ thể thực hiện hành vi trái pháp luật không nhận thức được tính nguy hiểm của hành vi, tuy nhiên trong trường hợp này pháp luật bắt buộc pháp thấy trước hậu quả",
+    "options": [
+      "Cố ý trực tiếp",
+      "Cố ý gián tiếp",
+      "Vô ý do cẩu thả",
+      "Vô ý do quá tự tin"
+    ],
+    "correctAnswerIndex": 2,
+    "explanation": "Giải thích: Đáp án đúng là **C. Vô ý do cẩu thả**. Đây là câu trả lời chính xác dựa trên giáo trình Pháp luật đại cương hiện hành."
+  },
+  {
+    "id": 50,
+    "question": "Trường hợp nào sau đây người thực hiện hành vi trái pháp luật không có lỗi",
+    "options": [
+      "Sự kiện bất ngờ",
+      "Tình thế cấp thiết",
+      "Trường hợp bất khả kháng",
+      "Vượt quá giới hạn phòng vệ chính đáng"
+    ],
+    "correctAnswerIndex": 3,
+    "explanation": "Giải thích: Đáp án đúng là **D. Vượt quá giới hạn phòng vệ chính đáng**. Đây là câu trả lời chính xác dựa trên giáo trình Pháp luật đại cương hiện hành."
+  },
+  {
+    "id": 51,
+    "question": "Bích 18 tuổi, trên đường đi học về vì để nhanh chóng tới nhà người yêu nên đã vượt đèn đỏ và bị xử phạt, hành vi của Bích vi phạm pháp luật gì?",
+    "options": [
+      "Vi phạm pháp luật hình sự",
+      "Vi phạm pháp luật dân sự",
+      "Vi phạm pháp luật hành chính",
+      "Bích không vi phạm pháp luật do đây là tình thế cấp thiết"
+    ],
+    "correctAnswerIndex": 2,
+    "explanation": "Về mặt lý luận cấu thành vi phạm pháp luật: Vi phạm pháp luật phải có đủ 4 yếu tố cấu thành: Chủ thể, Khách thể, Mặt chủ quan, Mặt khách quan. Đáp án đúng là 'Vi phạm pháp luật hành chính'."
+  },
+  {
+    "id": 52,
+    "question": "Dấu hiệu cơ bản của vi phạm pháp luật là",
+    "options": [
+      "Là hành vi trái pháp luật",
+      "Do người có năng lực trách nhiệm pháp lý thực hiện",
+      "Vi phạm pháp luật phải có lỗi",
+      "Tất cả các ý trên"
+    ],
+    "correctAnswerIndex": 3,
+    "explanation": "Về mặt lý luận cấu thành vi phạm pháp luật: Vi phạm pháp luật phải có đủ 4 yếu tố cấu thành: Chủ thể, Khách thể, Mặt chủ quan, Mặt khách quan. Đáp án đúng là 'Tất cả các ý trên'."
+  },
+  {
+    "id": 53,
+    "question": "Chế tài nghiêm khắc nhất trong các loại trách nhiệm pháp lý là",
+    "options": [
+      "Chế tài kỷ luật",
+      "Chế tài hành chính",
+      "Chế tài hình sự",
+      "Chế tài dân sự"
+    ],
+    "correctAnswerIndex": 2,
+    "explanation": "Cấu trúc quy phạm pháp luật gồm 3 bộ phận: **Chế tài:** Chỉ ra biện pháp cưỡng chế mà nhà nước áp dụng nếu vi phạm quy phạm (trả lời câu hỏi 'Bị xử lý như thế nào?')."
+  },
+  {
+    "id": 54,
+    "question": "Vi phạm pháp luật dân sự là những hành vi xâm phạm tới các quan hệ nào?",
+    "options": [
+      "Quan hệ kinh tế và quan hệ tình cảm",
+      "Quan hệ tài sản và quan hệ nhân thân",
+      "Quan hệ sở hữu và quan hệ gia đình",
+      "Quan hệ tài sản và quan hệ gia đình"
+    ],
+    "correctAnswerIndex": 1,
+    "explanation": "Về mặt lý luận cấu thành vi phạm pháp luật: Vi phạm pháp luật phải có đủ 4 yếu tố cấu thành: Chủ thể, Khách thể, Mặt chủ quan, Mặt khách quan. Đáp án đúng là 'Quan hệ tài sản và quan hệ nhân thân'."
+  },
+  {
+    "id": 55,
+    "question": "Quy phạm pháp luật sau đây gồm những bộ phận nào? “Người tiến hành hoạt động sang tạo có quyền sở hữu đối với đối với tài sản có được từ hoạt động sáng tạo theo quy định của Luật sở hữu trí tuệ.”",
+    "options": [
+      "Giả định",
+      "Quy định",
+      "Giả định, quy định",
+      "Giả định, quy định, chế tài"
+    ],
+    "correctAnswerIndex": 2,
+    "explanation": "Cấu trúc quy phạm pháp luật gồm 3 bộ phận: **Giả định:** Chỉ ra chủ thể, điều kiện hoàn cảnh chịu sự điều chỉnh của quy phạm (thường trả lời câu hỏi 'Ai? Khi nào?')."
+  },
+  {
+    "id": 56,
+    "question": "Trong các chủ thể sau, đâu là cơ quan nhà nước:",
+    "options": [
+      "Đảng Cộng sản Việt Nam",
+      "Đoàn thanh niên TP Đà Nẵng",
+      "Tòa án nhân dân TP Đà Nẵng",
+      "Giáo xứ Thanh Khê"
+    ],
+    "correctAnswerIndex": 2,
+    "explanation": "Giải thích: Đáp án đúng là **C. Tòa án nhân dân TP Đà Nẵng**. Đây là câu trả lời chính xác dựa trên giáo trình Pháp luật đại cương hiện hành."
+  },
+  {
+    "id": 57,
+    "question": "Tuổi ứng cử theo quy định của pháp luật Việt Nam hiện hành là:",
+    "options": [
+      "Từ đủ 18 tuổi trở lên",
+      "Từ đủ 20 tuổi trở lên",
+      "Từ đủ 21 tuổi trở lên",
+      "Từ đủ 22 tuổi trở lên"
+    ],
+    "correctAnswerIndex": 0,
+    "explanation": "Cấu trúc quy phạm pháp luật gồm 3 bộ phận: **Quy định:** Chỉ ra mẫu hành vi xử sự được phép, phải làm hoặc bị cấm (trả lời câu hỏi 'Được làm gì? Phải làm gì?')."
+  },
+  {
+    "id": 58,
+    "question": "Người bị mất năng lực hành vi dân sự là:",
+    "options": [
+      "Mắc bệnh tâm thần hoặc các bệnh về trí não",
+      "Chưa đủ 18 tuổi hoặc không có khả năng nhận thức và làm chủ được hành vi",
+      "Không làm chủ được bản thân và bị Tòa án tuyên bố mất năng lực hành vi dân sự",
+      "Mắc bệnh tâm thần hoặc mắc bệnh khác mà không thể nhận thức, làm chủ được hành vi của mình, thì theo yêu cầu của người có quyền, lợi ích liên quan hoặc của cơ quan, tổ chức hữu quan, Tòa án sẽ ra quyết định tuyên bố mất năng lực hành vi dân sự"
+    ],
+    "correctAnswerIndex": 3,
+    "explanation": "Giải thích: Đáp án đúng là **D. Mắc bệnh tâm thần hoặc mắc bệnh khác mà không thể nhận thức, làm chủ được hành vi của mình, thì theo yêu cầu của người có quyền, lợi ích liên quan hoặc của cơ quan, tổ chức hữu quan, Tòa án sẽ ra quyết định tuyên bố mất năng lực hành vi dân sự**. Đây là câu trả lời chính xác dựa trên giáo trình Pháp luật đại cương hiện hành."
+  },
+  {
+    "id": 59,
+    "question": "Thông thường năng lực pháp luật của cá nhân chấm dứt khi :",
+    "options": [
+      "Cá nhân đó chết",
+      "Cá nhân đó được sinh ra",
+      "Cá nhân đó đạt đến độ tuổi nhất định",
+      "Cá nhân đó mất khả năng nhận thức và làm chủ hành vi"
+    ],
+    "correctAnswerIndex": 0,
+    "explanation": "Giải thích: Đáp án đúng là **A. Cá nhân đó chết**. Đây là câu trả lời chính xác dựa trên giáo trình Pháp luật đại cương hiện hành."
+  },
+  {
+    "id": 60,
+    "question": "Lịch sử xã hội đã và đang tồn tại mấy kiểu nhà nước?",
+    "options": [
+      "2 kiểu nhà nước",
+      "3 kiểu nhà nước",
+      "4 kiểu nhà nước",
+      "5 kiểu nhà nước"
+    ],
+    "correctAnswerIndex": 2,
+    "explanation": "Về lý luận chung về Nhà nước: Lịch sử loài người trải qua 4 kiểu nhà nước tương ứng với các hình thái KT-XH có giai cấp: Chủ nô -> Phong kiến -> Tư bản -> Xã hội chủ nghĩa."
+  },
+  {
+    "id": 61,
+    "question": "Theo quy định của Bộ luật Dân sự 2015 “quyền khác đối với tài sản” bao gồm:",
+    "options": [
+      "Quyền đối với bất động sản liền kề, quyền chiếm hữu, quyền sử dụng và quyền định đoạt",
+      "Quyền chiếm hữu, quyền sử dụng và quyền định đoạt",
+      "Quyền chiếm hữu, quyền hưởng dụng và quyền định đoạt",
+      "Quyền đối với bất động sản liền kề, quyền hưởng dụng, quyền bề mặt"
+    ],
+    "correctAnswerIndex": 3,
+    "explanation": "Cấu trúc quy phạm pháp luật gồm 3 bộ phận: **Quy định:** Chỉ ra mẫu hành vi xử sự được phép, phải làm hoặc bị cấm (trả lời câu hỏi 'Được làm gì? Phải làm gì?')."
+  },
+  {
+    "id": 62,
+    "question": "Theo quy định của Bộ luật Dân sự hiện nay có những hình thức sở hữu nào?",
+    "options": [
+      "Sở hữu toàn dân, sở hữu riêng, sở hữu tập thể",
+      "Sở hữu riêng, sở hữu nhà nước, sở hữu tập thể",
+      "Sở hữu chung, sở hữu riêng, sở hữu nhà nước",
+      "Sở hữu tập thể, sở hữu tư nhân, sở hữu nhà nước"
+    ],
+    "correctAnswerIndex": 0,
+    "explanation": "Cấu trúc quy phạm pháp luật gồm 3 bộ phận: **Quy định:** Chỉ ra mẫu hành vi xử sự được phép, phải làm hoặc bị cấm (trả lời câu hỏi 'Được làm gì? Phải làm gì?')."
+  },
+  {
+    "id": 63,
+    "question": "Đối với công việc có chức danh nghề nghiệp cần trình độ chuyên môn, kỹ thuật từ cao đẳng trở lên thời gian thử việc tối đa bao lâu?",
+    "options": [
+      "Không quá 180 ngày",
+      "Không quá 60 ngày",
+      "Không quá 30 ngày",
+      "Không quá 15 ngày"
+    ],
+    "correctAnswerIndex": 1,
+    "explanation": "Theo quy định của Bộ luật Lao động 2019: Thời gian thử việc tối đa là 180 ngày với người quản lý doanh nghiệp, 60 ngày với trình độ cao đẳng trở lên, 30 ngày với trung cấp/công nhân, không áp dụng thử việc với hợp đồng dưới 1 tháng. Lương thử việc ít nhất bằng 85% lương chính thức."
+  },
+  {
+    "id": 64,
+    "question": "Người lao động làm việc vào ban đêm thì được trả thêm ít nhất bằng bao nhiêu % tiền lương thực trả theo công việc của ngày làm việc bình thường?",
+    "options": [
+      "Bằng 30%",
+      "Bằng 50%",
+      "Bằng 100%",
+      "Bằng 130%"
+    ],
+    "correctAnswerIndex": 0,
+    "explanation": "Theo quy định của Bộ luật Lao động 2019: Phương án đúng là 'Bằng 30%', đáp ứng đúng các quy định về quan hệ lao động, tiền lương và quyền lợi của người lao động."
+  },
+  {
+    "id": 65,
+    "question": "Người chồng không được ly hôn vợ trong trường hợp nào?",
+    "options": [
+      "Vợ đang mang thai",
+      "Vợ bị tai nạn giao thông",
+      "Vợ đang nuôi con 8 tuổi",
+      "Vợ ngoại tình"
+    ],
+    "correctAnswerIndex": 0,
+    "explanation": "Theo quy định của Luật Hôn nhân và Gia đình 2014: Người chồng bị hạn chế quyền yêu cầu ly hôn nếu vợ đang mang thai, sinh con hoặc đang nuôi con dưới 12 tháng tuổi."
+  },
+  {
+    "id": 66,
+    "question": "Để phân loại tội phạm, mức cao nhất của khung hình phạt trên 15 năm tù là loại tội phạm gì?",
+    "options": [
+      "Tội phạm ít nghiêm trọng",
+      "Tội phạm nghiêm trọng",
+      "Tội phạm rất nghiêm trọng",
+      "Tội phạm đặc biệt nghiêm trọng"
+    ],
+    "correctAnswerIndex": 3,
+    "explanation": "Theo quy định của Bộ luật Hình sự 2015: Đáp án đúng là 'Tội phạm đặc biệt nghiêm trọng', dựa trên các quy định về phân loại tội phạm, chế tài hình sự và trình tự thủ tục tố tụng hình sự."
+  },
+  {
+    "id": 67,
+    "question": "Quang Trường mượn xe máy của Nhật Tân để về quê 3 ngày. Trong trường hợp này anh Trường sẽ phát sinh quyền gì đối với chiếc xe máy của Tân?",
+    "options": [
+      "Quyền sử dụng và định đoạt",
+      "Quyền sử dụng và chiếm hữu",
+      "Quyền định đoạt và chiếm hữu",
+      "Quyền sử dụng"
+    ],
+    "correctAnswerIndex": 3,
+    "explanation": "Giải thích: Đáp án đúng là **D. Quyền sử dụng**. Đây là câu trả lời chính xác dựa trên giáo trình Pháp luật đại cương hiện hành."
+  },
+  {
+    "id": 68,
+    "question": "Năng lực của chủ thể trong quan hệ pháp luật bao gồm?",
+    "options": [
+      "Năng lực pháp luật và năng lực hành vi",
+      "Năng lực pháp luật và năng lực công dân",
+      "Năng lực hành vi và năng lực nhận thức",
+      "Năng lực pháp luật và năng lực nhận thức"
+    ],
+    "correctAnswerIndex": 0,
+    "explanation": "Giải thích: Đáp án đúng là **A. Năng lực pháp luật và năng lực hành vi**. Đây là câu trả lời chính xác dựa trên giáo trình Pháp luật đại cương hiện hành."
+  },
+  {
+    "id": 69,
+    "question": "Chăn nuôi tách khỏi trồng trọt là đặc điểm của việc phân công lao động lần thứ",
+    "options": [
+      "1",
+      "2",
+      "3",
+      "Tất cả phương án trên đều sai"
+    ],
+    "correctAnswerIndex": 0,
+    "explanation": "Theo quy định của Bộ luật Lao động 2019: Phương án đúng là '1', đáp ứng đúng các quy định về quan hệ lao động, tiền lương và quyền lợi của người lao động."
+  },
+  {
+    "id": 70,
+    "question": "Phương pháp điều chỉnh chính của ngành Hình sự là",
+    "options": [
+      "Phương pháp quyền uy",
+      "Phương pháp thông qua thông qua các tổ chức đại diện cho người lao động",
+      "Phương pháp bình đẳng thỏa thuận",
+      "Phương pháp phối hợp hoạt động"
+    ],
+    "correctAnswerIndex": 0,
+    "explanation": "Theo quy định của Bộ luật Hình sự 2015: Đáp án đúng là 'Phương pháp quyền uy', dựa trên các quy định về phân loại tội phạm, chế tài hình sự và trình tự thủ tục tố tụng hình sự."
+  },
+  {
+    "id": 71,
+    "question": "Anh Thống là sinh viên trường Đại học X, ngày 27/3/2022 trên đường đi học về, Thống thấy một nhóm thanh niên đang tổ chức đánh bạc, Thống đã báo với công an phường Thạc Gián xử lý. Thống đang thực hiện phá luật dưới hình thức nào(21)?",
+    "options": [
+      "Chấp hành pháp luật",
+      "Tuân thủ pháp luật",
+      "Sử dụng pháp luật",
+      "Áp dụng pháp luật"
+    ],
+    "correctAnswerIndex": 2,
+    "explanation": "Giải thích: Đáp án đúng là **C. Sử dụng pháp luật**. Đây là câu trả lời chính xác dựa trên giáo trình Pháp luật đại cương hiện hành."
+  },
+  {
+    "id": 72,
+    "question": "Mạnh và Dũng là bạn thân học chung lớp, do nghi ngờ Mạnh có tình cảm với Hiền là crush của mình nên Dũng đã dùng dao đâm nhiều nhát vào Mạnh dẫn đến Mạnh tử vong tại chỗ. Yếu tố lỗi trong trường hợp này là:",
+    "options": [
+      "Cố ý trực tiếp",
+      "Vô ý do cẩu thả",
+      "Vô ý vì quá tự tin",
+      "Tất cả đều sai"
+    ],
+    "correctAnswerIndex": 0,
+    "explanation": "Giải thích: Đáp án đúng là **A. Cố ý trực tiếp**. Đây là câu trả lời chính xác dựa trên giáo trình Pháp luật đại cương hiện hành."
+  },
+  {
+    "id": 73,
+    "question": "Chị Thu Hiền kinh doanh online tuy nhiên khi giao hàng cho khách chị Hiền giao hàng không cùng chủng loại",
+    "options": [
+      "Vi phạm kỷ luật",
+      "Vị phạm pháp luật hình sự",
+      "Vi phạm pháp luật dân sự",
+      "Vi phạm pháp luật hành chính"
+    ],
+    "correctAnswerIndex": 2,
+    "explanation": "Giải thích: Đáp án đúng là **C. Vi phạm pháp luật dân sự**. Đây là câu trả lời chính xác dựa trên giáo trình Pháp luật đại cương hiện hành."
+  },
+  {
+    "id": 74,
+    "question": "Quyền của nhạc sĩ Phan Mạnh Quỳnh đối với ca khúc “Ngày chưa giông bão” trong Luật dân sự là quyền",
+    "options": [
+      "Quyền nhân thân không gắn với tài sản",
+      "Quyền nhân thân gắn với tài sản",
+      "Quyền tài sản",
+      "Có thể là quyền nhân thân hoặc tài sản"
+    ],
+    "correctAnswerIndex": 1,
+    "explanation": "Giải thích: Đáp án đúng là **B. Quyền nhân thân gắn với tài sản**. Đây là câu trả lời chính xác dựa trên giáo trình Pháp luật đại cương hiện hành."
+  },
+  {
+    "id": 75,
+    "question": "Giấy tờ có giá theo Luật Dân sự là",
+    "options": [
+      "Cổ phiếu",
+      "Sổ tiết kiệm",
+      "Giấy ghi nợ",
+      "Giấy dò số đề"
+    ],
+    "correctAnswerIndex": 0,
+    "explanation": "Giải thích: Đáp án đúng là **A. Cổ phiếu**. Đây là câu trả lời chính xác dựa trên giáo trình Pháp luật đại cương hiện hành."
+  },
+  {
+    "id": 76,
+    "question": "Hợp đồng dân sự có thể được xác lập bằng:",
+    "options": [
+      "Bằng miệng, bằng văn bản",
+      "Chỉ bằng hành vi",
+      "Chỉ bằng văn bản",
+      "Bằng miệng, bằng văn bản, bằng hành vi"
+    ],
+    "correctAnswerIndex": 3,
+    "explanation": "Giải thích: Đáp án đúng là **D. Bằng miệng, bằng văn bản, bằng hành vi**. Đây là câu trả lời chính xác dựa trên giáo trình Pháp luật đại cương hiện hành."
+  },
+  {
+    "id": 77,
+    "question": "Đối với hợp đồng lao động xác định thời hạn người lao động có quyền đơn phương chấm dứt hợp đồng lao động nhưng phải báo trước cho người sử dụng lao động ít nhất bao lâu",
+    "options": [
+      "Ít nhất 60 ngày",
+      "Ít nhất 45 ngày",
+      "Ít nhất 30 ngày",
+      "Ít nhất 3 ngày"
+    ],
+    "correctAnswerIndex": 1,
+    "explanation": "Phân biệt 4 hình thức thực hiện pháp luật: **Sử dụng pháp luật:** Chủ thể thực hiện quyền hạn được cho phép, có thể làm hoặc không làm (ví dụ: đăng ký kết hôn, khiếu nại, đi học)."
+  },
+  {
+    "id": 78,
+    "question": "Em họ ca sĩ Hiền Hồ làm lộ hình ảnh của nữ ca sĩ với ông Hồ Nhân. Quyền của ông Hồ Nhân đối với hình ảnh cá nhân trong Luật dân sự là quyền?",
+    "options": [
+      "Quyền nhân thân không gắn với tài sản",
+      "Quyền nhân thân gắn với tài sản",
+      "Quyền tài sản",
+      "Có thể là quyền nhân thân hoặc tài sản"
+    ],
+    "correctAnswerIndex": 0,
+    "explanation": "Giải thích: Đáp án đúng là **A. Quyền nhân thân không gắn với tài sản**. Đây là câu trả lời chính xác dựa trên giáo trình Pháp luật đại cương hiện hành."
+  },
+  {
+    "id": 79,
+    "question": "Thời điểm mở thừa kế theo Luật dân sự hiện ành là khi:",
+    "options": [
+      "Người để lại di sản thừa kế viết di chúc",
+      "Người để lại di sản thừa kế mất tích",
+      "Người để lại di sản thừa kế chết",
+      "Tất cả các phương án trên đều sai"
+    ],
+    "correctAnswerIndex": 2,
+    "explanation": "Theo quy định của Bộ luật Dân sự 2015: Phương án đúng là 'Người để lại di sản thừa kế chết' vì phù hợp với các quy tắc phân chia di sản thừa kế theo di chúc hoặc theo pháp luật."
+  },
+  {
+    "id": 80,
+    "question": "Cơ quan có thẩm quyền đăng kí kết hôn giữa công dân Việt Nam với nhau tại nước ngoài là:",
+    "options": [
+      "Ủy ban nhân dân cấp xã, phường, thị trấn",
+      "Ủy ban nhân dân cấp huyện nơi công dân Việt Nam cư trú",
+      "Ủy ban nhân dân cấp tỉnh nơi công dân Việt Nam cư trú",
+      "Đại sứ quán nước ngoài tại Việt Nam của người kết hôn với công dân Việt Nam"
+    ],
+    "correctAnswerIndex": 3,
+    "explanation": "Theo quy định của Luật Hôn nhân và Gia đình 2014: Phương án đúng là 'Đại sứ quán nước ngoài tại Việt Nam của người kết hôn với công dân Việt Nam', tuân thủ đúng các nguyên tắc tự nguyện, một vợ một chồng và độ tuổi trong Luật Hôn nhân và gia đình."
+  },
+  {
+    "id": 81,
+    "question": "Anh Mạnh thuê sân nhà ông Quý trên đường Bạch Đằng để kinh doanh quán nhậu, quyền liên quan đến tài sản của anh Mạnh trong trường hợp này là:",
+    "options": [
+      "Quyền thừa kế",
+      "Quyền bề mặt",
+      "Quyền đối với bất động sản liền kề",
+      "Quyền sử dụng đất"
+    ],
+    "correctAnswerIndex": 3,
+    "explanation": "Giải thích: Đáp án đúng là **D. Quyền sử dụng đất**. Đây là câu trả lời chính xác dựa trên giáo trình Pháp luật đại cương hiện hành."
+  },
+  {
+    "id": 82,
+    "question": "Pháp luật hôn nhân và gia đình Việt Nam cấm kết hôn",
+    "options": [
+      "Giữa những người thuộc các dân tộc, tôn giáo khác nhau",
+      "Với người đã ly thân",
+      "Giữa những người có họ trong phạm vi 5 đời",
+      "Đáp án A, B, C đều sai"
+    ],
+    "correctAnswerIndex": 3,
+    "explanation": "Theo quy định của Luật Hôn nhân và Gia đình 2014: Phương án đúng là 'Đáp án A, B, C đều sai', tuân thủ đúng các nguyên tắc tự nguyện, một vợ một chồng và độ tuổi trong Luật Hôn nhân và gia đình."
+  },
+  {
+    "id": 83,
+    "question": "Quy phạm pháp luật sau đây gồm những bộ phận nào? “Các tổ chức của Đảng và đảng viên Đảng Cộng sản Việt Nam hoạt động trong khuôn khổ Hiến pháp và pháp luật.”",
+    "options": [
+      "Giả định",
+      "Quy định",
+      "Giả định, quy định",
+      "Giả định, quy định, chế tài"
+    ],
+    "correctAnswerIndex": 2,
+    "explanation": "Cấu trúc quy phạm pháp luật gồm 3 bộ phận: **Giả định:** Chỉ ra chủ thể, điều kiện hoàn cảnh chịu sự điều chỉnh của quy phạm (thường trả lời câu hỏi 'Ai? Khi nào?')."
+  },
+  {
+    "id": 84,
+    "question": "Chế tài hình sự là gì?",
+    "options": [
+      "Loại chế tài nghiêm khắc nhất, do Tòa án áp dụng đối với những cá nhân vi phạm các quan hệ xã hội do pháp luật hình sự bảo vệ",
+      "Loại chế tài do Tòa án áp dụng đối với những cá nhân vi phạm pháp luật",
+      "Là loại chế tài do các cơ quan quản lý nhà nước áp dụng đối với các hành vi vi phạm pháp luật",
+      "Tất cả đáp án trên đều sai"
+    ],
+    "correctAnswerIndex": 0,
+    "explanation": "Cấu trúc quy phạm pháp luật gồm 3 bộ phận: **Chế tài:** Chỉ ra biện pháp cưỡng chế mà nhà nước áp dụng nếu vi phạm quy phạm (trả lời câu hỏi 'Bị xử lý như thế nào?')."
+  },
+  {
+    "id": 85,
+    "question": "Các bộ phận cấu thành mặt chủ quan của quy phạm pháp luật",
+    "options": [
+      "Lỗi, động cơ, mục đích",
+      "Thời gian, địa điểm",
+      "Giả định, quy định, chế tài",
+      "Chủ thể, khách thể, nội dung"
+    ],
+    "correctAnswerIndex": 0,
+    "explanation": "Cấu trúc quy phạm pháp luật gồm 3 bộ phận: Phương án đúng là 'Lỗi, động cơ, mục đích', chỉ ra chính xác các bộ phận hoặc định nghĩa của quy phạm pháp luật."
+  },
+  {
+    "id": 86,
+    "question": "Quy phạm pháp luật sau thiếu bộ phận nào? “Người nào mua bán trái phép chất ma túy, thì bị phạt tù từ 02 năm đến 07 năm.”",
+    "options": [
+      "Giả định",
+      "Quy định",
+      "Chế tài",
+      "Đây là một quy phạm pháp luật đầy đủ"
+    ],
+    "correctAnswerIndex": 3,
+    "explanation": "Cấu trúc quy phạm pháp luật gồm 3 bộ phận: Phương án đúng là 'Đây là một quy phạm pháp luật đầy đủ', chỉ ra chính xác các bộ phận hoặc định nghĩa của quy phạm pháp luật."
+  },
+  {
+    "id": 87,
+    "question": "Xác định phần quy định của quy phạm pháp luật sau: “Cá nhân có quyền yêu cầu Tòa án bác bỏ thông tin làm ảnh hưởng xấu đến danh dự, nhân phẩm, uy tín của mình.” (Điều 34 – Bộ luật Dân sự 2015)",
+    "options": [
+      "Cá nhân",
+      "Có quyền yêu cầu Tòa án bác bỏ thông tin làm ảnh hưởng xấu đến danh dự, nhân phẩm, uy tín của mình",
+      "Cá nhân có quyền yêu cầu Tòa án",
+      "Làm ảnh hưởng xấu đến danh dự, nhân phẩm, uy tín của mình"
+    ],
+    "correctAnswerIndex": 1,
+    "explanation": "Cấu trúc quy phạm pháp luật gồm 3 bộ phận: **Quy định:** Chỉ ra mẫu hành vi xử sự được phép, phải làm hoặc bị cấm (trả lời câu hỏi 'Được làm gì? Phải làm gì?')."
+  },
+  {
+    "id": 88,
+    "question": "Năng lực hành vi của cá nhân phụ thuộc vào các yếu tố:",
+    "options": [
+      "Độ tuổi, khả năng nhận thức và điều khiển hành vi",
+      "Trình độ học vấn",
+      "Nghề nghiệp",
+      "Tất cả đáp án trên đều sai"
+    ],
+    "correctAnswerIndex": 0,
+    "explanation": "Giải thích: Đáp án đúng là **A. Độ tuổi, khả năng nhận thức và điều khiển hành vi**. Đây là câu trả lời chính xác dựa trên giáo trình Pháp luật đại cương hiện hành."
+  },
+  {
+    "id": 89,
+    "question": "Điều kiện để một tổ chức được coi là pháp nhân",
+    "options": [
+      "Được thành lập hợp pháp: Có cơ cấu tổ chức chặt chẽ",
+      "Có tài sản độc lập với tài sản của tổ chức, cá nhân khác và tự chịu trách nhiệm bằng tài sản đó",
+      "Nhân danh mình tham gia vào các quan hệ pháp luật một cách độc lập",
+      "Tất cả đều đúng"
+    ],
+    "correctAnswerIndex": 3,
+    "explanation": "Giải thích: Đáp án đúng là **D. Tất cả đều đúng**. Đây là câu trả lời chính xác dựa trên giáo trình Pháp luật đại cương hiện hành."
+  },
+  {
+    "id": 90,
+    "question": "Anh Thống là sinh viên Trường Đại học X, anh Thống tham gia giao thông và có hành vi đi vào đường ngược chiều. Anh bị cảnh sát giao thông B ra quyết định xử phạt. Cảnh sát giao thông B thực hiện pháp luật dưới hình thức nào?",
+    "options": [
+      "Chấp hành pháp luật",
+      "Tuân thủ pháp luật",
+      "Sử dụng pháp luật",
+      "Áp dụng pháp luật"
+    ],
+    "correctAnswerIndex": 3,
+    "explanation": "Phân biệt 4 hình thức thực hiện pháp luật: **Áp dụng pháp luật:** Cơ quan nhà nước, người có thẩm quyền ra quyết định áp dụng quy phạm pháp luật cho các trường hợp cụ thể để phát sinh, thay đổi, chấm dứt quan hệ pháp luật."
+  },
+  {
+    "id": 91,
+    "question": "Anh Quang Trường năm nay 22 tuổi là sinh viên Trường Đại học Duy Tân, anh Trường tham gia ứng cử vào đại biểu Hội đồng nhân dân quận Sơn Trà, thành phố Đà Nẵng nhiệm kỳ 2021 – 2026. Anh Trường đang thực hiện pháp luật dưới hình thức nào sau đây?",
+    "options": [
+      "Chấp hành pháp luật",
+      "Tuân thủ pháp luật",
+      "Sử dụng pháp luật",
+      "Áp dụng pháp luật"
+    ],
+    "correctAnswerIndex": 2,
+    "explanation": "Phân biệt 4 hình thức thực hiện pháp luật: **Sử dụng pháp luật:** Chủ thể thực hiện quyền hạn được cho phép, có thể làm hoặc không làm (ví dụ: đăng ký kết hôn, khiếu nại, đi học)."
+  },
+  {
+    "id": 92,
+    "question": "Ông Lành giao hàng không đúng chủng loại, mẫu mã theo thỏa thuận của hợp đồng mua bán hàng hóa với công ty Hải Yến. Hỏi hành vi đó của ông Lành vi phạm pháp luật gì?",
+    "options": [
+      "Vi phạm kỉ luật",
+      "Vi phạm pháp luật hình sự",
+      "Vi phạm pháp luật dân sự",
+      "Vi phạm pháp luật hành chính"
+    ],
+    "correctAnswerIndex": 2,
+    "explanation": "Về mặt lý luận cấu thành vi phạm pháp luật: Vi phạm pháp luật phải có đủ 4 yếu tố cấu thành: Chủ thể, Khách thể, Mặt chủ quan, Mặt khách quan. Đáp án đúng là 'Vi phạm pháp luật dân sự'."
+  },
+  {
+    "id": 93,
+    "question": "Tài sản bao gồm",
+    "options": [
+      "Vật, tiền, giấy tờ có giá và quyền tài sản",
+      "Tiền, vật và quyền tài sản",
+      "Vật, tiền, giấy tờ có giá và quyền khác đối với tài sản",
+      "Tiền, bất động sản và động sản"
+    ],
+    "correctAnswerIndex": 0,
+    "explanation": "Giải thích: Đáp án đúng là **A. Vật, tiền, giấy tờ có giá và quyền tài sản**. Đây là câu trả lời chính xác dựa trên giáo trình Pháp luật đại cương hiện hành."
+  },
+  {
+    "id": 94,
+    "question": "Hợp đồng lao động có thể được xác lập bằng",
+    "options": [
+      "Bằng miệng, bằng văn bản",
+      "Chỉ bằng hành vi",
+      "Chỉ bằng văn bản"
+    ],
+    "correctAnswerIndex": 2,
+    "explanation": "Theo quy định của Bộ luật Lao động 2019: Phương án đúng là 'Chỉ bằng văn bản', đáp ứng đúng các quy định về quan hệ lao động, tiền lương và quyền lợi của người lao động."
+  },
+  {
+    "id": 95,
+    "question": "Trách nhiệm hình sự là:",
+    "options": [
+      "Loại trách nhiệm pháp lý nghiêm khắc nhất, do Tòa án áp dụng đối với cá nhân, pháp nhân thương mại vi phạm các quan hệ xã hội do pháp luật hình sự bảo vệ",
+      "Loại trách nhiệm pháp lý ít nghiêm khắc nhất do Toà án áp dụng đối với mọi chủ thể vi phạm pháp luật",
+      "Loại trách nhiệm pháp lý do các cơ quan quản lý nhà nước áp dụng đối với chủ thể vi phạm pháp luật",
+      "Tất cả đáp án trên đều sai"
+    ],
+    "correctAnswerIndex": 0,
+    "explanation": "Theo quy định của Bộ luật Hình sự 2015: Đáp án đúng là 'Loại trách nhiệm pháp lý nghiêm khắc nhất, do Tòa án áp dụng đối với cá nhân, pháp nhân thương mại vi phạm các quan hệ xã hội do pháp luật hình sự bảo vệ', dựa trên các quy định về phân loại tội phạm, chế tài hình sự và trình tự thủ tục tố tụng hình sự."
+  },
+  {
+    "id": 96,
+    "question": "Quan hệ pháp luật là:",
+    "options": [
+      "Quan hệ đạo đức thuần tuý",
+      "Quan hệ tôn giáo do các tổ chức tôn giáo thiết lập",
+      "Quan hệ xã hội được các quy phạm pháp luật điều chỉnh",
+      "Quan hệ giữa các cá nhân với nhau"
+    ],
+    "correctAnswerIndex": 2,
+    "explanation": "Giải thích: Đáp án đúng là **C. Quan hệ xã hội được các quy phạm pháp luật điều chỉnh**. Đây là câu trả lời chính xác dựa trên giáo trình Pháp luật đại cương hiện hành."
+  },
+  {
+    "id": 97,
+    "question": "Người chưa thành niên là người:",
+    "options": [
+      "Dưới 18 tuổi",
+      "Dưới 16 tuổi",
+      "Dưới 15 tuổi",
+      "Dưới 14 tuổi"
+    ],
+    "correctAnswerIndex": 0,
+    "explanation": "Giải thích: Đáp án đúng là **A. Dưới 18 tuổi**. Đây là câu trả lời chính xác dựa trên giáo trình Pháp luật đại cương hiện hành."
+  },
+  {
+    "id": 98,
+    "question": "Anh Tùng (35 tuổi) tham gia ứng cử vào đại biểu Hội đồng nhân dân thành phố Đà Nẵng nhiệm kỳ 2021 – 2026. Anh Tùng đang thực hiện pháp luật dưới hình thức nào sau đây?",
+    "options": [
+      "Chấp hành pháp luật",
+      "Tuân thủ pháp luật",
+      "Sử dụng pháp luật",
+      "Áp dụng pháp luật"
+    ],
+    "correctAnswerIndex": 2,
+    "explanation": "Phân biệt 4 hình thức thực hiện pháp luật: **Sử dụng pháp luật:** Chủ thể thực hiện quyền hạn được cho phép, có thể làm hoặc không làm (ví dụ: đăng ký kết hôn, khiếu nại, đi học)."
+  },
+  {
+    "id": 99,
+    "question": "Cơ quan có chức năng xét xử ở nước Cộng hòa xã hội chủ nghĩa Việt Nam là:",
+    "options": [
+      "Chính phủ",
+      "Ủy ban nhân dân",
+      "Tòa án nhân dân",
+      "Viện kiểm sát nhân dân"
+    ],
+    "correctAnswerIndex": 2,
+    "explanation": "Giải thích: Đáp án đúng là **C. Tòa án nhân dân**. Đây là câu trả lời chính xác dựa trên giáo trình Pháp luật đại cương hiện hành."
+  },
+  {
+    "id": 100,
+    "question": "Văn bản có chứa quy phạm pháp luật, được ban hành theo đúng thẩm quyền, hình thức, trình tự, thủ tục theo quy định pháp luật là:",
+    "options": [
+      "Văn bản quy phạm pháp luật",
+      "Văn bản riêng",
+      "Văn bản chung",
+      "Văn bản cá biệt"
+    ],
+    "correctAnswerIndex": 0,
+    "explanation": "Cấu trúc quy phạm pháp luật gồm 3 bộ phận: **Quy định:** Chỉ ra mẫu hành vi xử sự được phép, phải làm hoặc bị cấm (trả lời câu hỏi 'Được làm gì? Phải làm gì?')."
+  },
+  {
+    "id": 101,
+    "question": "Văn bản quy phạm pháp luật có giá trị pháp lý cao nhất ở nước Cộng hòa xã hội chủ nghĩa Việt Nam là:",
+    "options": [
+      "Luật",
+      "Nghị định",
+      "Thông tư",
+      "Hiến pháp"
+    ],
+    "correctAnswerIndex": 3,
+    "explanation": "Cấu trúc quy phạm pháp luật gồm 3 bộ phận: Phương án đúng là 'Hiến pháp', chỉ ra chính xác các bộ phận hoặc định nghĩa của quy phạm pháp luật."
+  },
+  {
+    "id": 102,
+    "question": "Vi phạm pháp luật được chia thành:",
+    "options": [
+      "2 loại",
+      "3 loại",
+      "4 loại",
+      "5 loại"
+    ],
+    "correctAnswerIndex": 2,
+    "explanation": "Về mặt lý luận cấu thành vi phạm pháp luật: Vi phạm pháp luật phải có đủ 4 yếu tố cấu thành: Chủ thể, Khách thể, Mặt chủ quan, Mặt khách quan. Đáp án đúng là '4 loại'."
+  },
+  {
+    "id": 103,
+    "question": "Quy phạm pháp luật bao gồm các yếu tố:",
+    "options": [
+      "Mặt chủ quan, mặt khách quan, chủ thể, khách thể",
+      "Chủ thể, khách thể, nội dung",
+      "Giả định, quy định, chế tài",
+      "Lỗi, động cơ, mục đích"
+    ],
+    "correctAnswerIndex": 2,
+    "explanation": "Cấu trúc quy phạm pháp luật gồm 3 bộ phận: **Giả định:** Chỉ ra chủ thể, điều kiện hoàn cảnh chịu sự điều chỉnh của quy phạm (thường trả lời câu hỏi 'Ai? Khi nào?')."
+  },
+  {
+    "id": 104,
+    "question": "Người thành niên là người:",
+    "options": [
+      "Từ đủ 16 tuổi trở lên",
+      "Từ đủ 17 tuổi trở lên",
+      "Từ đủ 18 tuổi trở lên",
+      "Từ đủ 20 tuổi trở lên"
+    ],
+    "correctAnswerIndex": 2,
+    "explanation": "Giải thích: Đáp án đúng là **C. Từ đủ 18 tuổi trở lên**. Đây là câu trả lời chính xác dựa trên giáo trình Pháp luật đại cương hiện hành."
+  },
+  {
+    "id": 105,
+    "question": "Năng lực pháp luật dân sự của cá nhân là:",
+    "options": [
+      "Là khả năng của cá nhân có quyền và nghĩa vụ dân sự",
+      "Là khả năng của cá nhân có quyền dân sự",
+      "Là khả năng của cá nhân có nghĩa vụ dân sự",
+      "Là khả năng của cá nhân bằng hành vi của mình xác lập, thực hiện quyền, nghĩa vụ dân sự"
+    ],
+    "correctAnswerIndex": 3,
+    "explanation": "Giải thích: Đáp án đúng là **D. Là khả năng của cá nhân bằng hành vi của mình xác lập, thực hiện quyền, nghĩa vụ dân sự**. Đây là câu trả lời chính xác dựa trên giáo trình Pháp luật đại cương hiện hành."
+  },
+  {
+    "id": 106,
+    "question": "Độ tuổi kết hôn theo quy định của Luật Hôn nhân gia đình năm 2014:",
+    "options": [
+      "Nam, nữ từ mười sáu tuổi trở lên",
+      "Nam từ mười tám tuổi trở lên, nữ từ mười sáu tuổi trở lên",
+      "Nam từ hai mươi tuổi trở lên, nữ từ mười tám tuổi trở lên",
+      "Nam từ đủ hai mươi tuổi trở lên, nữ từ đủ mười tám tuổi trở lên"
+    ],
+    "correctAnswerIndex": 3,
+    "explanation": "Cấu trúc quy phạm pháp luật gồm 3 bộ phận: **Quy định:** Chỉ ra mẫu hành vi xử sự được phép, phải làm hoặc bị cấm (trả lời câu hỏi 'Được làm gì? Phải làm gì?')."
+  },
+  {
+    "id": 107,
+    "question": "Vi phạm pháp luật có tính nguy hiểm cao nhất cho xã hội:",
+    "options": [
+      "Vi phạm dân sự",
+      "Vi phạm hành chính",
+      "Vi phạm hình sự",
+      "Vi phạm kỷ luật"
+    ],
+    "correctAnswerIndex": 2,
+    "explanation": "Về mặt lý luận cấu thành vi phạm pháp luật: Vi phạm pháp luật phải có đủ 4 yếu tố cấu thành: Chủ thể, Khách thể, Mặt chủ quan, Mặt khách quan. Đáp án đúng là 'Vi phạm hình sự'."
+  },
+  {
+    "id": 108,
+    "question": "Cơ quan quyền lực nhà nước cao nhất của nước Cộng hòa xã hội chủ nghĩa Việt Nam là:",
+    "options": [
+      "Quốc hội",
+      "Chính phủ",
+      "Tòa án nhân dân",
+      "Hội đồng nhân dân"
+    ],
+    "correctAnswerIndex": 0,
+    "explanation": "Giải thích: Đáp án đúng là **A. Quốc hội**. Đây là câu trả lời chính xác dựa trên giáo trình Pháp luật đại cương hiện hành."
+  },
+  {
+    "id": 109,
+    "question": "Cấu thành của vi phạm pháp luật bao gồm các yếu tố:",
+    "options": [
+      "Mặt chủ quan, mặt khách quan, chủ thể, khách thể",
+      "Chủ thể, khách thể, nội dung",
+      "Giả định, quy định, chế tài",
+      "Lỗi, động cơ, mục đích"
+    ],
+    "correctAnswerIndex": 2,
+    "explanation": "Về mặt lý luận cấu thành vi phạm pháp luật: Vi phạm pháp luật phải có đủ 4 yếu tố cấu thành: Chủ thể, Khách thể, Mặt chủ quan, Mặt khách quan. Đáp án đúng là 'Giả định, quy định, chế tài'."
+  },
+  {
+    "id": 110,
+    "question": "Triệu Quân Sự giết người và cướp tài sản để thoả mãn ham muốn chơi game. Loại vi phạm pháp luật mà Sự vi phạm là:",
+    "options": [
+      "Vi phạm dân sự",
+      "Vi phạm hành chính",
+      "Vi phạm hình sự",
+      "Vi phạm kỉ luật"
+    ],
+    "correctAnswerIndex": 2,
+    "explanation": "Về mặt lý luận cấu thành vi phạm pháp luật: Vi phạm pháp luật phải có đủ 4 yếu tố cấu thành: Chủ thể, Khách thể, Mặt chủ quan, Mặt khách quan. Đáp án đúng là 'Vi phạm hình sự'."
+  },
+  {
+    "id": 111,
+    "question": "A tham gia giao thông và có hành vi đi vào đường ngược chiều. A bị Cảnh sát giao thông B ra quyết định xử phạt. Cảnh sát giao thông B thực hiện pháp luật dưới hình thức nào:",
+    "options": [
+      "Chấp hành pháp luật",
+      "Tuân thủ pháp luật",
+      "Sử dụng pháp luật",
+      "Áp dụng pháp luật"
+    ],
+    "correctAnswerIndex": 3,
+    "explanation": "Phân biệt 4 hình thức thực hiện pháp luật: **Áp dụng pháp luật:** Cơ quan nhà nước, người có thẩm quyền ra quyết định áp dụng quy phạm pháp luật cho các trường hợp cụ thể để phát sinh, thay đổi, chấm dứt quan hệ pháp luật."
+  },
+  {
+    "id": 112,
+    "question": "Cơ quan có thẩm quyền ban hành, sửa đổi Hiến pháp của nước Cộng hoà xã hội chủ nghĩa Việt Nam:",
+    "options": [
+      "Ủy ban nhân dân",
+      "Chủ tịch nước",
+      "Chính phủ",
+      "Quốc Hội"
+    ],
+    "correctAnswerIndex": 3,
+    "explanation": "Theo Luật ban hành văn bản quy phạm pháp luật: Quốc hội là cơ quan duy nhất có quyền lập hiến và lập pháp (ban hành Hiến pháp, Luật, Nghị quyết)."
+  },
+  {
+    "id": 113,
+    "question": "Theo Bộ luật lao động 2019, nội dung của hợp đồng lao động thoả thuận về:",
+    "options": [
+      "Về tiền lương, tiền thưởng, quyền và nghĩa vụ của mỗi bên",
+      "Về điều kiện an toàn lao động, vệ sinh lao động",
+      "Về tiền lương, tiền thưởng và chế độ tăng lương",
+      "Về điều kiện lao động; việc làm có trả công, tiền lương; quyền và nghĩa vụ của mỗi bên"
+    ],
+    "correctAnswerIndex": 3,
+    "explanation": "Theo quy định của Bộ luật Lao động 2019: Phương án đúng là 'Về điều kiện lao động; việc làm có trả công, tiền lương; quyền và nghĩa vụ của mỗi bên', đáp ứng đúng các quy định về quan hệ lao động, tiền lương và quyền lợi của người lao động."
+  },
+  {
+    "id": 114,
+    "question": "Do mâu thuẫn Hoàng đã dùng dao đâm nhiều nhát vào Thịnh dẫn đến Thịnh tử vong tại chỗ. Yếu tố lỗi được xác định trong trường hợp này là:",
+    "options": [
+      "Lỗi cố ý trực tiếp",
+      "Lỗi vô ý do cẩu thả",
+      "Lỗi vô ý vì quá tự tin",
+      "Tất cả đều sai"
+    ],
+    "correctAnswerIndex": 0,
+    "explanation": "Giải thích: Đáp án đúng là **A. Lỗi cố ý trực tiếp**. Đây là câu trả lời chính xác dựa trên giáo trình Pháp luật đại cương hiện hành."
+  },
+  {
+    "id": 115,
+    "question": "Thời điểm mở thừa kế theo quy định Bộ luật Dân sự năm 2015 là khi:",
+    "options": [
+      "Người thừa kế chết",
+      "Người để lại di sản thừa kế viết xong di chúc",
+      "Người để lại di sản thừa kế chết",
+      "Người thừa kế yêu cầu phân chia di sản thừa kế"
+    ],
+    "correctAnswerIndex": 2,
+    "explanation": "Theo quy định của Bộ luật Dân sự 2015: Phương án đúng là 'Người để lại di sản thừa kế chết' vì phù hợp với các quy tắc phân chia di sản thừa kế theo di chúc hoặc theo pháp luật."
+  },
+  {
+    "id": 116,
+    "question": "Chủ thể là cơ quan nhà nước:",
+    "options": [
+      "Đoàn Thanh niên cộng sản Hồ Chí Minh",
+      "Hội đồng nhân dân",
+      "Trường đại học Duy Tân",
+      "Công ty TNHH Minh Toàn"
+    ],
+    "correctAnswerIndex": 1,
+    "explanation": "Giải thích: Đáp án đúng là **B. Hội đồng nhân dân**. Đây là câu trả lời chính xác dựa trên giáo trình Pháp luật đại cương hiện hành."
+  },
+  {
+    "id": 117,
+    "question": "Căn cứ để Tòa án chia tài sản chung của vợ chồng khi ly hôn là:",
+    "options": [
+      "Công sức đóng góp của vợ và chồng trong việc tạo lập tài sản chung",
+      "Hoàn cảnh của vợ và chồng",
+      "Lỗi của bên vi phạm quyền và nghĩa vụ của vợ và chồng (nếu có)",
+      "Cả ba đáp án trên đều đúng"
+    ],
+    "correctAnswerIndex": 3,
+    "explanation": "Theo quy định của Luật Hôn nhân và Gia đình 2014: Phương án đúng là 'Cả ba đáp án trên đều đúng', tuân thủ đúng các nguyên tắc tự nguyện, một vợ một chồng và độ tuổi trong Luật Hôn nhân và gia đình."
+  },
+  {
+    "id": 118,
+    "question": "Quyền của nhạc sĩ Trịnh Công Sơn đối với ca khúc “Cát bụi” theo quy định Bộ luật Dân sự năm 2015 là quyền:",
+    "options": [
+      "Quyền riêng tư",
+      "Quyền nhân thân gắn với tài sản",
+      "Quyền tài sản",
+      "Có thể là quyền nhân thân hoặc tài sản"
+    ],
+    "correctAnswerIndex": 1,
+    "explanation": "Cấu trúc quy phạm pháp luật gồm 3 bộ phận: **Quy định:** Chỉ ra mẫu hành vi xử sự được phép, phải làm hoặc bị cấm (trả lời câu hỏi 'Được làm gì? Phải làm gì?')."
+  },
+  {
+    "id": 119,
+    "question": "Hợp đồng dân sự có thể được xác lập dưới hình thức:",
+    "options": [
+      "Bằng lời nói",
+      "Bằng hành vi",
+      "Bằng văn bản",
+      "Cả ba đáp án trên đều đúng"
+    ],
+    "correctAnswerIndex": 3,
+    "explanation": "Giải thích: Đáp án đúng là **D. Cả ba đáp án trên đều đúng**. Đây là câu trả lời chính xác dựa trên giáo trình Pháp luật đại cương hiện hành."
+  },
+  {
+    "id": 120,
+    "question": "Tiền lương của người lao động trong thời gian thử việc:",
+    "options": [
+      "Tối thiểu bằng 55% mức lương công việc đó",
+      "Tối thiểu bằng 65% mức lương công việc đó",
+      "Tối thiểu bằng 75% mức lương công việc đó",
+      "Tối thiểu bằng 85% mức lương công việc đó"
+    ],
+    "correctAnswerIndex": 3,
+    "explanation": "Theo quy định của Bộ luật Lao động 2019: Thời gian thử việc tối đa là 180 ngày với người quản lý doanh nghiệp, 60 ngày với trình độ cao đẳng trở lên, 30 ngày với trung cấp/công nhân, không áp dụng thử việc với hợp đồng dưới 1 tháng. Lương thử việc ít nhất bằng 85% lương chính thức."
+  },
+  {
+    "id": 121,
+    "question": "Giấy tờ có giá theo quy định Bộ luật Dân sự năm 2015:",
+    "options": [
+      "Giấy tờ tuỳ thân",
+      "Sổ tiết kiệm",
+      "Sổ tiết kiệm",
+      "Giấy dò số đề"
+    ],
+    "correctAnswerIndex": 0,
+    "explanation": "Cấu trúc quy phạm pháp luật gồm 3 bộ phận: **Quy định:** Chỉ ra mẫu hành vi xử sự được phép, phải làm hoặc bị cấm (trả lời câu hỏi 'Được làm gì? Phải làm gì?')."
+  },
+  {
+    "id": 122,
+    "question": "Hợp đồng lao động có thể được xác lập dưới hình thức:",
+    "options": [
+      "Bằng văn bản",
+      "Bằng lời nói",
+      "Bằng hành vi",
+      "Đáp án b và c đều đúng"
+    ],
+    "correctAnswerIndex": 1,
+    "explanation": "Theo quy định của Bộ luật Lao động 2019: Phương án đúng là 'Bằng lời nói', đáp ứng đúng các quy định về quan hệ lao động, tiền lương và quyền lợi của người lao động."
+  },
+  {
+    "id": 123,
+    "question": "Hành vi nào dưới đây là hành vi vi phạm pháp luật:",
+    "options": [
+      "Nguyễn Huy Hoàng tổ chức đánh bạc",
+      "Bệnh nhân bệnh viện tâm thần X (được kết luận là mất năng lực hành vi dân sự) trốn viện và đánh trọng thương anh Nguyễn Trường Tín",
+      "Nguyễn Phước Nhật ngủ mơ thấy mình đã giết người",
+      "Diệp Phước Thịnh sau khi nhậu say đã gọi điện và cãi nhau với người yêu"
+    ],
+    "correctAnswerIndex": 0,
+    "explanation": "Về mặt lý luận cấu thành vi phạm pháp luật: Vi phạm pháp luật phải có đủ 4 yếu tố cấu thành: Chủ thể, Khách thể, Mặt chủ quan, Mặt khách quan. Đáp án đúng là 'Nguyễn Huy Hoàng tổ chức đánh bạc'."
+  },
+  {
+    "id": 124,
+    "question": "Trách nhiệm hành chính là:",
+    "options": [
+      "Loại trách nhiệm pháp lý nghiêm khắc nhất, do Tòa án áp dụng đối với mọi chủ thể vi phạm",
+      "Loại trách nhiệm pháp lý do các cơ quan quản lý hành chính nhà nước áp dụng đối với các chủ thể có hành vi vi phạm hành chính nhưng chưa đến mức cấu thành tội phạm",
+      "Loại trách nhiệm pháp lý do Thủ trưởng cấp trên áp dụng đối với các chủ thể có hành vi vi phạm nội quy",
+      "Loại trách nhiệm pháp lý do Tổ chức đoàn thể áp dụng đối với cá nhân có hành vi vi phạm quy tắc của Tổ chức"
+    ],
+    "correctAnswerIndex": 1,
+    "explanation": "Giải thích: Đáp án đúng là **B. Loại trách nhiệm pháp lý do các cơ quan quản lý hành chính nhà nước áp dụng đối với các chủ thể có hành vi vi phạm hành chính nhưng chưa đến mức cấu thành tội phạm**. Đây là câu trả lời chính xác dựa trên giáo trình Pháp luật đại cương hiện hành."
+  },
+  {
+    "id": 125,
+    "question": "Nguồn gốc ra đời của Nhà nước là:",
+    "options": [
+      "Do Thượng đế tạo ra để quản lý trật tự xã hội",
+      "Sự xuất hiện chế độ tư hữu, mâu thuẫn giai cấp không điều hoà được dẫn đến đấu tranh giai cấp",
+      "Do gia đình tạo ra",
+      "Do các Bộ tộc tạo ra để đánh chiếm Bộ tộc khác"
+    ],
+    "correctAnswerIndex": 1,
+    "explanation": "Giải thích: Đáp án đúng là **B. Sự xuất hiện chế độ tư hữu, mâu thuẫn giai cấp không điều hoà được dẫn đến đấu tranh giai cấp**. Đây là câu trả lời chính xác dựa trên giáo trình Pháp luật đại cương hiện hành."
+  },
+  {
+    "id": 126,
+    "question": "An thực hiện hành vi vượt đèn đỏ và bị cảnh sát giao thông ra quyết định xử phạt 01 (một) triệu đồng. Loại vi phạm pháp luật mà A vi phạm là:",
+    "options": [
+      "Vi phạm hình sự",
+      "Vi phạm hành chính",
+      "Vi phạm hành chính",
+      "Vi phạm kỉ luật"
+    ],
+    "correctAnswerIndex": 2,
+    "explanation": "Về mặt lý luận cấu thành vi phạm pháp luật: Vi phạm pháp luật phải có đủ 4 yếu tố cấu thành: Chủ thể, Khách thể, Mặt chủ quan, Mặt khách quan. Đáp án đúng là 'Vi phạm hành chính'."
+  },
+  {
+    "id": 127,
+    "question": "Thẩm quyền cho nhập quốc tịch Việt Nam thuộc về:",
+    "options": [
+      "Quốc hội",
+      "Chính phủ",
+      "Chủ tịch nước",
+      "Tòa án nhân dân"
+    ],
+    "correctAnswerIndex": 2,
+    "explanation": "Giải thích: Đáp án đúng là **C. Chủ tịch nước**. Đây là câu trả lời chính xác dựa trên giáo trình Pháp luật đại cương hiện hành."
+  },
+  {
+    "id": 128,
+    "question": "Chế độ bảo hiểm xã hội bắt buộc bao gồm:",
+    "options": [
+      "Ốm đau, thai sản; tử tuất, hưu trí, tai nạn lao động, bệnh nghề nghiệp",
+      "Thai sản; tử tuất, hưu trí",
+      "Tai nạn lao động; bệnh nghề nghiệp; bảo hiểm y tế",
+      "Hưu trí; tử tuất Phần II. Câu hỏi ngắn (3 điểm)"
+    ],
+    "correctAnswerIndex": 0,
+    "explanation": "Giải thích: Đáp án đúng là **A. Ốm đau, thai sản; tử tuất, hưu trí, tai nạn lao động, bệnh nghề nghiệp**. Đây là câu trả lời chính xác dựa trên giáo trình Pháp luật đại cương hiện hành."
+  },
+  {
+    "id": 129,
+    "question": "Ông Thành và bà Lan là vợ chồng, ông bà có hai người con là Đạt (26 tuổi) và Thi (17 tuổi). Ông Thành chết vì ung thư, trước khi chết đã lập di chúc hợp pháp, để lại toàn bộ tài sản cho Đạt với lý do Đạt là con trai, sẽ chịu trách nhiệm hương khói cho ông nên xứng đáng được nhận tài sản. Biết, ông Thành có tài sản riêng là một sổ tiết kiệm trị giá 310 triệu đồng, tài sản chung của vợ chồng ông Thành là một căn nhà trị giá 5,1 tỷ đồng và 400 triệu đồng trong tài khoản ngân hàng. Hỏi bà Lan và Thi có được hưởng di sản thừa kế từ ông Thành hay không và nếu có thì mỗi người được hưởng bao nhiêu?",
+    "options": [
+      "Bà Lan và Thi không được hưởng di sản thừa kế",
+      "Bà Lan hưởng 3,43 tỷ đồng và Thi hưởng 680 triệu đồng",
+      "Bà Lan và Thi đều hưởng mỗi người 680 triệu đồng",
+      "Bà Lan và Thi đều hưởng mỗi người 1,02 tỷ đồng"
+    ],
+    "correctAnswerIndex": 2,
+    "explanation": "Theo quy định của Bộ luật Dân sự 2015: Di sản ông Thành là 2.75 tỷ (1/2 nhà chung) + 310 triệu (tiết kiệm riêng) = 3.06 tỷ. Chia theo luật có 3 suất (Lan, Đạt, Thi), mỗi suất là 1.02 tỷ. Bà Lan (vợ) và Thi (con 17 tuổi) thuộc diện thừa kế không phụ thuộc di chúc, hưởng ít nhất 2/3 suất thừa kế theo luật = 2/3 * 1.02 tỷ = 680 triệu đồng/người."
+  },
+  {
+    "id": 130,
+    "question": "Di chúc có bao nhiêu hình thức?",
+    "options": [
+      "1",
+      "2",
+      "3",
+      "4"
+    ],
+    "correctAnswerIndex": 1,
+    "explanation": "Theo quy định của Bộ luật Dân sự 2015: Phương án đúng là '2' vì phù hợp với các quy tắc phân chia di sản thừa kế theo di chúc hoặc theo pháp luật."
+  },
+  {
+    "id": 131,
+    "question": "Pháp luật quy định tiền lương làm thêm giờ tính theo đơn giá tiền lương hoặc tiền lương thực trả theo công việc đang làm của người lao động như thế nào?",
+    "options": [
+      "Vào ngày thường bằng 100%",
+      "Vào ngày nghỉ lễ tết, ít nhất bằng 300%",
+      "Vào ngày nghỉ hàng tuần, ít nhất bằng 250%",
+      "Vào ngày thường ít nhất bằng 140%"
+    ],
+    "correctAnswerIndex": 1,
+    "explanation": "Cấu trúc quy phạm pháp luật gồm 3 bộ phận: **Quy định:** Chỉ ra mẫu hành vi xử sự được phép, phải làm hoặc bị cấm (trả lời câu hỏi 'Được làm gì? Phải làm gì?')."
+  },
+  {
+    "id": 132,
+    "question": "Trong tố tụng hình sự, Tòa án có chức năng chủ yếu là:",
+    "options": [
+      "Buộc tội",
+      "Điều tra",
+      "Bào chữa",
+      "Xét xử"
+    ],
+    "correctAnswerIndex": 3,
+    "explanation": "Theo quy định của Bộ luật Hình sự 2015: Đáp án đúng là 'Xét xử', dựa trên các quy định về phân loại tội phạm, chế tài hình sự và trình tự thủ tục tố tụng hình sự."
+  },
+  {
+    "id": 133,
+    "question": "Tố tụng hình sự có bao nhiêu giai đoạn?",
+    "options": [
+      "04",
+      "05",
+      "06",
+      "07"
+    ],
+    "correctAnswerIndex": 1,
+    "explanation": "Theo quy định của Bộ luật Hình sự 2015: Đáp án đúng là '05', dựa trên các quy định về phân loại tội phạm, chế tài hình sự và trình tự thủ tục tố tụng hình sự."
+  },
+  {
+    "id": 134,
+    "question": "Hệ thống Tòa án nhân dân Việt Nam được phân thành bao nhiêu cấp?",
+    "options": [
+      "02",
+      "03",
+      "04",
+      "05"
+    ],
+    "correctAnswerIndex": 1,
+    "explanation": "Về hệ thống cơ quan tư pháp Việt Nam: Tòa án nhân dân là cơ quan xét xử duy nhất của nước Cộng hòa xã hội chủ nghĩa Việt Nam."
+  },
+  {
+    "id": 135,
+    "question": "Vì ghen tuông khi thấy Thái chở người yêu cũ của mình về nhà, Tiến đã chặn đường, cầm dao đâm Thái. Hậu quả, Thái tử vong trên đường đi cấp cứu. Tiến đã bị tuyên phạt mức án 11 năm tù về tội “Giết người”. Hỏi, hành vi phạm tội của Tiến là loại tội phạm nào?",
+    "options": [
+      "Tội phạm ít nghiêm trọng",
+      "Tội phạm nghiêm trọng",
+      "Tội phạm rất nghiêm trọng",
+      "Tội phạm đặc biệt nghiêm trọng"
+    ],
+    "correctAnswerIndex": 2,
+    "explanation": "Theo quy định của Bộ luật Hình sự 2015: Đáp án đúng là 'Tội phạm rất nghiêm trọng', dựa trên các quy định về phân loại tội phạm, chế tài hình sự và trình tự thủ tục tố tụng hình sự."
+  },
+  {
+    "id": 136,
+    "question": "Lỗi vô ý do cẩu thả là khi:",
+    "options": [
+      "Người phạm tội không thấy trước hành vi của mình có thể gây ra hậu quả nguy hại cho xã hội vì vậy cho rằng hậu quả đó sẽ không xảy ra hoặc có thể ngăn ngừa được",
+      "Người phạm tội không thấy trước hành vi của mình có thể gây ra hậu quả nguy hại cho xã hội, mặc dù phải thấy trước và có thể thấy trước hậu quả đó",
+      "Người phạm tội nhận thức rõ hành vi của mình là nguy hiểm cho xã hội, thấy trước hậu quả của hành vi đó có thể xảy ra, tuy không mong muốn nhưng vẫn có ý thức để mặc cho hậu quả xảy ra",
+      "Người phạm tội nhận thức rõ hành vi của mình là nguy hiểm cho xã hội, thấy trước hậu quả của hành vi đó và mong muốn hậu quả xảy ra"
+    ],
+    "correctAnswerIndex": 1,
+    "explanation": "Giải thích: Đáp án đúng là **B. Người phạm tội không thấy trước hành vi của mình có thể gây ra hậu quả nguy hại cho xã hội, mặc dù phải thấy trước và có thể thấy trước hậu quả đó**. Đây là câu trả lời chính xác dựa trên giáo trình Pháp luật đại cương hiện hành."
+  },
+  {
+    "id": 137,
+    "question": "Mặt chủ quan của tội phạm là:",
+    "options": [
+      "Thái độ tiêu cực của chủ thể phạm tội",
+      "Những biểu hiện bên ngoài của tội phạm",
+      "Trạng thái tâm lý của chủ thể phạm tội",
+      "Năng lực hành vi của chủ thể phạm tội"
+    ],
+    "correctAnswerIndex": 2,
+    "explanation": "Về mặt lý luận cấu thành vi phạm pháp luật: Mặt chủ quan bao gồm các yếu tố trạng thái tâm lý bên trong của chủ thể: lỗi (cố ý/vô ý), động cơ và mục đích vi phạm."
+  },
+  {
+    "id": 138,
+    "question": "Theo Bộ luật Dân sự năm 2015, thời điểm mở thừa kế là khi:",
+    "options": [
+      "Người để lại di sản thừa kế viết di chúc",
+      "Người để lại di sản thừa kế mất tích",
+      "Người để lại di sản thừa kế chết",
+      "Tất cả các phương án trên đều sai"
+    ],
+    "correctAnswerIndex": 2,
+    "explanation": "Theo quy định của Bộ luật Dân sự 2015: Phương án đúng là 'Người để lại di sản thừa kế chết' vì phù hợp với các quy tắc phân chia di sản thừa kế theo di chúc hoặc theo pháp luật."
+  },
+  {
+    "id": 139,
+    "question": "Việc đăng kí kết hôn theo quy định của luật hôn nhân gia đình được xác lập khi:",
+    "options": [
+      "Ủy ban nhân dân có thẩm quyền tiến hành đăng kí kết hôn với sự có mặt của cả hai bên nam, nữ",
+      "Một trong hai bên nam, nữ kết hôn có thể ủy quyền cho nhau đăng kí kết hôn để đăng kí kết hôn tại Ủy ban nhân dân có thẩm quyền",
+      "Tổ chức tiệc cưới với sự có mặt của gia đình hai bên nam, nữ",
+      "Tòa án nơi cư trú của bên nam hoặc bên nữ tiến hành đăng kí kết hôn"
+    ],
+    "correctAnswerIndex": 0,
+    "explanation": "Cấu trúc quy phạm pháp luật gồm 3 bộ phận: **Quy định:** Chỉ ra mẫu hành vi xử sự được phép, phải làm hoặc bị cấm (trả lời câu hỏi 'Được làm gì? Phải làm gì?')."
+  },
+  {
+    "id": 140,
+    "question": "Đối tượng nào sau đây thuộc hàng thừa kế thứ nhất?",
+    "options": [
+      "Bà ngoại của người chết",
+      "Con nuôi của người chết",
+      "Em ruột của người chết",
+      "Dì ruột của người chết"
+    ],
+    "correctAnswerIndex": 1,
+    "explanation": "Theo quy định của Bộ luật Dân sự 2015: Hàng thừa kế thứ nhất bao gồm: vợ, chồng, cha đẻ, mẹ đẻ, cha nuôi, mẹ nuôi, con đẻ, con nuôi của người chết (Điều 651). Các đối tượng này được hưởng di sản bằng nhau."
+  },
+  {
+    "id": 141,
+    "question": "Anh Nguyễn Trọng Khôi, sinh ngày 28/10/2005. Hỏi, đến thời điểm nào thì anh Khôi đủ điều kiện về độ tuổi kết hôn?",
+    "options": [
+      "28/10/2024",
+      "29/10/2024",
+      "28/10/2025",
+      "29/10/2025"
+    ],
+    "correctAnswerIndex": 2,
+    "explanation": "Theo quy định của Luật Hôn nhân và Gia đình 2014: Độ tuổi kết hôn hợp pháp của Nam là từ đủ 20 tuổi trở lên, Nữ là từ đủ 18 tuổi trở lên."
+  },
+  {
+    "id": 142,
+    "question": "Tảo hôn là việc:",
+    "options": [
+      "Nam, nữ đủ điều kiện kết hôn, có tổ chức đám cưới nhưng không đăng ký kết hôn",
+      "Nam, nữ đủ điều kiện kết hôn, không tổ chức đám cưới nhưng đăng ký kết hôn",
+      "Nam, nữ chưa đủ độ tuổi kết hôn nhưng tổ chức đám cưới, sống chung như vợ chồng",
+      "Cả A, B và C đều đúng"
+    ],
+    "correctAnswerIndex": 2,
+    "explanation": "Theo quy định của Luật Hôn nhân và Gia đình 2014: Phương án đúng là 'Nam, nữ chưa đủ độ tuổi kết hôn nhưng tổ chức đám cưới, sống chung như vợ chồng', tuân thủ đúng các nguyên tắc tự nguyện, một vợ một chồng và độ tuổi trong Luật Hôn nhân và gia đình."
+  },
+  {
+    "id": 143,
+    "question": "Thời hiệu để người thừa kế yêu cầu chia di sản đối với bất động sản là:",
+    "options": [
+      "10 năm kể từ thời điểm mở thừa kế",
+      "20 năm kể từ thời điểm mở thừa kế",
+      "30 năm kể từ thời điểm mở thừa kế",
+      "40 năm kể từ thời điểm mở thừa kế"
+    ],
+    "correctAnswerIndex": 2,
+    "explanation": "Theo quy định của Bộ luật Dân sự 2015: Thời hiệu để người thừa kế yêu cầu chia di sản là 30 năm đối với bất động sản, 10 năm đối với động sản kể từ thời điểm mở thừa kế (Điều 623)."
+  },
+  {
+    "id": 144,
+    "question": "Hàng thừa kế theo pháp luật nào dưới đây là đúng?",
+    "options": [
+      "Hàng thừa kế thứ hai gồm: ông nội, bà nội, anh ruột, chị ruột, em ruột của người chết; cháu ruột của người chết mà người chết là ông nội, bà nội, ông ngoại, bà ngoại",
+      "Hàng thừa kế thứ nhất gồm: vợ, chồng, cha đẻ, mẹ đẻ, cha nuôi, mẹ nuôi, con đẻ, con nuôi của người chết",
+      "Hàng thừa kế thứ nhất gồm: vợ, chồng, cha đẻ, mẹ đẻ, cha vợ, mẹ vợ, cha nuôi, mẹ nuôi, con đẻ, con nuôi của người chết",
+      "Hàng thừa kế thứ hai gồm: ông nội, bà nội, anh ruột, chị ruột, em ruột của người chết; cháu ruột của người chết mà người chết là ông nội, bà nội"
+    ],
+    "correctAnswerIndex": 1,
+    "explanation": "Theo quy định của Bộ luật Dân sự 2015: Phương án đúng là 'Hàng thừa kế thứ nhất gồm: vợ, chồng, cha đẻ, mẹ đẻ, cha nuôi, mẹ nuôi, con đẻ, con nuôi của người chết' vì phù hợp với các quy tắc phân chia di sản thừa kế theo di chúc hoặc theo pháp luật."
+  },
+  {
+    "id": 145,
+    "question": "Người lao động có quyền đơn phương chấm dứt hợp đồng lao động mà không cần báo trước trong trường hợp nào sau đây?",
+    "options": [
+      "Người lao động tìm được công việc có mức lương cao hơn",
+      "Người lao động chuyển đến sinh sống ở nơi khác, không thể tiếp tục công việc hiện tại",
+      "Người lao động bị quấy rối tình dục tại nơi làm việc",
+      "Người lao động có mâu thuẫn với người sử dụng lao động"
+    ],
+    "correctAnswerIndex": 2,
+    "explanation": "Theo quy định của Bộ luật Lao động 2019: Người lao động có quyền đơn phương chấm dứt hợp đồng lao động không cần báo trước trong một số trường hợp như bị ngược đãi, quấy rối tình dục tại nơi làm việc, hoặc không được trả lương đầy đủ."
+  },
+  {
+    "id": 146,
+    "question": "Theo Luật hôn nhân và gia đình Việt Nam, Nhà nước không cấm kết hôn giữa những người nào sau đây?",
+    "options": [
+      "Người có cùng giới tính",
+      "Người có quan hệ huyết thống trong phạm vi ba đời",
+      "Người dưới 18 tuổi",
+      "Người đang có vợ/chồng"
+    ],
+    "correctAnswerIndex": 0,
+    "explanation": "Theo quy định của Luật Hôn nhân và Gia đình 2014: Phương án đúng là 'Người có cùng giới tính', tuân thủ đúng các nguyên tắc tự nguyện, một vợ một chồng và độ tuổi trong Luật Hôn nhân và gia đình."
+  },
+  {
+    "id": 147,
+    "question": "Thời hiệu truy cứu trách nhiệm hình sự đối với tội phạm nghiêm trọng là bao lâu?",
+    "options": [
+      "05 năm",
+      "10 năm",
+      "15 năm",
+      "20 năm"
+    ],
+    "correctAnswerIndex": 1,
+    "explanation": "Theo quy định của Bộ luật Hình sự 2015: Tội phạm nghiêm trọng có mức cao nhất của khung hình phạt là phạt tù từ trên 03 năm đến 07 năm tù. Thời hiệu truy cứu trách nhiệm hình sự là 10 năm."
+  },
+  {
+    "id": 148,
+    "question": "Giờ làm việc ban đêm được xác định như thế nào?",
+    "options": [
+      "Được tính từ 22 giờ đến 06 giờ sáng ngày hôm sau",
+      "Được tính từ 20 giờ đến 06 giờ sáng ngày hôm sau",
+      "Được tính từ 22 giờ đến 05 giờ sáng ngày hôm sau",
+      "Được tính từ 21 giờ đến 06 giờ sáng ngày hôm sau"
+    ],
+    "correctAnswerIndex": 0,
+    "explanation": "Giải thích: Đáp án đúng là **A. Được tính từ 22 giờ đến 06 giờ sáng ngày hôm sau**. Đây là câu trả lời chính xác dựa trên giáo trình Pháp luật đại cương hiện hành."
+  },
+  {
+    "id": 149,
+    "question": "Trước khi kết hôn, Hoa có một căn nhà trị giá 2,7 tỷ đồng. Trong thời kỳ hôn nhân, Hoa và chồng đã cùng tạo lập được khối tài sản trị giá 4,4 tỷ đồng. Hoa được cha đẻ của mình tặng cho riêng một chiếc xe ô tô trị giá 800 triệu. Hoa chết do đột quỵ, hỏi di sản Hoa để lại là bao nhiêu?",
+    "options": [
+      "7,9 tỷ đồng",
+      "5,7 tỷ đồng",
+      "3,5 tỷ đồng",
+      "3,95 tỷ đồng"
+    ],
+    "correctAnswerIndex": 1,
+    "explanation": "Theo quy định của Bộ luật Dân sự 2015: Di sản của Hoa gồm: nhà riêng trước kết hôn (2.7 tỷ) + 1/2 tài sản chung thời kỳ hôn nhân (4.4/2 = 2.2 tỷ) + xe được cha tặng riêng (800 triệu) = 5.7 tỷ đồng."
+  },
+  {
+    "id": 150,
+    "question": "Người chồng không có quyền yêu cầu ly hôn trong trường hợp nào?",
+    "options": [
+      "Vợ đang mang thai",
+      "Vợ đang không có việc làm",
+      "Vợ đang nuôi con",
+      "Chồng ngoại tình"
+    ],
+    "correctAnswerIndex": 0,
+    "explanation": "Theo quy định của Luật Hôn nhân và Gia đình 2014: Người chồng bị hạn chế quyền yêu cầu ly hôn nếu vợ đang mang thai, sinh con hoặc đang nuôi con dưới 12 tháng tuổi."
+  },
+  {
+    "id": 151,
+    "question": "Tiền lương của người lao động trong thời gian thử việc do hai bên thỏa thuận nhưng ít nhất phải bằng bao nhiêu % mức lương công việc đó?",
+    "options": [
+      "50%",
+      "65%",
+      "75%",
+      "85%"
+    ],
+    "correctAnswerIndex": 3,
+    "explanation": "Theo quy định của Bộ luật Lao động 2019: Thời gian thử việc tối đa là 180 ngày với người quản lý doanh nghiệp, 60 ngày với trình độ cao đẳng trở lên, 30 ngày với trung cấp/công nhân, không áp dụng thử việc với hợp đồng dưới 1 tháng. Lương thử việc ít nhất bằng 85% lương chính thức."
+  },
+  {
+    "id": 152,
+    "question": "Theo Bộ luật Hình sự hiện hành, hình phạt nào sau đây không áp dụng đối với công dân Việt Nam?",
+    "options": [
+      "Cảnh cáo",
+      "Cấm cư trú",
+      "Quản chế",
+      "Trục xuất"
+    ],
+    "correctAnswerIndex": 3,
+    "explanation": "Phân biệt 4 hình thức thực hiện pháp luật: **Áp dụng pháp luật:** Cơ quan nhà nước, người có thẩm quyền ra quyết định áp dụng quy phạm pháp luật cho các trường hợp cụ thể để phát sinh, thay đổi, chấm dứt quan hệ pháp luật."
+  },
+  {
+    "id": 153,
+    "question": "Trong các loại giấy tờ sau, đâu là giấy tờ có giá?",
+    "options": [
+      "Cổ phiếu",
+      "Sổ tiết kiệm",
+      "Giấy ghi nợ",
+      "Tờ vé số"
+    ],
+    "correctAnswerIndex": 0,
+    "explanation": "Giải thích: Đáp án đúng là **A. Cổ phiếu**. Đây là câu trả lời chính xác dựa trên giáo trình Pháp luật đại cương hiện hành."
+  },
+  {
+    "id": 154,
+    "question": "Đối tượng nào sau đây không thể đăng ký kết hôn theo quy định của pháp luật?",
+    "options": [
+      "Những người thuộc các dân tộc, tôn giáo khác nhau",
+      "Người mất năng lực hành vi dân sự",
+      "Những người có họ trong phạm vi năm đời với nhau",
+      "Cả A, B và C đều đúng"
+    ],
+    "correctAnswerIndex": 1,
+    "explanation": "Cấu trúc quy phạm pháp luật gồm 3 bộ phận: **Quy định:** Chỉ ra mẫu hành vi xử sự được phép, phải làm hoặc bị cấm (trả lời câu hỏi 'Được làm gì? Phải làm gì?')."
+  },
+  {
+    "id": 155,
+    "question": "Hành vi nào sau đây là hành vi mang dấu hiệu của tội phạm?",
+    "options": [
+      "Khoa điều khiển xe máy mà không đội mũ bảo hiểm",
+      "Tú và nhóm bạn hát karaoke vào lúc 12 giờ đêm làm ảnh hưởng đến hàng xóm",
+      "Công ty VIAX nợ lương công nhân hơn 4 tháng không rõ nguyên nhân",
+      "Hiền mua bán ma túy với các đối tượng nghiện ma túy trên địa bàn tỉnh Quảng Ngãi"
+    ],
+    "correctAnswerIndex": 3,
+    "explanation": "Theo quy định của Bộ luật Hình sự 2015: Đáp án đúng là 'Hiền mua bán ma túy với các đối tượng nghiện ma túy trên địa bàn tỉnh Quảng Ngãi', dựa trên các quy định về phân loại tội phạm, chế tài hình sự và trình tự thủ tục tố tụng hình sự."
+  },
+  {
+    "id": 156,
+    "question": "Hợp đồng dân sự có thể được xác lập bằng hình thức:",
+    "options": [
+      "Lời nói, văn bản",
+      "Chỉ bằng hành vi",
+      "Chỉ bằng văn bản",
+      "Lời nói, văn bản, hành vi"
+    ],
+    "correctAnswerIndex": 3,
+    "explanation": "Giải thích: Đáp án đúng là **D. Lời nói, văn bản, hành vi**. Đây là câu trả lời chính xác dựa trên giáo trình Pháp luật đại cương hiện hành."
+  },
+  {
+    "id": 157,
+    "question": "Người sử dụng lao động không được thực hiện quyền đơn phương chấm dứt hợp đồng lao động trong trường hợp nào sau đây?",
+    "options": [
+      "Người lao động đủ tuổi nghỉ hưu theo quy định của Bộ luật Lao động mà không có thỏa thuận gì khác",
+      "Người lao động đang nghỉ thai sản hoặc nuôi con dưới 12 tháng tuổi",
+      "Người lao động tự ý bỏ việc mà không có lý do chính đáng từ 05 ngày làm việc liên tục trở lên",
+      "Người lao động cung cấp không trung thực thông tin theo quy định của Bộ luật Lao động khi giao kết hợp đồng lao động làm ảnh hưởng đến việc tuyển dụng người lao động"
+    ],
+    "correctAnswerIndex": 1,
+    "explanation": "Phân biệt 4 hình thức thực hiện pháp luật: **Sử dụng pháp luật:** Chủ thể thực hiện quyền hạn được cho phép, có thể làm hoặc không làm (ví dụ: đăng ký kết hôn, khiếu nại, đi học)."
+  },
+  {
+    "id": 158,
+    "question": "Quyền của nhạc sĩ Đông Thiên Đức đối với ca khúc “Một vòng Việt Nam” theo luật dân sự là:",
+    "options": [
+      "Quyền sử dụng",
+      "Quyền nhân thân gắn với tài sản",
+      "Quyền tài sản",
+      "Quyền nhân thân không gắn với tài sản"
+    ],
+    "correctAnswerIndex": 1,
+    "explanation": "Giải thích: Đáp án đúng là **B. Quyền nhân thân gắn với tài sản**. Đây là câu trả lời chính xác dựa trên giáo trình Pháp luật đại cương hiện hành."
+  },
+  {
+    "id": 159,
+    "question": "Mức cao nhất của khung hình phạt từ trên 07 năm đến 15 năm tù là dành cho loại tội phạm nào?",
+    "options": [
+      "Tội phạm ít nghiêm trọng",
+      "Tội phạm nghiêm trọng",
+      "Tội phạm rất nghiêm trọng",
+      "Tội phạm đặc biệt nghiêm trọng"
+    ],
+    "correctAnswerIndex": 2,
+    "explanation": "Theo quy định của Bộ luật Hình sự 2015: Đáp án đúng là 'Tội phạm rất nghiêm trọng', dựa trên các quy định về phân loại tội phạm, chế tài hình sự và trình tự thủ tục tố tụng hình sự."
+  },
+  {
+    "id": 160,
+    "question": "Trong các yếu tố sau, yếu tố nào không thuộc mặt chủ quan của tội phạm?",
+    "options": [
+      "Lỗi",
+      "Động cơ",
+      "Hậu quả",
+      "Mục đích"
+    ],
+    "correctAnswerIndex": 2,
+    "explanation": "Về mặt lý luận cấu thành vi phạm pháp luật: Mặt chủ quan bao gồm các yếu tố trạng thái tâm lý bên trong của chủ thể: lỗi (cố ý/vô ý), động cơ và mục đích vi phạm."
+  },
+  {
+    "id": 161,
+    "question": "Trường hợp nào sau đây được loại trừ trách nhiệm hình sự?",
+    "options": [
+      "Quốc dùng tay đấm vào bụng Hưng, sau đó bỏ chạy để phòng vệ chính đáng khi bị Hưng dùng tuýp sắt đập liên tiếp vào đầu",
+      "Danh chạy xe quá tốc độ gây tai nạn chết người",
+      "An cướp giật tài sản vì bị chủ nợ dọa giết khi không trả được nợ thua cá độ bóng đá",
+      "Hanh dùng vũ lực ép buộc người yêu quan hệ tình dục với lý do hai người sắp kết hôn trong khi người yêu không đồng ý"
+    ],
+    "correctAnswerIndex": 0,
+    "explanation": "Theo quy định của Bộ luật Hình sự 2015: Đáp án đúng là 'Quốc dùng tay đấm vào bụng Hưng, sau đó bỏ chạy để phòng vệ chính đáng khi bị Hưng dùng tuýp sắt đập liên tiếp vào đầu', dựa trên các quy định về phân loại tội phạm, chế tài hình sự và trình tự thủ tục tố tụng hình sự."
+  },
+  {
+    "id": 162,
+    "question": "Có bao nhiêu hình phạt chính có thể áp dụng đối với cá nhân phạm tội?",
+    "options": [
+      "03",
+      "05",
+      "07",
+      "12"
+    ],
+    "correctAnswerIndex": 2,
+    "explanation": "Phân biệt 4 hình thức thực hiện pháp luật: **Áp dụng pháp luật:** Cơ quan nhà nước, người có thẩm quyền ra quyết định áp dụng quy phạm pháp luật cho các trường hợp cụ thể để phát sinh, thay đổi, chấm dứt quan hệ pháp luật."
+  },
+  {
+    "id": 163,
+    "question": "Chị Thanh do mong muốn sang Mỹ định cư nên đã làm thủ tục kết hôn với ông James mang quốc tịch Mỹ. Hôn nhân của chị Thanh thuộc trường hợp vi phạm pháp luật hôn nhân và gia đình nào sau đây?",
+    "options": [
+      "Cưỡng ép kết hôn",
+      "Kết hôn giả tạo",
+      "Cản trở kết hôn",
+      "Lừa dối kết hôn"
+    ],
+    "correctAnswerIndex": 1,
+    "explanation": "Về mặt lý luận cấu thành vi phạm pháp luật: Vi phạm pháp luật phải có đủ 4 yếu tố cấu thành: Chủ thể, Khách thể, Mặt chủ quan, Mặt khách quan. Đáp án đúng là 'Kết hôn giả tạo'."
+  },
+  {
+    "id": 164,
+    "question": "Thời hạn tạm giam để điều tra đối với tội phạm nghiêm trọng là bao lâu?",
+    "options": [
+      "Không quá 02 tháng",
+      "Không quá 03 tháng",
+      "Không quá 04 tháng",
+      "Không quá 06 tháng"
+    ],
+    "correctAnswerIndex": 1,
+    "explanation": "Theo quy định của Bộ luật Hình sự 2015: Tội phạm nghiêm trọng có mức cao nhất của khung hình phạt là phạt tù từ trên 03 năm đến 07 năm tù. Thời hiệu truy cứu trách nhiệm hình sự là 10 năm."
+  },
+  {
+    "id": 165,
+    "question": "Đối với hợp đồng lao động xác định thời hạn có thời hạn dưới 12 tháng, người lao động khi đơn phương chấm dứt hợp đồng lao động phải báo trước cho người sử dụng lao động ít nhất bao nhiêu ngày?",
+    "options": [
+      "Ít nhất 60 ngày",
+      "Ít nhất 45 ngày",
+      "Ít nhất 30 ngày",
+      "Ít nhất 03 ngày"
+    ],
+    "correctAnswerIndex": 3,
+    "explanation": "Phân biệt 4 hình thức thực hiện pháp luật: **Sử dụng pháp luật:** Chủ thể thực hiện quyền hạn được cho phép, có thể làm hoặc không làm (ví dụ: đăng ký kết hôn, khiếu nại, đi học)."
+  },
+  {
+    "id": 166,
+    "question": "Trình tự, thủ tục tố tụng chung giải quyết một vụ án hình sự là:",
+    "options": [
+      "Khởi tố – điều tra – truy tố – xét xử – thi hành án hình sự",
+      "Điều tra – xét xử sơ thẩm – xét xử phúc thẩm",
+      "Thụ lý vụ án – điều tra – xét xử – thi hành án",
+      "Điều tra – truy tố – xét xử sơ thẩm – xét xử phúc thẩm – xét xử theo thủ tục giám đốc thẩm, tái thẩm"
+    ],
+    "correctAnswerIndex": 0,
+    "explanation": "Theo quy định của Bộ luật Hình sự 2015: Đáp án đúng là 'Khởi tố – điều tra – truy tố – xét xử – thi hành án hình sự', dựa trên các quy định về phân loại tội phạm, chế tài hình sự và trình tự thủ tục tố tụng hình sự."
+  },
+  {
+    "id": 167,
+    "question": "Các bộ phận cấu thành tội phạm là:",
+    "options": [
+      "Lỗi, động cơ, mục đích",
+      "Hành vi, hậu quả, thời gian, địa điểm",
+      "Mặt khách quan, mặt chủ quan, chủ thể, khách thể",
+      "Chủ thể, nội dung, khách thể"
+    ],
+    "correctAnswerIndex": 2,
+    "explanation": "Theo quy định của Bộ luật Hình sự 2015: Đáp án đúng là 'Mặt khách quan, mặt chủ quan, chủ thể, khách thể', dựa trên các quy định về phân loại tội phạm, chế tài hình sự và trình tự thủ tục tố tụng hình sự."
+  },
+  {
+    "id": 168,
+    "question": "Trong các chủ thể sau, đâu là chủ thể tiến hành tố tụng:",
+    "options": [
+      "Thư ký Tòa án",
+      "Người tố giác",
+      "Bị can",
+      "Bị hại"
+    ],
+    "correctAnswerIndex": 0,
+    "explanation": "Về hệ thống cơ quan tư pháp Việt Nam: Đáp án đúng là 'Thư ký Tòa án' theo đúng quy định của Hiến pháp về phân cấp quyền lực tư pháp."
+  },
+  {
+    "id": 169,
+    "question": "Chế định “Thừa kế” thuộc ngành luật nào?",
+    "options": [
+      "Ngành luật kinh tế",
+      "Ngành luật hôn nhân và gia đình",
+      "Ngành luật lao động",
+      "Ngành luật dân sự"
+    ],
+    "correctAnswerIndex": 3,
+    "explanation": "Theo quy định của Bộ luật Dân sự 2015: Phương án đúng là 'Ngành luật dân sự' vì phù hợp với các quy tắc phân chia di sản thừa kế theo di chúc hoặc theo pháp luật."
+  },
+  {
+    "id": 170,
+    "question": "Trong trường hợp đặc biệt, thời hạn tạm đình chỉ công việc tối đa là:",
+    "options": [
+      "15 ngày",
+      "30 ngày",
+      "60 ngày",
+      "90 ngày"
+    ],
+    "correctAnswerIndex": 3,
+    "explanation": "Giải thích: Đáp án đúng là **D. 90 ngày**. Đây là câu trả lời chính xác dựa trên giáo trình Pháp luật đại cương hiện hành."
+  },
+  {
+    "id": 171,
+    "question": "Chị Thảo (27 tuổi) và anh Tân (31 tuổi) đều là công dân Việt Nam, đều đang sinh sống tại thành phố Đà Nẵng và chuẩn bị kết hôn với nhau. Chị Thảo thường trú tại phường Hòa Khê, quận Thanh Khê, còn anh Tân thường trú tại phường Thạch Thang, quận Hải Châu. Hỏi, chị Thảo và anh Tân cần đến cơ quan nào để đăng ký kết hôn?",
+    "options": [
+      "Ủy ban nhân dân phường Hòa Khê hoặc Ủy ban nhân dân phường Thạch Thang",
+      "Ủy ban nhân dân quận Thanh Khê hoặc Ủy ban nhân dân quận Hải Châu",
+      "Ủy ban nhân dân thành phố Đà Nẵng",
+      "Cả A, B và C đều đúng"
+    ],
+    "correctAnswerIndex": 0,
+    "explanation": "Theo quy định của Luật Hôn nhân và Gia đình 2014: Phương án đúng là 'Ủy ban nhân dân phường Hòa Khê hoặc Ủy ban nhân dân phường Thạch Thang', tuân thủ đúng các nguyên tắc tự nguyện, một vợ một chồng và độ tuổi trong Luật Hôn nhân và gia đình."
+  },
+  {
+    "id": 172,
+    "question": "Thử việc không được áp dụng đối với người lao động giao kết hợp đồng lao động có thời hạn trong bao lâu?",
+    "options": [
+      "Dưới 01 tháng",
+      "Dưới 02 tháng",
+      "Dưới 03 tháng",
+      "Dưới 06 tháng"
+    ],
+    "correctAnswerIndex": 0,
+    "explanation": "Phân biệt 4 hình thức thực hiện pháp luật: **Áp dụng pháp luật:** Cơ quan nhà nước, người có thẩm quyền ra quyết định áp dụng quy phạm pháp luật cho các trường hợp cụ thể để phát sinh, thay đổi, chấm dứt quan hệ pháp luật."
+  },
+  {
+    "id": 173,
+    "question": "Lựa chọn đúng về loại trách nhiệm pháp lý cao nhất trong các loại trách nhiệm pháp lý hiện hành",
+    "options": [
+      "Trách nhiệm hình sự",
+      "Trách nhiệm dân sự",
+      "Trách nhiệm hành chính",
+      "Trách nhiệm kỷ luật"
+    ],
+    "correctAnswerIndex": 0,
+    "explanation": "Giải thích: Đáp án đúng là **A. Trách nhiệm hình sự**. Đây là câu trả lời chính xác dựa trên giáo trình Pháp luật đại cương hiện hành."
+  },
+  {
+    "id": 174,
+    "question": "Lựa chọn đúng khi nói về quy phạm pháp luật:",
+    "options": [
+      "Xác định chặt chẽ về mặt hình thức",
+      "Do cơ quan nhà nước có thẩm quyền ban hành",
+      "Được đảm bảo thực hiện bằng quyền lực nhà nước",
+      "Tất cả các phương án trên"
+    ],
+    "correctAnswerIndex": 3,
+    "explanation": "Cấu trúc quy phạm pháp luật gồm 3 bộ phận: Phương án đúng là 'Tất cả các phương án trên', chỉ ra chính xác các bộ phận hoặc định nghĩa của quy phạm pháp luật."
+  },
+  {
+    "id": 175,
+    "question": "Lựa chọn đúng về độ tuổi bắt đầu chịu trách nhiệm hình sự trong Luật hình sự:",
+    "options": [
+      "Từ đủ 21 tuổi",
+      "Từ đủ 18 tuổi",
+      "Từ đủ 16 tuổi",
+      "Từ đủ 14 tuổi"
+    ],
+    "correctAnswerIndex": 3,
+    "explanation": "Theo quy định của Bộ luật Hình sự 2015: Đáp án đúng là 'Từ đủ 14 tuổi', dựa trên các quy định về phân loại tội phạm, chế tài hình sự và trình tự thủ tục tố tụng hình sự."
+  },
+  {
+    "id": 176,
+    "question": "Anh Long Biên và chị Ánh Dương cùng nhau đăng ký kết hôn tại UBND phường Thạc Gián. Hỏi anh Biên và chị Dương đang thực hiện pháp luật dưới hình thức nào?",
+    "options": [
+      "Chấp hành pháp luật",
+      "Tuân thủ pháp luật",
+      "Sử dụng pháp luật",
+      "Áp dụng pháp luật"
+    ],
+    "correctAnswerIndex": 2,
+    "explanation": "Phân biệt 4 hình thức thực hiện pháp luật: **Sử dụng pháp luật:** Chủ thể thực hiện quyền hạn được cho phép, có thể làm hoặc không làm (ví dụ: đăng ký kết hôn, khiếu nại, đi học)."
+  },
+  {
+    "id": 177,
+    "question": "Cơ quan có chức năng thực hành quyền công tố ở nước Cộng hòa xã hội chủ nghĩa Việt Nam là:",
+    "options": [
+      "Chính phủ",
+      "Ủy ban nhân dân",
+      "Tòa án nhân dân",
+      "Viện kiểm sát nhân dân"
+    ],
+    "correctAnswerIndex": 3,
+    "explanation": "Về hệ thống cơ quan tư pháp Việt Nam: Viện kiểm sát nhân dân có chức năng thực hành quyền công tố và kiểm sát hoạt động tư pháp."
+  },
+  {
+    "id": 178,
+    "question": "Lựa chọn đúng về các yếu tố cấu thành quy phạm pháp luật",
+    "options": [
+      "Mặt chủ quan, mặt khách quan, chủ thể, khách thể",
+      "Chủ thể, khách thể, nội dung",
+      "Giả định, quy định, chế tài",
+      "Lỗi, động cơ, mục đích"
+    ],
+    "correctAnswerIndex": 2,
+    "explanation": "Cấu trúc quy phạm pháp luật gồm 3 bộ phận: **Giả định:** Chỉ ra chủ thể, điều kiện hoàn cảnh chịu sự điều chỉnh của quy phạm (thường trả lời câu hỏi 'Ai? Khi nào?')."
+  },
+  {
+    "id": 179,
+    "question": "Ly hôn là việc",
+    "options": [
+      "Chấm dứt quan hệ hôn nhân về mặt pháp lý bởi quyết định của Tòa án",
+      "Các đối tượng không còn sống chung như vợ chồng",
+      "Phân chia tài sản chung của vợ và chồng trong thời kỳ hôn nhân",
+      "Tất cả các đáp án trên đều sai"
+    ],
+    "correctAnswerIndex": 0,
+    "explanation": "Theo quy định của Luật Hôn nhân và Gia đình 2014: Phương án đúng là 'Chấm dứt quan hệ hôn nhân về mặt pháp lý bởi quyết định của Tòa án', tuân thủ đúng các nguyên tắc tự nguyện, một vợ một chồng và độ tuổi trong Luật Hôn nhân và gia đình."
+  },
+  {
+    "id": 180,
+    "question": "Lựa chọn đúng về các yếu tố cấu thành mặt chủ quan của vi phạm pháp luật",
+    "options": [
+      "Mặt chủ quan, mặt khách quan, chủ thể, khách thể",
+      "Chủ thể, khách thể, nội dung",
+      "Giả định, quy định, chế tài",
+      "Lỗi, động cơ, mục đích"
+    ],
+    "correctAnswerIndex": 3,
+    "explanation": "Về mặt lý luận cấu thành vi phạm pháp luật: Mặt chủ quan bao gồm các yếu tố trạng thái tâm lý bên trong của chủ thể: lỗi (cố ý/vô ý), động cơ và mục đích vi phạm."
+  },
+  {
+    "id": 181,
+    "question": "Theo Bộ luật lao động 2019, các nguyên tắc điều chỉnh cơ bản của luật lao động bao gồm:",
+    "options": [
+      "Phương pháp thỏa thuận",
+      "Phương pháp mệnh lệnh",
+      "Phương pháp thông qua các tổ chức đại diện người lao động",
+      "Tất cả các đáp án trên đều đúng"
+    ],
+    "correctAnswerIndex": 3,
+    "explanation": "Theo quy định của Bộ luật Lao động 2019: Phương án đúng là 'Tất cả các đáp án trên đều đúng', đáp ứng đúng các quy định về quan hệ lao động, tiền lương và quyền lợi của người lao động."
+  },
+  {
+    "id": 182,
+    "question": "Lựa chọn nào sau đây đúng về các đối tượng thừa kế không phụ thuộc vào nội dung di chúc",
+    "options": [
+      "Cha/mẹ, vợ/chồng, con đẻ/con nuôi",
+      "Con chưa thành niên, con đã thành niên nhưng mất khả năng lao động",
+      "Cha/mẹ, vợ/chồng, con chưa thành niên hoặc con đã thành niên nhưng mất khả năng lao động",
+      "Tất cả đều sai"
+    ],
+    "correctAnswerIndex": 2,
+    "explanation": "Theo quy định của Bộ luật Dân sự 2015: Người thừa kế không phụ thuộc vào di chúc (Điều 644) gồm: con chưa thành niên, cha, mẹ, vợ, chồng, con đã thành niên nhưng mất khả năng lao động. Họ luôn được hưởng suất di sản tối thiểu bằng 2/3 suất của một người thừa kế theo pháp luật."
+  },
+  {
+    "id": 183,
+    "question": "Lựa chọn nào sau đây đúng về các đối tượng thừa kế thuộc hàng thừa kế thứ ba",
+    "options": [
+      "Cha/mẹ, vợ /chồng, con (đẻ/nuôi)",
+      "Anh/chị/em ruột, ông/bà nội/ngoại, cháu ruột gọi người để lại di sản là ông/bà nội/ngoại",
+      "Cô/dì/chú/bác/cậu ruột của người để lại di sản, cháu ruột gọi người để lại di sản là cô/dì/chú/bác/cậu ruột, cụ nội/cụ ngoại của người để lại di sản, chắt ruột gọi người để lại di sản là cụ nội/cụ ngoại",
+      "Tất cả các đáp án trên đều sai"
+    ],
+    "correctAnswerIndex": 2,
+    "explanation": "Theo quy định của Bộ luật Dân sự 2015: Phương án đúng là 'Cô/dì/chú/bác/cậu ruột của người để lại di sản, cháu ruột gọi người để lại di sản là cô/dì/chú/bác/cậu ruột, cụ nội/cụ ngoại của người để lại di sản, chắt ruột gọi người để lại di sản là cụ nội/cụ ngoại' vì phù hợp với các quy tắc phân chia di sản thừa kế theo di chúc hoặc theo pháp luật."
+  },
+  {
+    "id": 184,
+    "question": "Cơ quan có thẩm quyền đăng ký kết hôn trong nước giữa công dân Việt Nam với nhau tại nước ngoài",
+    "options": [
+      "UBND cấp xã, phường, thị trấn",
+      "UBND cấp quận, huyện, thị xã",
+      "Đại sứ quán Việt Nam",
+      "Tất cả các đáp án trên đều đúng"
+    ],
+    "correctAnswerIndex": 2,
+    "explanation": "Theo quy định của Luật Hôn nhân và Gia đình 2014: Phương án đúng là 'Đại sứ quán Việt Nam', tuân thủ đúng các nguyên tắc tự nguyện, một vợ một chồng và độ tuổi trong Luật Hôn nhân và gia đình."
+  },
+  {
+    "id": 185,
+    "question": "Căn cứ vào thời gian giao kết, hợp đồng lao động phân chia thành",
+    "options": [
+      "Hợp đồng xác định thời hạn, hợp đồng không xác định thời hạn",
+      "Hợp đồng mùa vụ, hợp đồng không xác định thời hạn",
+      "Hợp đồng xác định thời hạn, hợp đồng không xác định thời hạn, hợp đồng mùa vụ",
+      "Tất cả các phương án trên đều sai"
+    ],
+    "correctAnswerIndex": 0,
+    "explanation": "Theo quy định của Bộ luật Lao động 2019: Phương án đúng là 'Hợp đồng xác định thời hạn, hợp đồng không xác định thời hạn', đáp ứng đúng các quy định về quan hệ lao động, tiền lương và quyền lợi của người lao động."
+  },
+  {
+    "id": 186,
+    "question": "Quan điểm “Nhà nước ra đời là kết quả của sự thỏa thuận thống nhất giữa con người với nhau như một bản khế ước” lý giải sự ra đời của Nhà nước dựa vào học thuyết",
+    "options": [
+      "Thần học",
+      "Khế ước xã hội",
+      "Gia trưởng",
+      "Quan điểm của chủ nghĩa Mác-Lê Nin"
+    ],
+    "correctAnswerIndex": 1,
+    "explanation": "Về lý luận chung về Nhà nước: Học thuyết Khế ước xã hội giải thích nhà nước ra đời trên cơ sở một thỏa thuận (bản khế ước) giữa các công dân."
+  },
+  {
+    "id": 187,
+    "question": "Thủ công nghiệp tách khỏi nông nghiệp là đặc điểm của việc phân công lao động lần thứ",
+    "options": [
+      "1",
+      "2",
+      "3",
+      "Tất cả các phương án trên đều sai"
+    ],
+    "correctAnswerIndex": 1,
+    "explanation": "Theo quy định của Bộ luật Lao động 2019: Phương án đúng là '2', đáp ứng đúng các quy định về quan hệ lao động, tiền lương và quyền lợi của người lao động."
+  },
+  {
+    "id": 188,
+    "question": "Xác định bộ phận giả định của quy phạm pháp luật sau: “Người sử dụng lao động sử dụng từ 10 người lao động trở lên phải có nội quy lao động bằng văn bản”",
+    "options": [
+      "Người sử dụng lao động",
+      "Người sử dụng lao động sử dụng từ 10 người lao động trở lên",
+      "Phải có nội quy lao động bằng văn bản",
+      "Quy phạm trên chỉ bao gồm giả định và chế tài"
+    ],
+    "correctAnswerIndex": 1,
+    "explanation": "Phân biệt 4 hình thức thực hiện pháp luật: **Sử dụng pháp luật:** Chủ thể thực hiện quyền hạn được cho phép, có thể làm hoặc không làm (ví dụ: đăng ký kết hôn, khiếu nại, đi học)."
+  },
+  {
+    "id": 189,
+    "question": "Chủ thể thực hiện hành vi trái pháp luật nhận thức hành vi của mình là nguy hiểm cho xã hội tuy không mong muốn nhưng có ý thức bỏ mặc cho hậu quả xảy ra là lỗi gì",
+    "options": [
+      "Cố ý trực tiếp",
+      "Cố ý gián tiếp",
+      "Vô ý do cẩu thả",
+      "Vô ý do quá tự tin"
+    ],
+    "correctAnswerIndex": 1,
+    "explanation": "Giải thích: Đáp án đúng là **B. Cố ý gián tiếp**. Đây là câu trả lời chính xác dựa trên giáo trình Pháp luật đại cương hiện hành."
+  },
+  {
+    "id": 190,
+    "question": "Đối tượng điều chỉnh của Luật hình sự là:",
+    "options": [
+      "Quan hệ giữa người sử dụng lao động và người lao động",
+      "Quan hệ giữa nhà nước và tội phạm",
+      "Quan hệ nhân thân, quan hệ tài sản",
+      "Trật tự quản lý xã hội"
+    ],
+    "correctAnswerIndex": 1,
+    "explanation": "Theo quy định của Bộ luật Hình sự 2015: Đáp án đúng là 'Quan hệ giữa nhà nước và tội phạm', dựa trên các quy định về phân loại tội phạm, chế tài hình sự và trình tự thủ tục tố tụng hình sự."
+  },
+  {
+    "id": 191,
+    "question": "Độ tuổi lao động tối thiểu theo quy định của Bộ luật Lao động 2019 là:",
+    "options": [
+      "Đủ 12 tuổi",
+      "Đủ 15 tuổi",
+      "Đủ 16 tuổi",
+      "Đủ 18 tuổi"
+    ],
+    "correctAnswerIndex": 1,
+    "explanation": "Cấu trúc quy phạm pháp luật gồm 3 bộ phận: **Quy định:** Chỉ ra mẫu hành vi xử sự được phép, phải làm hoặc bị cấm (trả lời câu hỏi 'Được làm gì? Phải làm gì?')."
+  },
+  {
+    "id": 192,
+    "question": "Đức được bố mẹ trao quyền sử dụng đối với chiếc xe Audi A3 Sportback bên cạnh việc dùng vào mục đích di chuyển hằng ngày, vào cuối tuần Đức thường cho bạn bè thuê lại để đi dã ngoại với giá 2tr VNĐ/ngày. Hỏi, Đức đang thực hiện quyền gì đối với chiếc xe của bố mẹ để thu về số tiền 2tr VNĐ từ việc cho thuê xe",
+    "options": [
+      "Quyền hưởng dụng",
+      "Quyền bề mặt",
+      "Quyền đối với bất động sản liền kề",
+      "Chiếm hữu"
+    ],
+    "correctAnswerIndex": 0,
+    "explanation": "Phân biệt 4 hình thức thực hiện pháp luật: **Sử dụng pháp luật:** Chủ thể thực hiện quyền hạn được cho phép, có thể làm hoặc không làm (ví dụ: đăng ký kết hôn, khiếu nại, đi học)."
+  },
+  {
+    "id": 193,
+    "question": "Anh Nguyên đi làm được trả 50.000 đồng/h. Nếu anh Nguyên làm thêm 5h vào ngày nghỉ hàng tuần thì được trả thêm ít nhất là bao nhiêu tiền?",
+    "options": [
+      "250.000 đồng",
+      "375.000 đồng",
+      "400.000 đồng",
+      "500.000 đồng"
+    ],
+    "correctAnswerIndex": 0,
+    "explanation": "Theo quy định của Bộ luật Lao động 2019: Phương án đúng là '250.000 đồng', đáp ứng đúng các quy định về quan hệ lao động, tiền lương và quyền lợi của người lao động."
+  },
+  {
+    "id": 194,
+    "question": "Pháp luật hôn nhân và gia đình Việt Nam không thừa nhận hôn nhân giữa các đối tượng nào sau đây",
+    "options": [
+      "Giữa những người thuộc các tôn giáo khác nhau",
+      "Giữa những người có cùng giới tính",
+      "Giữa những người có họ trong phạm vi 5 đời",
+      "Cả ba đáp án trên đều sai"
+    ],
+    "correctAnswerIndex": 1,
+    "explanation": "Theo quy định của Luật Hôn nhân và Gia đình 2014: Phương án đúng là 'Giữa những người có cùng giới tính', tuân thủ đúng các nguyên tắc tự nguyện, một vợ một chồng và độ tuổi trong Luật Hôn nhân và gia đình."
+  },
+  {
+    "id": 195,
+    "question": "Đối với tội phạm ít nghiêm trọng thì mức cao nhất của khung hình phạt là",
+    "options": [
+      "Phạt tiền và phạt cải tạo không giam giữ.",
+      "Phạt tiền, phạt cải tạo không giam giữ hoăc phạt tù đến 03 năm ̣",
+      "Phạt tiền, phạt cải tạo không giam giữ hoăc phạt tù từ 03 năm đến 07 năm ̣",
+      "Phạt tiền, phạt cải tạo không giam giữ hoăc phạt tù từ 07 năm đến 15 năm ̣"
+    ],
+    "correctAnswerIndex": 1,
+    "explanation": "Theo quy định của Bộ luật Hình sự 2015: Tội phạm ít nghiêm trọng có mức cao nhất của khung hình phạt là phạt tiền, phạt cải tạo không giam giữ hoặc phạt tù đến 03 năm."
+  },
+  {
+    "id": 196,
+    "question": "Cô Phương được cơ quan y tế giám định mắc chứng tâm thần phân liệt dạng hoang tưởng và được tòa án kết luận mất năng lực hành vi dân sự, trộm chiếc điện thoại iPhone 13 Pro Max của Hiếu đem bán. Hành vi của cô Phương vi phạm pháp luật gì?",
+    "options": [
+      "Vi phạm pháp luật hình sự",
+      "Vi phạm pháp luật hành chính",
+      "Vi phạm pháp luật dân sự",
+      "Không cấu thành vi phạm pháp luật"
+    ],
+    "correctAnswerIndex": 3,
+    "explanation": "Về mặt lý luận cấu thành vi phạm pháp luật: Vi phạm pháp luật phải có đủ 4 yếu tố cấu thành: Chủ thể, Khách thể, Mặt chủ quan, Mặt khách quan. Đáp án đúng là 'Không cấu thành vi phạm pháp luật'."
+  },
+  {
+    "id": 197,
+    "question": "Theo Luật lao động Việt Nam, thời gian làm việc ban đêm được xác định như thế nào",
+    "options": [
+      "Được tính từ 22 giờ đến 06 giờ sáng ngày hôm sau",
+      "Được tính từ 20 giờ đến 06 giờ sáng ngày hôm sau",
+      "Được tính từ 22 giờ đến 05 giờ sáng ngày hôm sau",
+      "Được tính từ 21 giờ đến 06 giờ sáng ngày hôm sau"
+    ],
+    "correctAnswerIndex": 0,
+    "explanation": "Theo quy định của Bộ luật Lao động 2019: Phương án đúng là 'Được tính từ 22 giờ đến 06 giờ sáng ngày hôm sau', đáp ứng đúng các quy định về quan hệ lao động, tiền lương và quyền lợi của người lao động."
+  },
+  {
+    "id": 198,
+    "question": "Chủ thể của vi phạm pháp luật hình sự là",
+    "options": [
+      "Tổ chức",
+      "Cá nhân",
+      "Cá nhân và tổ chức",
+      "Cá nhân và pháp nhân thương mại"
+    ],
+    "correctAnswerIndex": 3,
+    "explanation": "Về mặt lý luận cấu thành vi phạm pháp luật: Vi phạm pháp luật phải có đủ 4 yếu tố cấu thành: Chủ thể, Khách thể, Mặt chủ quan, Mặt khách quan. Đáp án đúng là 'Cá nhân và pháp nhân thương mại'."
+  },
+  {
+    "id": 199,
+    "question": "Ông Hiếu và bà Hạnh là vợ chồng hợp pháp, có 02 người con chung là Đức (19 tuổi) và Huy (20 tuổi) đều khỏe mạnh và là sinh viên trường đại học Duy Tân. Năm 2022, bà Hạnh không may qua đời do dương tính với covid 19. Xác định số tiền mà Đức và Huy được hưởng thừa kế, biết rằng trước khi chết bà Hạnh đã lập di chúc để lại toàn bộ di sản riêng là 3 tỷ đồng cho Long một người anh nương tựa của mình. Hai vợ chồng ông Hiếu và bà Hạnh không có tài sản chung.",
+    "options": [
+      "Đức và Huy không được nhận thừa kế",
+      "Đức và Huy sẽ được hưởng mỗi người 1 tỷ đồng",
+      "Đức và Huy sẽ được hưởng mỗi người 2/3 một suất thừa kế (2/3 x1 tỷ)",
+      "Tất cả các đáp án trên đều sai"
+    ],
+    "correctAnswerIndex": 0,
+    "explanation": "Theo quy định của Bộ luật Dân sự 2015: Phương án đúng là 'Đức và Huy không được nhận thừa kế' vì phù hợp với các quy tắc phân chia di sản thừa kế theo di chúc hoặc theo pháp luật."
+  },
+  {
+    "id": 200,
+    "question": "Trách nhiệm bảo vệ Hiến pháp thuộc về",
+    "options": [
+      "Quốc hội",
+      "Chính phủ",
+      "Nhân dân",
+      "Tất cả đáp án trên đều đúng"
+    ],
+    "correctAnswerIndex": 0,
+    "explanation": "Giải thích: Đáp án đúng là **A. Quốc hội**. Đây là câu trả lời chính xác dựa trên giáo trình Pháp luật đại cương hiện hành."
+  },
+  {
+    "id": 201,
+    "question": "Trong các hình thái kinh tế xã hội sau đây, hình thái nào không có sự hình thành của nhà nước",
+    "options": [
+      "Cộng sản nguyên thủy",
+      "Chiếm hữu nô lệ",
+      "Phong kiến",
+      "Tư bản chủ nghĩa"
+    ],
+    "correctAnswerIndex": 0,
+    "explanation": "Giải thích: Đáp án đúng là **A. Cộng sản nguyên thủy**. Đây là câu trả lời chính xác dựa trên giáo trình Pháp luật đại cương hiện hành."
+  },
+  {
+    "id": 202,
+    "question": "Lê Viết Hiệu tiến hành xây dựng trụ sở làm việc mới cho CT TNHH 1 TV Hiệu Quả, lựa chọn đúng về hình thức hợp đồng lao động mà ông Hiệu có thể ký kết với kiến trúc sư Nguyễn Văn Quốc Anh và kỹ sư Nguyễn Công Khánh",
+    "options": [
+      "Hợp đồng bằng hành vi",
+      "Hợp đồng mùa vụ",
+      "Hợp đồng lời nói, hợp đồng văn bản",
+      "Hợp đồng lời nói, hợp đồng văn bản, hợp đồng hành vi"
+    ],
+    "correctAnswerIndex": 2,
+    "explanation": "Theo quy định của Bộ luật Lao động 2019: Phương án đúng là 'Hợp đồng lời nói, hợp đồng văn bản', đáp ứng đúng các quy định về quan hệ lao động, tiền lương và quyền lợi của người lao động."
+  },
+  {
+    "id": 203,
+    "question": "“Chủ thể thực hiện những hành động mà pháp luật bắt buộc phải làm” là hình thức thực hiện pháp luật nào",
+    "options": [
+      "Tuân thủ pháp luật",
+      "Áp dụng pháp luật",
+      "Sử dụng pháp luật",
+      "Thi hành pháp luật"
+    ],
+    "correctAnswerIndex": 3,
+    "explanation": "Phân biệt 4 hình thức thực hiện pháp luật: **Thi hành (Chấp hành) pháp luật:** Chủ thể thực hiện nghĩa vụ bắt buộc bằng hành động tích cực (ví dụ: đóng thuế, thực hiện nghĩa vụ quân sự)."
+  },
+  {
+    "id": 204,
+    "question": "Bé An 5 tuổi là thần đồng âm nhạc, lựa chọn nào sau đây đúng khi nói về tư cách chủ thể của An trong quan hệ pháp luật dân sự:",
+    "options": [
+      "An có thể tự mình xác lập tất cả các giao dịch dân sự",
+      "An là người hạn chế năng lực hành vi dân sự",
+      "An có thể tự mình xác lập hợp đồng lao động liên quan đến năng khiếu",
+      "Mọi giao dịch dân sự của An phải có sự đồng ý của cha/mẹ và người giám hộ"
+    ],
+    "correctAnswerIndex": 3,
+    "explanation": "Giải thích: Đáp án đúng là **D. Mọi giao dịch dân sự của An phải có sự đồng ý của cha/mẹ và người giám hộ**. Đây là câu trả lời chính xác dựa trên giáo trình Pháp luật đại cương hiện hành."
+  },
+  {
+    "id": 205,
+    "question": "Chánh án toàn án nhân dân tối cao có thẩm quyền ban hành",
+    "options": [
+      "Thông tư",
+      "Luật",
+      "Nghị quyết",
+      "Nghị định"
+    ],
+    "correctAnswerIndex": 0,
+    "explanation": "Theo Luật ban hành văn bản quy phạm pháp luật: Thẩm quyền ban hành văn bản pháp luật được phân định rõ ràng giữa các cơ quan quyền lực và cơ quan hành chính. Đáp án đúng: 'Thông tư'."
+  },
+  {
+    "id": 206,
+    "question": "Trường hợp người để lại di sản thừa kế không có người hưởng di sản theo các hàng thừa kết thì di sản đó sẽ:",
+    "options": [
+      "Thuộc về nhà nước",
+      "Chia đều cho hàng xóm nơi người để lại di sản cư trú",
+      "Đóng góp vào quỹ từ thiện địa phương",
+      "Tất cả các phương án trên đều sai"
+    ],
+    "correctAnswerIndex": 0,
+    "explanation": "Theo quy định của Bộ luật Dân sự 2015: Phương án đúng là 'Thuộc về nhà nước' vì phù hợp với các quy tắc phân chia di sản thừa kế theo di chúc hoặc theo pháp luật."
+  },
+  {
+    "id": 207,
+    "question": "Nguyên tắc “suy đoán vô tội” là nguyên tắc xét xử phổ biến và quan trọng của ngành luật nào sau đây?",
+    "options": [
+      "Luật hình sự",
+      "Luật dân sự",
+      "Luật hành chính",
+      "Luật hôn nhân và gia đình"
+    ],
+    "correctAnswerIndex": 0,
+    "explanation": "Giải thích: Đáp án đúng là **A. Luật hình sự**. Đây là câu trả lời chính xác dựa trên giáo trình Pháp luật đại cương hiện hành."
+  },
+  {
+    "id": 208,
+    "question": "Đối tượng có thẩm quyền điều tra, tiếp cận hiện trường trong vụ án hình sự",
+    "options": [
+      "Kiểm sát viên",
+      "Kiểm sát viên, điều tra viên",
+      "Luật sư",
+      "Hội thẩm nhân dân ÔN TẬP PHÁP LUẬT ĐẠI CƯƠNG"
+    ],
+    "correctAnswerIndex": 1,
+    "explanation": "Theo quy định của Bộ luật Hình sự 2015: Đáp án đúng là 'Kiểm sát viên, điều tra viên', dựa trên các quy định về phân loại tội phạm, chế tài hình sự và trình tự thủ tục tố tụng hình sự."
+  }
+];
+
+        // Application State
+        let state = {
+            deck: [],
+            queue: [],
+            mastered: [],
+            history: [],
+            stats: {
+                correct: 0,
+                incorrect: 0
+            }
         };
 
-        // IndexedDB for offline audio caching
-        const AudioDB = {
-            db: null,
-            init: function() {
-                return new Promise((resolve, reject) => {
-                    const request = indexedDB.open("NihongoAudioDB", 1);
-                    request.onupgradeneeded = (e) => {
-                        const db = e.target.result;
-                        if (!db.objectStoreNames.contains('audioCache')) {
-                            db.createObjectStore('audioCache', { keyPath: 'id' });
-                        }
-                    };
-                    request.onsuccess = (e) => { this.db = e.target.result; resolve(); };
-                    request.onerror = (e) => reject(e);
-                });
-            },
-            save: function(id, base64Data) {
-                if(!this.db) return;
-                const tx = this.db.transaction('audioCache', 'readwrite');
-                tx.objectStore('audioCache').put({ id: id, data: base64Data });
-            },
-            get: function(id) {
-                return new Promise((resolve) => {
-                    if(!this.db) return resolve(null);
-                    const tx = this.db.transaction('audioCache', 'readonly');
-                    const req = tx.objectStore('audioCache').get(id);
-                    req.onsuccess = () => resolve(req.result ? req.result.data : null);
-                    req.onerror = () => resolve(null);
-                });
+        let currentCardIndex = -1;
+        let selectedOptionIndex = null;
+        let hasAnswered = false;
+
+        // Initialize Lucide icons
+        function initIcons() {
+            if (window.lucide) {
+                window.lucide.createIcons();
             }
-        };
+        }
 
-        const AudioSystem = {
-            isPreloading: false,
-            currentAudio: null,
-            
-            // Utility: Clean HTML tags and Furigana for clean reading
-            cleanText: function(htmlStr) {
-                // Remove <rt>...</rt> tags entirely
-                let clean = htmlStr.replace(/<rt>.*?<\/rt>/g, '');
-                // Remove all other HTML tags
-                clean = clean.replace(/<[^>]*>?/gm, '');
-                // Remove instructional parts if it's a question
-                clean = clean.replace(/Đặt một câu tiếng Nhật có sử dụng từ sau:/gi, '');
-                clean = clean.replace(/Hoàn thành câu dưới đây với gợi ý cho sẵn:/gi, '');
-                clean = clean.replace(/Dịch sang tiếng Việt:/gi, '');
-                clean = clean.replace(/Dịch câu sau sang tiếng Nhật:/gi, '');
-                clean = clean.replace(/Sắp xếp thứ tự đúng của câu sau:/gi, '');
-                clean = clean.replace(/Sắp xếp lại các từ sau để tạo thành câu tiếng Nhật hoàn chỉnh:/gi, '');
-                return clean.trim();
-            },
-
-            // Play Base64 Audio Data
-            playBase64: function(base64Data, mimeType = "audio/wav") {
-                if (this.currentAudio) this.currentAudio.pause();
+        // Load State from LocalStorage or initialize new
+        function loadState() {
+            const savedState = localStorage.getItem('visionflash_state');
+            if (savedState) {
                 try {
-                    const audioSrc = `data:${mimeType};base64,${base64Data}`;
-                    this.currentAudio = new Audio(audioSrc);
-                    this.currentAudio.play().catch(e => console.warn("Auto-play prevented", e));
-                } catch(e) { console.error("Error playing base64", e); }
-            },
+                    state = JSON.parse(savedState);
+                    // If queue is empty but total mastered is less than total deck, rebuild queue
+                    if (state.queue.length === 0 && state.mastered.length < state.deck.length) {
+                        rebuildQueueFromRemaining();
+                    }
+                } catch (e) {
+                    console.error("Error loading state", e);
+                    initNewState();
+                }
+            } else {
+                initNewState();
+            }
+            
+            updateStatsView();
+            renderNextCard();
+        }
 
-            // Web Speech API Fallback
-            playWebSpeech: function(text) {
-                if (this.currentAudio) { this.currentAudio.pause(); this.currentAudio = null; }
-                window.speechSynthesis.cancel();
-                const utterance = new SpeechSynthesisUtterance(text);
-                // Try to set Japanese voice if text contains Japanese
-                if(/[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\uff00-\uff9f\u4e00-\u9faf\u3400-\u4dbf]/.test(text)) {
-                    utterance.lang = 'ja-JP';
+        function initNewState() {
+            state.deck = [...INITIAL_DECK];
+            state.queue = INITIAL_DECK.map(q => q.id);
+            state.mastered = [];
+            state.history = [];
+            state.stats = {
+                correct: 0,
+                incorrect: 0
+            };
+            saveState();
+        }
+
+        function saveState() {
+            localStorage.setItem('visionflash_state', JSON.stringify(state));
+        }
+
+        function rebuildQueueFromRemaining() {
+            const masteredSet = new Set(state.mastered);
+            state.queue = state.deck
+                .filter(card => !masteredSet.has(card.id))
+                .map(card => card.id);
+            saveState();
+        }
+
+        // UI rendering
+        function updateStatsView() {
+            const total = state.deck.length;
+            const mastered = state.mastered.length;
+            const remaining = state.queue.length;
+            
+            document.getElementById('queue-remaining').textContent = remaining;
+            document.getElementById('mastered-count').textContent = mastered;
+            document.getElementById('total-count').textContent = total;
+        }
+
+        function renderNextCard() {
+            hasAnswered = false;
+            selectedOptionIndex = null;
+            
+            // Hide footer evaluation bar and explanation area
+            document.getElementById('anki-footer').classList.add('hidden');
+            document.getElementById('explanation-container').classList.add('hidden');
+            
+            if (state.queue.length === 0) {
+                showCompleteScreen();
+                return;
+            }
+            
+            // Show main flashcard container and hide complete screen
+            document.getElementById('complete-screen').classList.add('hidden');
+            document.getElementById('flashcard-container').classList.remove('hidden');
+
+            // Get first question ID in queue
+            const activeCardId = state.queue[0];
+            const activeCard = state.deck.find(card => card.id === activeCardId);
+            
+            if (!activeCard) {
+                // Error recovery: if card id not found in deck, drop it and try again
+                state.queue.shift();
+                saveState();
+                renderNextCard();
+                return;
+            }
+
+            // Render text
+            document.getElementById('card-id-badge').textContent = `Thẻ bài #${activeCard.id} / ${state.deck.length}`;
+            document.getElementById('question-text').textContent = activeCard.question;
+            document.getElementById('explanation-text').innerHTML = activeCard.explanation;
+
+            // Render options
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+            
+            activeCard.options.forEach((optText, optIdx) => {
+                const btn = document.createElement('button');
+                btn.className = 'w-full text-left p-4 rounded-2xl glass-btn option-button text-slate-700 font-medium hover:bg-slate-50 flex items-start gap-3 relative overflow-hidden';
+                btn.onclick = () => selectOption(optIdx);
+                
+                const letter = String.fromCharCode(65 + optIdx); // A, B, C, D
+                btn.innerHTML = `
+                    <span class="bg-indigo-100 text-indigo-700 font-bold px-2 py-0.5 rounded-lg text-xs mt-0.5">${letter}</span>
+                    <span class="flex-grow leading-relaxed">${optText}</span>
+                `;
+                optionsContainer.appendChild(btn);
+            });
+
+            initIcons();
+        }
+
+        function selectOption(optIdx) {
+            if (hasAnswered) return;
+            hasAnswered = true;
+            selectedOptionIndex = optIdx;
+
+            const activeCardId = state.queue[0];
+            const activeCard = state.deck.find(card => card.id === activeCardId);
+            const correctIdx = activeCard.correctAnswerIndex;
+            
+            const optionsContainer = document.getElementById('options-container');
+            const buttons = optionsContainer.getElementsByTagName('button');
+
+            // Play sound
+            const soundCorrect = document.getElementById('audio-correct');
+            const soundIncorrect = document.getElementById('audio-incorrect');
+
+            if (optIdx === correctIdx) {
+                // Correct choice
+                buttons[optIdx].classList.remove('glass-btn');
+                buttons[optIdx].classList.add('bg-green-100', 'border-green-400', 'text-green-800', 'shadow-lg');
+                state.stats.correct++;
+                try {
+                    soundCorrect.currentTime = 0;
+                    soundCorrect.play();
+                } catch (e) {}
+            } else {
+                // Incorrect choice
+                buttons[optIdx].classList.remove('glass-btn');
+                buttons[optIdx].classList.add('bg-red-100', 'border-red-400', 'text-red-800', 'shadow-lg');
+                
+                // Show correct one in green
+                buttons[correctIdx].classList.remove('glass-btn');
+                buttons[correctIdx].classList.add('bg-green-100', 'border-green-400', 'text-green-800');
+                state.stats.incorrect++;
+                try {
+                    soundIncorrect.currentTime = 0;
+                    soundIncorrect.play();
+                } catch (e) {}
+            }
+
+            // Show explanation and footer evaluation
+            document.getElementById('explanation-container').classList.remove('hidden');
+            document.getElementById('anki-footer').classList.remove('hidden');
+            
+            // Scroll down slightly to make explanation and footer visible
+            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+        }
+
+        // Spaced Repetition logic
+        function handleAnkiRating(rating) {
+            if (!hasAnswered) return;
+            
+            const activeCardId = state.queue.shift(); // Remove from front of queue
+            
+            if (rating === 'again') {
+                // Again: Push back to the end of active queue to study soon
+                state.queue.push(activeCardId);
+            } else if (rating === 'hard') {
+                // Hard: Push near the end or midway (let's say insert at index 5 or end)
+                if (state.queue.length > 5) {
+                    state.queue.splice(5, 0, activeCardId);
                 } else {
-                    utterance.lang = 'vi-VN';
+                    state.queue.push(activeCardId);
                 }
-                window.speechSynthesis.speak(utterance);
-            },
+            } else if (rating === 'good') {
+                // Good: Mark as mastered for this session
+                state.mastered.push(activeCardId);
+            } else if (rating === 'easy') {
+                // Easy: Mark as mastered immediately
+                state.mastered.push(activeCardId);
+            }
 
-            // Fetch TTS from Gemini API with Exponential Backoff
-            fetchGeminiTTS: async function(text, retries = 3, delay = 1000) {
-                const apiKey = Storage.getAPIKey();
-                if (!apiKey) return null;
+            // Save state and re-render
+            saveState();
+            updateStatsView();
+            renderNextCard();
+        }
 
-                const payload = {
-                    contents: [{ parts: [{ text: `Say clearly: ${text}` }] }],
-                    generationConfig: {
-                        responseModalities: ["AUDIO"],
-                        speechConfig: {
-                            voiceConfig: {
-                                prebuiltVoiceConfig: { voiceName: "Aoede" } // Clear voice
-                            }
-                        }
-                    },
-                    model: "gemini-2.5-flash-preview-tts"
-                };
-
-                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${apiKey}`;
-
-                try {
-                    const response = await fetch(apiUrl, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    });
-
-                    if (response.status === 429) {
-                        if (retries > 0) {
-                            console.warn(`Rate limited. Retrying in ${delay}ms...`);
-                            await new Promise(r => setTimeout(r, delay));
-                            return this.fetchGeminiTTS(text, retries - 1, delay * 2);
-                        } else {
-                            throw new Error("Rate limit exceeded.");
-                        }
-                    }
-
-                    if (!response.ok) throw new Error(`API Error: ${response.status}`);
-                    
-                    const result = await response.json();
-                    const part = result?.candidates?.[0]?.content?.parts?.[0];
-                    if (part?.inlineData?.data) {
-                        // Return object with data and mimetype
-                        return {
-                            data: part.inlineData.data,
-                            mimeType: part.inlineData.mimeType || "audio/pcm"
-                        };
-                    }
-                    return null;
-                } catch (error) {
-                    console.error("Gemini TTS Error:", error);
-                    return null;
-                }
-            },
-
-            // Convert raw PCM to WAV (since Gemini returns raw PCM for audio/pcm or audio/L16)
-            pcmToBase64Wav: function(base64Pcm, sampleRate = 24000) {
-                // Decode base64 to binary string
-                const binaryString = window.atob(base64Pcm);
-                const len = binaryString.length;
-                const bytes = new Uint8Array(len);
-                for (let i = 0; i < len; i++) bytes[i] = binaryString.charCodeAt(i);
-                
-                // PCM16
-                const pcm16 = new Int16Array(bytes.buffer);
-                
-                // Create WAV Buffer
-                const wavBuffer = new ArrayBuffer(44 + pcm16.length * 2);
-                const view = new DataView(wavBuffer);
-                
-                // RIFF chunk descriptor
-                const writeString = (view, offset, string) => { for (let i = 0; i < string.length; i++) view.setUint8(offset + i, string.charCodeAt(i)); };
-                writeString(view, 0, 'RIFF');
-                view.setUint32(4, 36 + pcm16.length * 2, true);
-                writeString(view, 8, 'WAVE');
-                // FMT sub-chunk
-                writeString(view, 12, 'fmt ');
-                view.setUint32(16, 16, true); // Subchunk1Size
-                view.setUint16(20, 1, true); // AudioFormat (PCM)
-                view.setUint16(22, 1, true); // NumChannels
-                view.setUint32(24, sampleRate, true); // SampleRate
-                view.setUint32(28, sampleRate * 2, true); // ByteRate
-                view.setUint16(32, 2, true); // BlockAlign
-                view.setUint16(34, 16, true); // BitsPerSample
-                // Data sub-chunk
-                writeString(view, 36, 'data');
-                view.setUint32(40, pcm16.length * 2, true);
-                
-                // Write PCM samples
-                let offset = 44;
-                for (let i = 0; i < pcm16.length; i++, offset += 2) {
-                    view.setInt16(offset, pcm16[i], true);
-                }
-                
-                // Convert back to Base64
-                let binary = '';
-                const bytesWav = new Uint8Array(wavBuffer);
-                for (let i = 0; i < bytesWav.byteLength; i++) binary += String.fromCharCode(bytesWav[i]);
-                return window.btoa(binary);
-            },
-
-            // Main Play Function
-            play: async function(id, textRaw) {
-                const text = this.cleanText(textRaw);
-                if(!text) return;
-
-                // 1. Check IndexedDB Cache
-                const cachedAudio = await AudioDB.get(id);
-                if (cachedAudio) {
-                    this.playBase64(cachedAudio, "audio/wav");
-                    return;
-                }
-
-                // 2. If no cache, try Gemini API
-                const apiKey = Storage.getAPIKey();
-                if (apiKey) {
-                    const result = await this.fetchGeminiTTS(text);
-                    if (result && result.data) {
-                        let base64Data = result.data;
-                        let mimeType = result.mimeType;
-                        
-                        // Handle raw PCM mapping to WAV for browser compatibility
-                        if (mimeType.includes("pcm") || mimeType.includes("L16")) {
-                             const rateMatch = mimeType.match(/rate=(\d+)/);
-                             const rate = rateMatch ? parseInt(rateMatch[1], 10) : 24000;
-                             base64Data = this.pcmToBase64Wav(base64Data, rate);
-                             mimeType = "audio/wav";
-                        }
-                        
-                        this.playBase64(base64Data, mimeType);
-                        // Background cache save
-                        AudioDB.save(id, base64Data);
-                        return;
-                    }
-                }
-
-                // 3. Fallback to Web Speech
-                this.playWebSpeech(text);
-            },
-
-            playCurrentQuestion: function() {
-                if(!App.currentCard) return;
-                this.play(`${App.currentCard.id}_q`, App.currentCard.question);
-            },
+        function showCompleteScreen() {
+            document.getElementById('flashcard-container').classList.add('hidden');
+            document.getElementById('complete-screen').classList.remove('hidden');
             
-            playCurrentAnswer: function() {
-                if(!App.currentCard) return;
-                this.play(`${App.currentCard.id}_a`, App.currentCard.answer);
-            },
+            // Calculations
+            const total = state.deck.length;
+            const totalAttempts = state.stats.correct + state.stats.incorrect;
+            const accuracy = totalAttempts > 0 ? Math.round((state.stats.correct / totalAttempts) * 100) : 100;
+            
+            document.getElementById('stat-accuracy').textContent = `${accuracy}%`;
+            document.getElementById('stat-total').textContent = total;
+            
+            initIcons();
+        }
 
-            // Preload Logic
-            togglePreload: async function() {
-                if (!Storage.getAPIKey()) {
-                    alert("Vui lòng nhập Gemini API Key trong phần Cài đặt trước khi tải âm thanh.");
-                    UI.toggleSettings();
-                    return;
-                }
+        // Backup & Reset Actions
+        function confirmReset() {
+            if (confirm("Bạn có chắc chắn muốn xóa tiến độ học tập hiện tại và bắt đầu lại từ đầu?")) {
+                resetApp();
+            }
+        }
 
-                const btn = document.getElementById('btn-preload');
-                
-                if (this.isPreloading) {
-                    this.isPreloading = false;
-                    btn.innerHTML = '<i class="fa-solid fa-play"></i> Tiếp tục tải';
-                    btn.classList.replace('bg-rose-600', 'bg-slate-800');
-                    document.getElementById('preload-status').innerText = "Đã tạm dừng";
-                    return;
-                }
+        function resetApp() {
+            initNewState();
+            updateStatsView();
+            renderNextCard();
+        }
 
-                this.isPreloading = true;
-                btn.innerHTML = '<i class="fa-solid fa-stop"></i> Dừng tải';
-                btn.classList.replace('bg-slate-800', 'bg-rose-600');
-                document.getElementById('preload-status').innerText = "Đang tải (Vui lòng không đóng trang)...";
+        function exportData() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href",     dataStr);
+            downloadAnchor.setAttribute("download", "VisionFlash_Backup.json");
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+        }
 
-                let totalTasks = quizData.length * 2; // Q & A for each
-                let completed = 0;
-
-                for (let i = 0; i < quizData.length; i++) {
-                    if (!this.isPreloading) break;
-                    
-                    const card = quizData[i];
-                    
-                    // Preload Question
-                    const qId = `${card.id}_q`;
-                    if (!(await AudioDB.get(qId))) {
-                        const qResult = await this.fetchGeminiTTS(this.cleanText(card.question));
-                        if(qResult) {
-                             let b64 = qResult.data;
-                             if (qResult.mimeType.includes("pcm")) b64 = this.pcmToBase64Wav(b64, 24000);
-                             AudioDB.save(qId, b64);
-                        }
-                        await new Promise(r => setTimeout(r, 4000)); // 4s delay
+        function importData(event) {
+            const fileReader = new FileReader();
+            fileReader.onload = function(e) {
+                try {
+                    const importedState = JSON.parse(e.target.result);
+                    if (importedState.deck && importedState.queue && importedState.mastered) {
+                        state = importedState;
+                        saveState();
+                        updateStatsView();
+                        renderNextCard();
+                        alert("Đã khôi phục dữ liệu học tập thành công!");
+                    } else {
+                        alert("File sao lưu không đúng định dạng!");
                     }
-                    completed++;
-                    this.updatePreloadUI(completed, totalTasks, i+1, quizData.length);
-
-                    if (!this.isPreloading) break;
-
-                    // Preload Answer
-                    const aId = `${card.id}_a`;
-                    if (!(await AudioDB.get(aId))) {
-                        const aResult = await this.fetchGeminiTTS(this.cleanText(card.answer));
-                        if(aResult) {
-                             let b64 = aResult.data;
-                             if (aResult.mimeType.includes("pcm")) b64 = this.pcmToBase64Wav(b64, 24000);
-                             AudioDB.save(aId, b64);
-                        }
-                        await new Promise(r => setTimeout(r, 4000)); // 4s delay
-                    }
-                    completed++;
-                    this.updatePreloadUI(completed, totalTasks, i+1, quizData.length);
+                } catch (err) {
+                    alert("Có lỗi xảy ra khi đọc file sao lưu!");
                 }
+            };
+            fileReader.readAsText(event.target.files[0]);
+        }
 
-                if (completed >= totalTasks) {
-                    this.isPreloading = false;
-                    btn.innerHTML = '<i class="fa-solid fa-check"></i> Hoàn tất';
-                    btn.classList.replace('bg-rose-600', 'bg-emerald-600');
-                    btn.disabled = true;
-                    document.getElementById('preload-status').innerText = "Đã tải xong toàn bộ";
-                }
-            },
-
-            updatePreloadUI: function(completedTasks, totalTasks, currentCardIdx, totalCards) {
-                const percentage = (completedTasks / totalTasks) * 100;
-                document.getElementById('preload-bar').style.width = `${percentage}%`;
-                document.getElementById('preload-count').innerText = `${currentCardIdx}/${totalCards}`;
-            }
-        };
-
-        const SRS = {
-            calculate: function(quality, previousInterval, previousEase) {
-                // quality: 0 (Again), 1 (Hard), 2 (Good), 3 (Easy)
-                let interval, ease;
-                
-                // Base values if new card
-                if (!previousInterval) {
-                    if (quality === 0) return { interval: 1, ease: 2.5 }; // 1 min
-                    if (quality === 1) return { interval: 10, ease: 2.5 }; // 10 min
-                    if (quality === 2) return { interval: 24 * 60, ease: 2.5 }; // 1 day
-                    if (quality === 3) return { interval: 4 * 24 * 60, ease: 2.5 }; // 4 days
-                }
-
-                ease = previousEase;
-
-                if (quality === 0) {
-                    interval = 1; // Drop back to 1 min
-                    ease = Math.max(1.3, ease - 0.2);
-                } else if (quality === 1) {
-                    interval = Math.max(10, previousInterval * 1.2);
-                    ease = Math.max(1.3, ease - 0.15);
-                } else if (quality === 2) {
-                    interval = previousInterval * ease;
-                } else if (quality === 3) {
-                    interval = previousInterval * ease * 1.3;
-                    ease += 0.15;
-                }
-
-                return { interval: Math.round(interval), ease: ease };
-            },
-
-            formatTime: function(minutes) {
-                if (minutes < 60) return `${minutes}m`;
-                if (minutes < 24 * 60) return `${Math.round(minutes/60)}h`;
-                if (minutes < 30 * 24 * 60) return `${Math.round(minutes/(24*60))}d`;
-                return `${Math.round(minutes/(30*24*60))}mo`;
-            }
-        };
-
-        const App = {
-            srsData: {},
-            studyQueue: [],
-            currentCardIndex: 0,
-            currentCard: null,
-
-            init: async function() {
-                this.srsData = Storage.getSRS();
-                document.getElementById('api-key-input').value = Storage.getAPIKey();
-                await AudioDB.init();
-                this.updateDashboardStats();
-                
-                // Shortcut Ctrl+Enter
-                document.getElementById('user-answer').addEventListener('keydown', function(e) {
-                    if (e.ctrlKey && e.key === 'Enter') {
-                        App.checkAnswer();
-                    }
-                });
-            },
-
-            updateDashboardStats: function() {
-                const now = Date.now();
-                let newCards = 0;
-                let dueCards = 0;
-
-                quizData.forEach(card => {
-                    const data = this.srsData[card.id];
-                    if (!data) newCards++;
-                    else if (data.nextReview <= now) dueCards++;
-                });
-
-                document.getElementById('stat-new').innerText = newCards;
-                document.getElementById('stat-due').innerText = dueCards;
-            },
-
-            startStudy: function() {
-                const now = Date.now();
-                this.studyQueue = quizData.filter(card => {
-                    const data = this.srsData[card.id];
-                    return !data || data.nextReview <= now;
-                });
-
-                if (this.studyQueue.length === 0) {
-                    alert("Tuyệt vời! Bạn không còn thẻ nào cần ôn tập lúc này.");
-                    return;
-                }
-
-                // Shuffle array slightly for randomness
-                this.studyQueue.sort(() => Math.random() - 0.5);
-                
-                this.currentCardIndex = 0;
-                UI.showStudy();
-                this.renderCurrentCard();
-            },
-
-            renderCurrentCard: function() {
-                if (this.currentCardIndex >= this.studyQueue.length) {
-                    alert("Đã hoàn thành phiên học!");
-                    this.updateDashboardStats();
-                    UI.showDashboard();
-                    return;
-                }
-
-                this.currentCard = this.studyQueue[this.currentCardIndex];
-                const srsState = this.srsData[this.currentCard.id] || null;
-
-                // Update UI Counters
-                document.getElementById('card-current-idx').innerText = this.currentCardIndex + 1;
-                document.getElementById('card-total').innerText = this.studyQueue.length;
-
-                // Reset Views
-                document.getElementById('user-answer').value = '';
-                document.getElementById('active-recall-section').classList.remove('hidden');
-                document.getElementById('answer-section').classList.add('hidden');
-                document.getElementById('srs-buttons').classList.add('hidden');
-                document.getElementById('user-answer').focus();
-
-                // Set Content
-                document.getElementById('card-question').innerHTML = this.currentCard.question;
-                document.getElementById('card-answer').innerHTML = this.currentCard.answer;
-                document.getElementById('card-meaning').innerHTML = this.currentCard.meaning;
-
-                // Calculate Next Times for Buttons based on current state
-                const intPrev = srsState ? srsState.interval : null;
-                const easePrev = srsState ? srsState.ease : null;
-
-                document.getElementById('time-again').innerText = SRS.formatTime(SRS.calculate(0, intPrev, easePrev).interval);
-                document.getElementById('time-hard').innerText = SRS.formatTime(SRS.calculate(1, intPrev, easePrev).interval);
-                document.getElementById('time-good').innerText = SRS.formatTime(SRS.calculate(2, intPrev, easePrev).interval);
-                document.getElementById('time-easy').innerText = SRS.formatTime(SRS.calculate(3, intPrev, easePrev).interval);
-
-                // Auto play question
-                AudioSystem.playCurrentQuestion();
-            },
-
-            checkAnswer: function() {
-                const userAns = document.getElementById('user-answer').value.trim();
-                if(!userAns) return; // Prevent empty check
-
-                // Hide input section, show answer section
-                document.getElementById('active-recall-section').classList.add('hidden');
-                document.getElementById('answer-section').classList.remove('hidden');
-                document.getElementById('srs-buttons').classList.remove('hidden');
-
-                // Display user answer
-                document.getElementById('display-user-answer').innerText = userAns;
-
-                // Auto play answer
-                AudioSystem.playCurrentAnswer();
-            },
-
-            handleSRS: function(quality) {
-                const srsState = this.srsData[this.currentCard.id] || null;
-                const intPrev = srsState ? srsState.interval : null;
-                const easePrev = srsState ? srsState.ease : 2.5;
-
-                const result = SRS.calculate(quality, intPrev, easePrev);
-                
-                // Save to state
-                this.srsData[this.currentCard.id] = {
-                    interval: result.interval,
-                    ease: result.ease,
-                    nextReview: Date.now() + (result.interval * 60 * 1000)
-                };
-                Storage.saveSRS(this.srsData);
-
-                // If "Again" (0), push to end of queue to review again in this session
-                if (quality === 0) {
-                    this.studyQueue.push(this.currentCard);
-                    document.getElementById('card-total').innerText = this.studyQueue.length;
-                }
-
-                // Next card
-                this.currentCardIndex++;
-                this.renderCurrentCard();
-            },
-
-            saveSettings: function() {
-                const key = document.getElementById('api-key-input').value.trim();
-                Storage.saveAPIKey(key);
-                UI.toggleSettings();
-            }
-        };
-
-        const UI = {
-            showDashboard: function() {
-                document.getElementById('dashboard-screen').classList.remove('hidden');
-                document.getElementById('study-screen').classList.add('hidden');
-                App.updateDashboardStats();
-            },
-            showStudy: function() {
-                document.getElementById('dashboard-screen').classList.add('hidden');
-                document.getElementById('study-screen').classList.remove('hidden');
-            },
-            toggleSettings: function() {
-                const modal = document.getElementById('settings-modal');
-                modal.classList.toggle('hidden');
-            }
-        };
-
-        // Initialize App on Load
-        window.onload = () => App.init();
-
+        // App Start
+        window.addEventListener('DOMContentLoaded', () => {
+            loadState();
+        });
     </script>
 </body>
 </html>
